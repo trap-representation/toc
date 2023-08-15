@@ -1,0 +1,16 @@
+:hidden sqrt
+  write1
+  pushp STDLIB_ID
+  pushp "sqroot"
+  invoke
+  get1
+  ret
+
+:hidden pow
+  write1
+  pushp STDLIB_ID
+  pushp "power"
+  invoke
+  get1
+  ret
+

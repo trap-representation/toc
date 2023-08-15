@@ -1,0 +1,48 @@
+set LC_ALL 0
+set LC_COLLATE 1
+set LC_CTYPE 2
+set LC_MONETARY 3
+set LC_NUMERIC 4
+set LC_TIME 5
+
+struct lctable
+  p: locale_decimal_point
+  p: locale_thousands_sep
+  p: locale_grouping
+  p: locale_mon_decimal_point
+  p: locale_mon_thousands_sep
+  p: locale_mon_grouping
+  p: locale_positive_sign
+  p: locale_negative_sign
+  p: locale_currency_symbol
+  c: locale_frac_digits
+  c: locale_p_cs_precedes
+  c: locale_n_cs_precedes
+  c: locale_p_sep_by_space
+  c: locale_n_sep_by_space
+  c: locale_p_sign_posn
+  c: locale_n_sign_posn
+  p: locale_int_curr_symbol
+  c: locale_int_frac_digits
+  c: locale_int_p_cs_precedes
+  c: locale_int_n_cs_precedes
+  c: locale_int_p_sep_by_space
+  c: locale_int_n_sep_by_space
+  c: locale_int_p_sign_posn
+  c: locale_int_n_sign_posn!
+
+:hidden setlocale
+  write1
+  pushp STDLIB_ID
+  pushp "set_locale"
+  invoke
+  get1
+  ret
+
+:hidden filllctable
+  write1
+  pushp STDLIB_ID
+  pushp "filllctable"
+  invoke
+  get1
+  ret

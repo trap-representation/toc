@@ -1,0 +1,17 @@
+set TRUE 1
+set FALSE 0
+set NULL 0x3fffffffffffffff
+set STDOUT 1
+set STDIN 0
+set STDERR 2
+set MAX_ALIGN_T 16
+set EOF -1
+set MAX_ADDR_MEM 0x3fffffffffffffff
+set O_RDONLYT 0
+set O_WRONLYT 513
+set O_RDWRT 2
+set O_RDONLYB 0
+set O_WRONLYB 513
+set O_RDWRB 2
+set UNIT_SET_ELEM 2
+set ARH_REP "two's complement"

@@ -1,0 +1,4 @@
+set typ_Linux 0
+set typ_Windows 1
+set typ_MacOS 2
+set sys_typ typ_Linux

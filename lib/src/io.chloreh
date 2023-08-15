@@ -1,0 +1,304 @@
+:hidden putstr
+  write1
+  pushp STDLIB_ID
+  pushp "print_str"
+  invoke
+  get1
+  ret
+
+:hidden putstre
+  write1
+  pushp STDLIB_ID
+  pushp "print_str_err"
+  invoke
+  get1
+  ret
+
+:hidden putnstr
+  write1
+  pushp STDLIB_ID
+  pushp "print_n_str"
+  invoke
+  get1
+  ret
+
+:hidden putnstre
+  write1
+  pushp STDLIB_ID
+  pushp "print_n_str_err"
+  invoke
+  get1
+  ret
+
+:hidden putfmt
+  write1
+  pushp STDLIB_ID
+  pushp "print_fmt"
+  invoke
+  get1
+  ret
+
+:hidden putfmte
+  write1
+  pushp STDLIB_ID
+  pushp "print_fmt_err"
+  invoke
+  get1
+  ret
+
+:hidden putl
+  write1
+  pushp STDLIB_ID
+  pushp "out_l"
+  invoke
+  get1
+  ret
+
+:hidden putp
+  write1
+  pushp STDLIB_ID
+  pushp "out_p"
+  invoke
+  get1
+  ret
+
+:hidden puti
+  write1
+  pushp STDLIB_ID
+  pushp "out_i"
+  invoke
+  get1
+  ret
+
+:hidden puts
+  write1
+  pushp STDLIB_ID
+  pushp "out_s"
+  invoke
+  get1
+  ret
+
+:hidden putc
+  write1
+  pushp STDLIB_ID
+  pushp "out_c"
+  invoke
+  get1
+  ret
+
+:hidden putui
+  write1
+  pushp STDLIB_ID
+  pushp "out_ui"
+  invoke
+  get1
+  ret
+
+:hidden putus
+  write1
+  pushp STDLIB_ID
+  pushp "out_us"
+  invoke
+  get1
+  ret
+
+:hidden putuc
+  write1
+  pushp STDLIB_ID
+  pushp "out_uc"
+  invoke
+  get1
+  ret
+
+:hidden putchar
+  write1
+  pushp STDLIB_ID
+  pushp "out_char"
+  invoke
+  get1
+  ret
+
+:hidden getargv
+  write1
+  pushp STDLIB_ID
+  pushp "get_argv"
+  invoke
+  get1
+  ret
+
+:hidden getargc
+  write1
+  pushp STDLIB_ID
+  pushp "get_argc"
+  invoke
+  get1
+  ret
+
+:hidden removef
+  write1
+  pushp STDLIB_ID
+  pushp "remove_file"
+  invoke
+  get1
+  ret
+
+:hidden renamef
+  write1
+  pushp STDLIB_ID
+  pushp "rename_file"
+  invoke
+  get1
+  ret
+
+:hidden openf
+  write1
+  pushp STDLIB_ID
+  pushp "open_file"
+  invoke
+  get1
+  ret
+
+:hidden readstrf
+  write1
+  pushp STDLIB_ID
+  pushp "readstr_file"
+  invoke
+  get1
+  ret
+
+:hidden writestrf
+  write1
+  pushp STDLIB_ID
+  pushp "writestr_file"
+  invoke
+  get1
+  ret
+
+:hidden wreadstrf
+  write1
+  pushp STDLIB_ID
+  pushp "wreadstr_file"
+  invoke
+  get1
+  ret
+
+:hidden wwritestrf
+  write1
+  pushp STDLIB_ID
+  pushp "wwritestr_file"
+  invoke
+  get1
+  ret
+
+:hidden readcharf
+  write1
+  pushp STDLIB_ID
+  pushp "readchar_file"
+  invoke
+  get1
+  ret
+
+:hidden writecharf
+  write1
+  pushp STDLIB_ID
+  pushp "writechar_file"
+  invoke
+  get1
+  ret
+
+:hidden readf
+  write1
+  pushp STDLIB_ID
+  pushp "read_file"
+  invoke
+  get1
+  ret
+
+:hidden writef
+  write1
+  pushp STDLIB_ID
+  pushp "write_file"
+  invoke
+  get1
+  ret
+
+:hidden getstr
+  write1
+  pushp STDLIB_ID
+  pushp "scanin_str"
+  invoke
+  get1
+  ret
+
+:hidden closef
+  write1
+  pushp STDLIB_ID
+  pushp "close_file"
+  invoke
+  get1
+  ret
+
+:hidden getchar
+  write1
+  pushp STDLIB_ID
+  pushp "scanin_char"
+  invoke
+  get1
+  ret
+
+:hidden getl
+  write1
+  pushp STDLIB_ID
+  pushp "scanin_l"
+  invoke
+  get1
+  ret
+
+:hidden geti
+  write1
+  pushp STDLIB_ID
+  pushp "scanin_i"
+  invoke
+  get1
+  ret
+
+:hidden gets
+  write1
+  pushp STDLIB_ID
+  pushp "scanin_s"
+  invoke
+  get1
+  ret
+
+:hidden getc
+  write1
+  pushp STDLIB_ID
+  pushp "scanin_c"
+  invoke
+  get1
+  ret
+
+:hidden getui
+  write1
+  pushp STDLIB_ID
+  pushp "scanin_ui"
+  invoke
+  get1
+  ret
+
+:hidden getus
+  write1
+  pushp STDLIB_ID
+  pushp "scanin_us"
+  invoke
+  get1
+  ret
+
+:hidden getuc
+  write1
+  pushp STDLIB_ID
+  pushp "scanin_uc"
+  invoke
+  get1
+  ret
+

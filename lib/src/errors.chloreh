@@ -1,0 +1,23 @@
+:hidden perr
+  write1
+  pushp STDLIB_ID
+  pushp "perr"
+  invoke
+  get1
+  ret
+
+:hidden strerr
+  write1
+  pushp STDLIB_ID
+  pushp "str_err"
+  invoke
+  get1
+  ret
+
+:hidden geterrn 
+  write1
+  pushp STDLIB_ID
+  pushp "get_errn"
+  invoke
+  get1
+  ret
