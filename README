@@ -3,11 +3,12 @@
 +-----------------------------------------+
 
 Check ./toc/src/ for the source of the toc compiler.
+
 The toc compiler conforms to ISO/IEC 2899:2011. However, it depends on certain implementation guarantees; for example, during translation, it is assumed that a preprocessing directive of the form
-
 # include "q-char-sequence" new-line
-
 searches for the named source file the way it is defined in SUSv4-2018 4.13 (Pathname resolution).
+
+This version of toc can only geterate output that are compatible with nightVM.
 
 Toc is most likely NOT strictly conforming, because chances are, certain minimum implementation limits are exceeded, even though I have not verified that yet.
 
