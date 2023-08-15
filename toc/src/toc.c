@@ -3,8 +3,6 @@
    The character set of the execution and source environment only consists of character-identifier and punctuator as defined in the Chlore grammar
 */
 
-#define _GNU_SOURCE
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

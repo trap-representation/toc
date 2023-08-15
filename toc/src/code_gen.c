@@ -6,7 +6,6 @@
 
 #include "nvm_paths.h"
 #include TOC_NVM_OPCODES_H
-#include TOC_NVM_ALLOC_H
 #include "write_error.h"
 #include "comp_properties.h"
 #define TOC_ADD_KEYWORD
