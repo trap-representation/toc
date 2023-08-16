@@ -1,7 +1,7 @@
 #ifndef TOC_COMP_PROPERTIES_H
 #define TOC_COMP_PROPERTIES_H
 
-#include "nvm_paths.h"
+#include "nvm_sources.h"
 #include TOC_NVM_IMPLEMENTATION_H
 
 typedef struct s_compilation_attributes {

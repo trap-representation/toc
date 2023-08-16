@@ -1,7 +1,7 @@
 #ifndef TOC_TABLES_H
 #define TOC_TABLES_H
 
-#include "nvm_paths.h"
+#include "nvm_sources.h"
 #include TOC_NVM_IMPLEMENTATION_H
 #include "tree.h"
 #include "libs.h"

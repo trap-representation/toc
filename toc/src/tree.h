@@ -1,7 +1,7 @@
 #ifndef TOC_TREE_H
 #define TOC_TREE_H
 
-#include "nvm_paths.h"
+#include "nvm_sources.h"
 #include TOC_NVM_IMPLEMENTATION_H
 
 typedef struct s_sizeof_statement {

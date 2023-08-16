@@ -1,7 +1,7 @@
 #ifndef TOC_CODE_GEN_H
 #define TOC_CODE_GEN_H
 
-#include "nvm_paths.h"
+#include "nvm_sources.h"
 #include TOC_NVM_IMPLEMENTATION_H
 #include "tables.h"
 #include "tu_list.h"

@@ -12,7 +12,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "nvm_paths.h"
+#include "nvm_sources.h"
 #include TOC_NVM_IMPLEMENTATION_H
 #include "tu_list.h"
 #include "comp_properties.h"

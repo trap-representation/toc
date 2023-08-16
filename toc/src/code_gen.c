@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "nvm_paths.h"
+#include "nvm_sources.h"
 #include TOC_NVM_OPCODES_H
 #include "write_error.h"
 #include "comp_properties.h"

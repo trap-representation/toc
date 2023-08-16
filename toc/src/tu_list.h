@@ -1,7 +1,7 @@
 #ifndef TOC_TU_LIST_H
 #define TOC_TU_LIST_H
 
-#include "nvm_paths.h"
+#include "nvm_sources.h"
 #include TOC_NVM_IMPLEMENTATION_H
 #include "tree.h"
 
