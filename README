@@ -12,7 +12,7 @@ Toc is most likely NOT strictly conforming, because chances are, certain minimum
 
 Toc tries to depend on as less implementation-defined stuff as possible. If you have a C11 implementation, it will very likely be able to translate the source files.
 
-In ./toc/src/nvm_paths.h, set the header-name following the identifier TOC_NVM_IMPLEMENTATION_H, such that the construct
+In ./toc/src/nvm_sources.h, set the header-name following the identifier TOC_NVM_IMPLEMENTATION_H, such that the construct
 #include TOC_NVM_IMPLEMENTATION_H
 includes the source file implementation.h as defined in nightVM. Same goes for TOC_NVM_OPCODES_H and TOC_NVM_ALLOC_H, which must designate the source files opcodes.h and alloc.h (in nightVM) respectively.
 
