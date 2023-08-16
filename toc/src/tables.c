@@ -411,7 +411,7 @@ static inline void add_string_table_to_address(str_table *string_table, nightVM_
   }
 }
 
-sym_table *create_sym_table_and_calculate_addresss(sym_table **last_symbol_table_node, sym_table *e_symbol_table, translation_unit *tu, str_table *string_table, libs *libraries, nightVM_l *address, unsigned int *ret){
+sym_table *create_sym_table_and_calculate_addresses(sym_table **last_symbol_table_node, sym_table *e_symbol_table, translation_unit *tu, str_table *string_table, libs *libraries, nightVM_l *address, unsigned int *ret){
   *ret=1;
   sym_table *symbol_table=*last_symbol_table_node;
   sym_table *curr=symbol_table;

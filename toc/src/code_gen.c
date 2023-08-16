@@ -4069,7 +4069,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
   }
   else if(phrase_instruction->instruction_code==key_open){
     if(comp_attr.std==std_chlore2x){
-      fprintf(stderr,"warning: `open' is an implementation-specific phrase_instruction->instruction_code of 4NI\n");
+      fprintf(stderr,"warning: open is an implementation-specific keyword of 4NI\n");
     }
     nightVM_uc nVM_uc=op_open;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
@@ -4079,7 +4079,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
   }
   else if(phrase_instruction->instruction_code==key_invoke){
     if(comp_attr.std==std_chlore2x){
-      fprintf(stderr,"warning: `invoke' is an implementation-specific phrase_instruction->instruction_code of 4NI\n");
+      fprintf(stderr,"warning: invoke is an implementation-specific keyword of 4NI\n");
     }
     nightVM_uc nVM_uc=op_invoke;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){

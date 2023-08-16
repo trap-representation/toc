@@ -553,7 +553,7 @@ int main(int argc, char *argv[]){
   nightVM_l address=0;
   translation_unit_list *l_tu=tu_list;
   while(l_tu!=NULL){
-    sym_table *t_symbol_table=create_sym_table_and_calculate_addresss(&last_symbol_table_node,symbol_table,l_tu->tu,string_table,libraries,&address,&ret);
+    sym_table *t_symbol_table=create_sym_table_and_calculate_addresses(&last_symbol_table_node,symbol_table,l_tu->tu,string_table,libraries,&address,&ret);
     if(symbol_table==NULL){
       symbol_table=t_symbol_table;
     }
