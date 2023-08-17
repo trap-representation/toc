@@ -670,20 +670,6 @@ void arseg(dl_params){
   }
 }
 
-void closem(dl_params){
-  if(alist_head==NULL){
-    gpr[0]=1;
-    errn=EINT;
-    return;
-  }
-  while(alist_head!=NULL){
-    lalloc *alist_trav=alist_head;
-    alist_head=alist_head->next_seg;
-    free(alist_trav);
-  }
-  gpr[0]=0;
-}
-
 /*
   io.chloreh
 */
@@ -2382,7 +2368,17 @@ void is_space(dl_params){
 */
 
 void ph_clean(dl_params){
-  closem(dl_pass);
+  if(alist_head==NULL){
+    gpr[0]=1;
+    errn=EINT;
+    return;
+  }
+  while(alist_head!=NULL){
+    lalloc *alist_trav=alist_head;
+    alist_head=alist_head->next_seg;
+    free(alist_trav);
+  }
+  gpr[0]=0;
 }
 
 /*

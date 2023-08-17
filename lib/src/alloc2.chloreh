@@ -37,12 +37,3 @@
   invoke
   get1
   ret
-
-:hidden mem_close
-  write1
-  pushp STDLIB_ID
-  pushp "closem"
-  invoke
-  get1
-  ret
-
