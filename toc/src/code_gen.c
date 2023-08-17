@@ -63,14 +63,20 @@ static inline void clean_add_to_stream_res(void){
   free(outbuf);
 }
 
-unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nightVM_l *address, str_table *string_table, sym_table *symbol_table){
+unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_table *string_table, sym_table *symbol_table){
+  nightVM_uc pad_nop=op_nop;
+  for(nightVM_ui i=0;i<phrase_push_statement->align_pad;i++){
+    if(add_to_outstream((unsigned char *)&pad_nop,1)){
+      return 1;
+    }
+  }
   if(phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushuc){
     nightVM_uc nVM_uc=op_pushuc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
     if(phrase_push_statement->child_type==lex_type_numeric_constant){
-      nVM_uc=numeric_constant_to_uc(phrase_push_statement->child.numeric_constant);
+      nVM_uc=numeric_constant_to_uc(phrase_push_statement->child.lex_numeric_constant);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_uc*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -79,7 +85,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==lex_type_string_constant){
-      nVM_uc=lookup_in_string_table(phrase_push_statement->child.string_constant,string_table);
+      nVM_uc=lookup_in_string_table(phrase_push_statement->child.lex_string_constant,string_table);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_uc*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -88,7 +94,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
-      nVM_uc=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->identifier,symbol_table,NULL,NULL,phrase_push_statement->parent->parent->tu,false);
+      nVM_uc=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->parent->tu,false,NULL);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_uc*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -97,7 +103,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==lex_type_character_constant){
-      nVM_uc=phrase_push_statement->child.character_constant[0];
+      nVM_uc=phrase_push_statement->child.lex_character_constant[0];
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_uc*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -105,27 +111,15 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
         return 1;
       }
     }
-    *address+=1+1;
   }
   else if(phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushus){
-    nightVM_uc nVM_uc;
-    if((*address+1)%ALIGNOF_US!=0){
-      nightVM_ui align_pad=((*address+1)+ALIGNOF_US-1)-(((*address+1)+ALIGNOF_US-1)%ALIGNOF_US)-(*address+1);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
-    nVM_uc=op_pushus;
+    nightVM_uc nVM_uc=op_pushus;
     nightVM_us nVM_us;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
     if(phrase_push_statement->child_type==lex_type_numeric_constant){
-      nVM_us=numeric_constant_to_us(phrase_push_statement->child.numeric_constant);
+      nVM_us=numeric_constant_to_us(phrase_push_statement->child.lex_numeric_constant);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_us*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -134,7 +128,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==lex_type_string_constant){
-      nVM_us=lookup_in_string_table(phrase_push_statement->child.string_constant,string_table);
+      nVM_us=lookup_in_string_table(phrase_push_statement->child.lex_string_constant,string_table);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_us*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -143,7 +137,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
-      nVM_us=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->identifier,symbol_table,NULL,NULL,phrase_push_statement->parent->parent->tu,false);
+      nVM_us=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->parent->tu,false,NULL);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_us*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -152,7 +146,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==lex_type_character_constant){
-      nVM_us=phrase_push_statement->child.character_constant[0];
+      nVM_us=phrase_push_statement->child.lex_character_constant[0];
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_us*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -160,27 +154,15 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
         return 1;
       }
     }
-    *address+=1+SIZEOF_US;
   }
   else if(phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushui){
-    nightVM_uc nVM_uc;
-    if((*address+1)%ALIGNOF_UI!=0){
-      nightVM_ui align_pad=((*address+1)+ALIGNOF_UI-1)-(((*address+1)+ALIGNOF_UI-1)%ALIGNOF_UI)-(*address+1);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
-    nVM_uc=op_pushui;
+    nightVM_uc nVM_uc=op_pushui;
     nightVM_ui nVM_ui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
     if(phrase_push_statement->child_type==lex_type_numeric_constant){
-      nVM_ui=numeric_constant_to_ui(phrase_push_statement->child.numeric_constant);
+      nVM_ui=numeric_constant_to_ui(phrase_push_statement->child.lex_numeric_constant);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_ui*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -189,7 +171,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==lex_type_string_constant){
-      nVM_ui=lookup_in_string_table(phrase_push_statement->child.string_constant,string_table);
+      nVM_ui=lookup_in_string_table(phrase_push_statement->child.lex_string_constant,string_table);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_ui*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -198,7 +180,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
-      nVM_ui=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->identifier,symbol_table,NULL,NULL,phrase_push_statement->parent->parent->tu,false);
+      nVM_ui=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->parent->tu,false,NULL);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_ui*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -207,7 +189,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==lex_type_character_constant){
-      nVM_ui=phrase_push_statement->child.character_constant[0];
+      nVM_ui=phrase_push_statement->child.lex_character_constant[0];
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_ui*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -215,7 +197,6 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
         return 1;
       }
     }
-    *address+=1+SIZEOF_UI;
   }
   else if(phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushc){
     nightVM_uc nVM_uc=op_pushc;
@@ -224,7 +205,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       return 1;
     }
     if(phrase_push_statement->child_type==lex_type_numeric_constant){
-      nVM_c=numeric_constant_to_c(phrase_push_statement->child.numeric_constant);
+      nVM_c=numeric_constant_to_c(phrase_push_statement->child.lex_numeric_constant);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_c*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -233,7 +214,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==lex_type_string_constant){
-      nVM_c=lookup_in_string_table(phrase_push_statement->child.string_constant,string_table);
+      nVM_c=lookup_in_string_table(phrase_push_statement->child.lex_string_constant,string_table);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_c*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -242,7 +223,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
-      nVM_c=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->identifier,symbol_table,NULL,NULL,phrase_push_statement->parent->parent->tu,false);
+      nVM_c=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->parent->tu,false,NULL);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_c*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -251,7 +232,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==lex_type_character_constant){
-      nVM_c=phrase_push_statement->child.character_constant[0];
+      nVM_c=phrase_push_statement->child.lex_character_constant[0];
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_c*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -259,27 +240,15 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
         return 1;
       }
     }
-    *address+=1+1;
   }
   else if(phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushs){
-    nightVM_uc nVM_uc;
-    if((*address+1)%ALIGNOF_S!=0){
-      nightVM_ui align_pad=((*address+1)+ALIGNOF_S-1)-(((*address+1)+ALIGNOF_S-1)%ALIGNOF_S)-(*address+1);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
-    nVM_uc=op_pushs;
+    nightVM_uc nVM_uc=op_pushs;
     nightVM_s nVM_s;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
     if(phrase_push_statement->child_type==lex_type_numeric_constant){
-      nVM_s=numeric_constant_to_s(phrase_push_statement->child.numeric_constant);
+      nVM_s=numeric_constant_to_s(phrase_push_statement->child.lex_numeric_constant);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_s*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -288,7 +257,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==lex_type_string_constant){
-      nVM_s=lookup_in_string_table(phrase_push_statement->child.string_constant,string_table);
+      nVM_s=lookup_in_string_table(phrase_push_statement->child.lex_string_constant,string_table);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_s*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -297,7 +266,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
-      nVM_s=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->identifier,symbol_table,NULL,NULL,phrase_push_statement->parent->parent->tu,false);
+      nVM_s=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->parent->tu,false,NULL);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_s*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -306,7 +275,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==lex_type_character_constant){
-      nVM_s=phrase_push_statement->child.character_constant[0];
+      nVM_s=phrase_push_statement->child.lex_character_constant[0];
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_s*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -314,27 +283,15 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
         return 1;
       }
     }
-    *address+=1+SIZEOF_S;
   }
   else if(phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushi){
-    nightVM_uc nVM_uc;
-    if((*address+1)%ALIGNOF_I!=0){
-      nightVM_ui align_pad=((*address+1)+ALIGNOF_I-1)-(((*address+1)+ALIGNOF_I-1)%ALIGNOF_I)-(*address+1);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
-    nVM_uc=op_pushi;
+    nightVM_uc nVM_uc=op_pushi;
     nightVM_i nVM_i;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
     if(phrase_push_statement->child_type==lex_type_numeric_constant){
-      nVM_i=numeric_constant_to_i(phrase_push_statement->child.numeric_constant);
+      nVM_i=numeric_constant_to_i(phrase_push_statement->child.lex_numeric_constant);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_i*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -343,7 +300,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==lex_type_string_constant){
-      nVM_i=lookup_in_string_table(phrase_push_statement->child.string_constant,string_table);
+      nVM_i=lookup_in_string_table(phrase_push_statement->child.lex_string_constant,string_table);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_i*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -352,7 +309,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
-      nVM_i=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->identifier,symbol_table,NULL,NULL,phrase_push_statement->parent->parent->tu,false);
+      nVM_i=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->parent->tu,false,NULL);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_i*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -361,7 +318,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==lex_type_character_constant){
-      nVM_i=phrase_push_statement->child.character_constant[0];
+      nVM_i=phrase_push_statement->child.lex_character_constant[0];
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_i*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -369,27 +326,15 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
         return 1;
       }
     }
-    *address+=1+SIZEOF_I;
   }
   else if(phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushl){
-    nightVM_uc nVM_uc;
-    if((*address+1)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+1)+ALIGNOF_L-1)-(((*address+1)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+1);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
-    nVM_uc=op_pushl;
+    nightVM_uc nVM_uc=op_pushl;
     nightVM_l nVM_l;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
     if(phrase_push_statement->child_type==lex_type_numeric_constant){
-      nVM_l=numeric_constant_to_l(phrase_push_statement->child.numeric_constant);
+      nVM_l=numeric_constant_to_l(phrase_push_statement->child.lex_numeric_constant);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_l*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -398,7 +343,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==lex_type_string_constant){
-      nVM_l=lookup_in_string_table(phrase_push_statement->child.string_constant,string_table);
+      nVM_l=lookup_in_string_table(phrase_push_statement->child.lex_string_constant,string_table);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_l*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -407,7 +352,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
-      nVM_l=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->identifier,symbol_table,NULL,NULL,phrase_push_statement->parent->parent->tu,false);
+      nVM_l=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->parent->tu,false,NULL);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_l*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -416,7 +361,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
     }
     else if(phrase_push_statement->child_type==lex_type_character_constant){
-      nVM_l=phrase_push_statement->child.character_constant[0];
+      nVM_l=phrase_push_statement->child.lex_character_constant[0];
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_l*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -424,39 +369,35 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
         return 1;
       }
     }
-    *address+=1+SIZEOF_L;
   }
   else if(phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushp){
-    nightVM_uc nVM_uc;
-    if((*address+1)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+1)+ALIGNOF_L-1)-(((*address+1)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+1);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
-    nVM_uc=op_pushl;
+    nightVM_uc nVM_uc=op_pushl;
     nightVM_l nVM_l;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
     if(phrase_push_statement->child_type==lex_type_numeric_constant){
-      nVM_l=numeric_constant_to_p(phrase_push_statement->child.numeric_constant);
+      nVM_l=numeric_constant_to_p(phrase_push_statement->child.lex_numeric_constant);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_l*=phrase_push_statement->phrase_sign->sign_code;
       }
       if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
         return 1;
       }
-      *address+=1+SIZEOF_L;
+    }
+    else if(phrase_push_statement->child_type==lex_type_character_constant){
+      nVM_l=phrase_push_statement->child.lex_character_constant[0];
+      if(phrase_push_statement->phrase_sign!=NULL){
+        nVM_l*=phrase_push_statement->phrase_sign->sign_code;
+      }
+      if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
+        return 1;
+      }
     }
     else if(comp_attr.pic){
       if(phrase_push_statement->child_type==lex_type_string_constant){
         bool negative=false;
-        nVM_l=lookup_in_string_table(phrase_push_statement->child.string_constant,string_table)-*address-1-SIZEOF_L;
+        nVM_l=lookup_in_string_table(phrase_push_statement->child.lex_string_constant,string_table)-phrase_push_statement->address-1-SIZEOF_L;
         if(phrase_push_statement->phrase_sign!=NULL){
           nVM_l*=phrase_push_statement->phrase_sign->sign_code;
         }
@@ -486,7 +427,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
       }
       else if(phrase_push_statement->child_type==phrase_type_symbol){
         bool negative=false;
-        nVM_l=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->identifier,symbol_table,NULL,NULL,phrase_push_statement->parent->parent->tu,false)-*address-1-SIZEOF_L;
+        nVM_l=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->parent->tu,false,NULL)-phrase_push_statement->address-1-SIZEOF_L;
         if(phrase_push_statement->phrase_sign!=NULL){
           nVM_l*=phrase_push_statement->phrase_sign->sign_code;
         }
@@ -514,11 +455,10 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
           }
         }
       }
-      *address+=1+SIZEOF_L+1+1;
     }
     else{
       if(phrase_push_statement->child_type==lex_type_string_constant){
-        nVM_l=lookup_in_string_table(phrase_push_statement->child.string_constant,string_table);
+        nVM_l=lookup_in_string_table(phrase_push_statement->child.lex_string_constant,string_table);
         if(phrase_push_statement->phrase_sign!=NULL){
           nVM_l*=phrase_push_statement->phrase_sign->sign_code;
         }
@@ -527,7 +467,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
         }
       }
       else if(phrase_push_statement->child_type==phrase_type_symbol){
-        nVM_l=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->identifier,symbol_table,NULL,NULL,phrase_push_statement->parent->parent->tu,false);
+        nVM_l=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->parent->tu,false,NULL);
         if(phrase_push_statement->phrase_sign!=NULL){
           nVM_l*=phrase_push_statement->phrase_sign->sign_code;
         }
@@ -535,55 +475,38 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, nigh
           return 1;
         }
       }
-      else if(phrase_push_statement->child_type==lex_type_character_constant){
-        nVM_l=phrase_push_statement->child.character_constant[0];
-        if(phrase_push_statement->phrase_sign!=NULL){
-          nVM_l*=phrase_push_statement->phrase_sign->sign_code;
-        }
-        if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
-          return 1;
-        }
-      }
-      *address+=1+SIZEOF_L;
     }
   }
   return 0;
 }
 
-unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightVM_l *address){
+unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
+  nightVM_uc pad_nop=op_nop;
+  for(nightVM_ui i=0;i<phrase_instruction->align_pad;i++){
+    if(add_to_outstream((unsigned char *)&pad_nop,1)){
+      return 1;
+    }
+  }
+  nightVM_uc nVM_uc;
   if(phrase_instruction->instruction_code==key_addc){
     nightVM_uc nVM_uc=op_adduc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_adds){
     nightVM_uc nVM_uc=op_addus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_addi){
     nightVM_uc nVM_uc=op_addui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_addp){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -676,69 +599,50 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L+1+1+5+1+SIZEOF_L)+1;
   }
   else if(phrase_instruction->instruction_code==key_addl){
     nightVM_uc nVM_uc=op_addl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_adduc){
     nightVM_uc nVM_uc=op_adduc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_addus){
     nightVM_uc nVM_uc=op_addus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_addui){
     nightVM_uc nVM_uc=op_addui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_subc){
     nightVM_uc nVM_uc=op_subc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_subs){
     nightVM_uc nVM_uc=op_subs;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_subi){
     nightVM_uc nVM_uc=op_subl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_subp){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -831,699 +735,590 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L+1+1+5+1+SIZEOF_L)+1;
   }
   else if(phrase_instruction->instruction_code==key_subl){
     nightVM_uc nVM_uc=op_subl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_subuc){
     nightVM_uc nVM_uc=op_subuc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_subus){
     nightVM_uc nVM_uc=op_subus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_subui){
     nightVM_uc nVM_uc=op_subui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_mulc){
     nightVM_uc nVM_uc=op_mulc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_muls){
     nightVM_uc nVM_uc=op_muls;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_muli){
     nightVM_uc nVM_uc=op_mull;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_mull){
     nightVM_uc nVM_uc=op_mull;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_muluc){
     nightVM_uc nVM_uc=op_muluc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_mulus){
     nightVM_uc nVM_uc=op_mulus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_mului){
     nightVM_uc nVM_uc=op_mului;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_divc){
     nightVM_uc nVM_uc=op_divc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_divs){
     nightVM_uc nVM_uc=op_divs;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_divi){
     nightVM_uc nVM_uc=op_divl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_divl){
     nightVM_uc nVM_uc=op_divl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_divuc){
     nightVM_uc nVM_uc=op_divuc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_divus){
     nightVM_uc nVM_uc=op_divus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_divui){
     nightVM_uc nVM_uc=op_divui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_remc){
     nightVM_uc nVM_uc=op_remc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_rems){
     nightVM_uc nVM_uc=op_rems;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_remi){
     nightVM_uc nVM_uc=op_reml;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_reml){
     nightVM_uc nVM_uc=op_reml;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_remuc){
     nightVM_uc nVM_uc=op_remuc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_remus){
     nightVM_uc nVM_uc=op_remus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_remui){
     nightVM_uc nVM_uc=op_remui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_lshc){
     nightVM_uc nVM_uc=op_lshc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_lshs){
     nightVM_uc nVM_uc=op_lshs;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_lshi){
     nightVM_uc nVM_uc=op_lshl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_lshl){
     nightVM_uc nVM_uc=op_lshl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_lshuc){
     nightVM_uc nVM_uc=op_lshuc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_lshus){
     nightVM_uc nVM_uc=op_lshus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_lshui){
     nightVM_uc nVM_uc=op_lshui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_rshc){
     nightVM_uc nVM_uc=op_rshc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_rshs){
     nightVM_uc nVM_uc=op_rshs;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_rshi){
     nightVM_uc nVM_uc=op_rshl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_rshl){
     nightVM_uc nVM_uc=op_rshl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_rshuc){
     nightVM_uc nVM_uc=op_rshuc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_rshus){
     nightVM_uc nVM_uc=op_rshus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_rshui){
     nightVM_uc nVM_uc=op_rshui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_orc){
     nightVM_uc nVM_uc=op_orc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_ors){
     nightVM_uc nVM_uc=op_ors;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_ori){
     nightVM_uc nVM_uc=op_orl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_orl){
     nightVM_uc nVM_uc=op_orl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_oruc){
     nightVM_uc nVM_uc=op_oruc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_orus){
     nightVM_uc nVM_uc=op_orus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_orui){
     nightVM_uc nVM_uc=op_orui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_andc){
     nightVM_uc nVM_uc=op_andc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_ands){
     nightVM_uc nVM_uc=op_ands;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_andi){
     nightVM_uc nVM_uc=op_andl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_andl){
     nightVM_uc nVM_uc=op_andl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_anduc){
     nightVM_uc nVM_uc=op_anduc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_andus){
     nightVM_uc nVM_uc=op_andus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_andui){
     nightVM_uc nVM_uc=op_andui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_notc){
     nightVM_uc nVM_uc=op_notc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_nots){
     nightVM_uc nVM_uc=op_nots;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_noti){
     nightVM_uc nVM_uc=op_notl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_notl){
     nightVM_uc nVM_uc=op_notl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_notuc){
     nightVM_uc nVM_uc=op_notuc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_notus){
     nightVM_uc nVM_uc=op_notus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_notui){
     nightVM_uc nVM_uc=op_notui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_xorc){
     nightVM_uc nVM_uc=op_xorc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_xors){
     nightVM_uc nVM_uc=op_xors;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_xori){
     nightVM_uc nVM_uc=op_xorl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_xorl){
     nightVM_uc nVM_uc=op_xorl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_xoruc){
     nightVM_uc nVM_uc=op_xoruc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_xorus){
     nightVM_uc nVM_uc=op_xorus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_xorui){
     nightVM_uc nVM_uc=op_xorui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_swap){
     nightVM_uc nVM_uc=op_swap;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_pop){
     nightVM_uc nVM_uc=op_pop;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_dup){
     nightVM_uc nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_jmp || phrase_instruction->instruction_code==key_ret){
     nightVM_uc nVM_uc=op_jmp;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_jeq){
     nightVM_uc nVM_uc=op_jeq;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_jgt){
     nightVM_uc nVM_uc=op_jgt;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_jls){
     nightVM_uc nVM_uc=op_jls;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_jle){
     nightVM_uc nVM_uc=op_jle;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_jge){
     nightVM_uc nVM_uc=op_jge;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_jne){
     nightVM_uc nVM_uc=op_jne;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_jz){
     nightVM_uc nVM_uc=op_jz;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_jnz || phrase_instruction->instruction_code==key_jmp_panic){
     nightVM_uc nVM_uc=op_jnz;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_over){
     nightVM_uc nVM_uc=op_over;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_panic){
     nightVM_uc nVM_uc=op_panic;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_write0 || phrase_instruction->instruction_code==key_vwrite0){
     nightVM_uc nVM_uc=op_str0;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_write1 || phrase_instruction->instruction_code==key_vwrite1){
     nightVM_uc nVM_uc=op_str1;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_write2 || phrase_instruction->instruction_code==key_vwrite2){
     nightVM_uc nVM_uc=op_str2;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_write3 || phrase_instruction->instruction_code==key_vwrite3){
     nightVM_uc nVM_uc=op_str3;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_write4 || phrase_instruction->instruction_code==key_vwrite4){
     nightVM_uc nVM_uc=op_str4;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_write5 || phrase_instruction->instruction_code==key_vwrite5){
     nightVM_uc nVM_uc=op_str5;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_write6 || phrase_instruction->instruction_code==key_vwrite6){
     nightVM_uc nVM_uc=op_str6;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_write7 || phrase_instruction->instruction_code==key_vwrite7){
     nightVM_uc nVM_uc=op_str7;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_get0 || phrase_instruction->instruction_code==key_vget0){
     nightVM_uc nVM_uc=op_ldr0;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_get1 || phrase_instruction->instruction_code==key_vget1){
     nightVM_uc nVM_uc=op_ldr1;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_get2 || phrase_instruction->instruction_code==key_vget2){
     nightVM_uc nVM_uc=op_ldr2;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_get3 || phrase_instruction->instruction_code==key_vget3){
     nightVM_uc nVM_uc=op_ldr3;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_get4 || phrase_instruction->instruction_code==key_vget4){
     nightVM_uc nVM_uc=op_ldr4;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_get5 || phrase_instruction->instruction_code==key_vget5){
     nightVM_uc nVM_uc=op_ldr5;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_get6 || phrase_instruction->instruction_code==key_vget6){
     nightVM_uc nVM_uc=op_ldr6;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_get7 || phrase_instruction->instruction_code==key_vget7){
     nightVM_uc nVM_uc=op_ldr7;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_loadc || phrase_instruction->instruction_code==key_vloadc){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -1598,20 +1393,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_loads || phrase_instruction->instruction_code==key_vloads){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -1686,20 +1469,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_loadi || phrase_instruction->instruction_code==key_vloadi){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -1774,20 +1545,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_loadl || phrase_instruction->instruction_code==key_loadp || phrase_instruction->instruction_code==key_vloadl || phrase_instruction->instruction_code==key_vloadp){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -1862,20 +1621,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_loaduc || phrase_instruction->instruction_code==key_vloaduc){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -1950,20 +1697,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_loadus || phrase_instruction->instruction_code==key_vloadus){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2038,20 +1773,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_loadui || phrase_instruction->instruction_code==key_vloadui){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2126,20 +1849,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_aloadc || phrase_instruction->instruction_code==key_valoadc){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2214,20 +1925,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_aloads || phrase_instruction->instruction_code==key_valoads){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2302,20 +2001,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_aloadi || phrase_instruction->instruction_code==key_valoadi){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2390,20 +2077,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_aloadl || phrase_instruction->instruction_code==key_aloadp || phrase_instruction->instruction_code==key_valoadl || phrase_instruction->instruction_code==key_valoadp){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2478,20 +2153,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_aloaduc || phrase_instruction->instruction_code==key_valoaduc){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2566,20 +2229,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_aloadus || phrase_instruction->instruction_code==key_valoadus){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2654,20 +2305,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_aloadui || phrase_instruction->instruction_code==key_valoadui){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2742,20 +2381,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_storec || phrase_instruction->instruction_code==key_vstorec){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2830,20 +2457,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_stores || phrase_instruction->instruction_code==key_vstores){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2918,20 +2533,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_storei || phrase_instruction->instruction_code==key_vstorei){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -3006,20 +2609,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_storel || phrase_instruction->instruction_code==key_storep || phrase_instruction->instruction_code==key_vstorel || phrase_instruction->instruction_code==key_vstorep){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -3094,20 +2685,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_storeuc || phrase_instruction->instruction_code==key_vstoreuc){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -3182,20 +2761,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_storeus || phrase_instruction->instruction_code==key_vstoreus){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -3270,20 +2837,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_storeui || phrase_instruction->instruction_code==key_vstoreui){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -3358,20 +2913,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_astorec || phrase_instruction->instruction_code==key_vastorec){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -3446,20 +2989,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_astores || phrase_instruction->instruction_code==key_vastores){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -3534,20 +3065,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_astorei || phrase_instruction->instruction_code==key_vastorei){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -3622,20 +3141,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_astorel || phrase_instruction->instruction_code==key_astorep || phrase_instruction->instruction_code==key_vastorel || phrase_instruction->instruction_code==key_vastorep){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -3710,20 +3217,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_astoreuc || phrase_instruction->instruction_code==key_vastoreuc){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -3798,20 +3293,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_astoreus || phrase_instruction->instruction_code==key_vastoreus){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -3886,20 +3369,8 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_astoreui || phrase_instruction->instruction_code==key_vastoreui){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -3974,98 +3445,84 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+(SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L)+1+1;
   }
   else if(phrase_instruction->instruction_code==key_hlt){
     nightVM_uc nVM_uc=op_halt;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_copy){
     nightVM_uc nVM_uc=op_copy;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_pcopy){
     nightVM_uc nVM_uc=op_pcopy;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_popa){
     nightVM_uc nVM_uc=op_popa;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_put){
     nightVM_uc nVM_uc=op_sts;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_pushsp){
     nightVM_uc nVM_uc=op_pushsp;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_hltr){
     nightVM_uc nVM_uc=op_haltr;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_nop){
     nightVM_uc nVM_uc=op_nop;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_incsp){
     nightVM_uc nVM_uc=op_incsp;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_decsp){
     nightVM_uc nVM_uc=op_decsp;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_exit){
     nightVM_uc nVM_uc=op_halt;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_force_panic){
     nightVM_uc nVM_uc=op_force_panic;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_pushlt){
     nightVM_uc nVM_uc=op_pushlt;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_open){
     if(comp_attr.std==std_chlore2x){
@@ -4075,7 +3532,6 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_invoke){
     if(comp_attr.std==std_chlore2x){
@@ -4085,34 +3541,20 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_pushpc){
     nightVM_uc nVM_uc=op_pushpc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_pushcs){
     nightVM_uc nVM_uc=op_pushcs;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    (*address)++;
   }
   else if(phrase_instruction->instruction_code==key_call){
-    nightVM_uc nVM_uc;
-    if((*address+2)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
-      }
-      *address+=align_pad;
-    }
     nVM_uc=op_pushpc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -4137,7 +3579,6 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction, nightV
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    *address+=1+1+SIZEOF_L+1+1+1;
   }
   return 0;
 }
@@ -4182,10 +3623,10 @@ nightVM_l get_size_of_type(translation_unit *tu, struct_tag_definition_sequence 
       }
     }
     else if(phrase_struct_tag_definition->child_type==phrase_type_struct_name){
-      add_to_size+=lookup_in_struct_definition_table(phrase_struct_tag_definition->child.phrase_struct_name->identifier,struct_table,tu,false,NULL,ret_size);
-      *type_matched=phrase_struct_tag_definition->child.phrase_struct_name->identifier;
+      add_to_size+=lookup_in_struct_definition_table(phrase_struct_tag_definition->child.phrase_struct_name->lex_identifier,struct_table,tu,false,NULL,ret_size);
+      *type_matched=phrase_struct_tag_definition->child.phrase_struct_name->lex_identifier;
     }
-    if(strcmp(phrase_struct_tag_definition->identifier,tag)==0){
+    if(strcmp(phrase_struct_tag_definition->lex_identifier,tag)==0){
       break;
     }
     size+=add_to_size;
@@ -4195,14 +3636,14 @@ nightVM_l get_size_of_type(translation_unit *tu, struct_tag_definition_sequence 
   return size;
 }
 
-unsigned int gen_code_tagged_expression(tagged_expression *phrase_tagged_expression, nightVM_l *address, struct_definition_table *struct_table){
+unsigned int gen_code_tagged_expression(tagged_expression *phrase_tagged_expression, struct_definition_table *struct_table){
   nightVM_l size=0;
   struct_definition *phrase_struct_definition;
-  char *lookup=phrase_tagged_expression->phrase_struct_name->identifier;
+  char *lookup=phrase_tagged_expression->phrase_struct_name->lex_identifier;
   lookup_in_struct_definition_table(lookup,struct_table,phrase_tagged_expression->parent->parent->tu,false,&phrase_struct_definition,ret_size);
   tag_sequence *phrase_tag_sequence=phrase_tagged_expression->phrase_tag_sequence;
   while(phrase_tag_sequence!=NULL){
-    size+=get_size_of_type(phrase_tagged_expression->parent->parent->tu,phrase_struct_definition->phrase_struct_tag_definition_sequence,struct_table,phrase_tag_sequence->phrase_tag->identifier,&lookup);
+    size+=get_size_of_type(phrase_tagged_expression->parent->parent->tu,phrase_struct_definition->phrase_struct_tag_definition_sequence,struct_table,phrase_tag_sequence->phrase_tag->lex_identifier,&lookup);
     if(lookup!=NULL){
       lookup_in_struct_definition_table(lookup,struct_table,phrase_tagged_expression->parent->parent->tu,false,&phrase_struct_definition,ret_size);
     }
@@ -4211,18 +3652,13 @@ unsigned int gen_code_tagged_expression(tagged_expression *phrase_tagged_express
     }
     phrase_tag_sequence=phrase_tag_sequence->phrase_tag_sequence;
   }
-  nightVM_uc nVM_uc;
-  if((*address+1)%ALIGNOF_L!=0){
-    nightVM_ui align_pad=((*address+1)+ALIGNOF_L-1)-(((*address+1)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+1);
-    nVM_uc=op_nop;
-    for(nightVM_ui i=0;i<align_pad;i++){
-      if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-        return 1;
-      }
+  nightVM_uc pad_nop=op_nop;
+  for(nightVM_ui i=0;i<phrase_tagged_expression->align_pad;i++){
+    if(add_to_outstream((unsigned char *)&pad_nop,1)){
+      return 1;
     }
-    *address+=align_pad;
   }
-  nVM_uc=op_pushl;
+  nightVM_uc nVM_uc=op_pushl;
   if(add_to_outstream((unsigned char *)&nVM_uc,1)){
     return 1;
   }
@@ -4230,23 +3666,17 @@ unsigned int gen_code_tagged_expression(tagged_expression *phrase_tagged_express
   if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
     return 1;
   }
-  *address+=1+SIZEOF_L;
   return 0;
 }
 
-unsigned int gen_code_sizeof_statement(sizeof_statement *phrase_sizeof_statement, nightVM_l *address, struct_definition_table *struct_table){
-  nightVM_uc nVM_uc;
-  if((*address+1)%ALIGNOF_L!=0){
-    nightVM_ui align_pad=((*address+1)+ALIGNOF_L-1)-(((*address+1)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+1);
-    nVM_uc=op_nop;
-    for(nightVM_ui i=0;i<align_pad;i++){
-      if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-        return 1;
-      }
+unsigned int gen_code_sizeof_statement(sizeof_statement *phrase_sizeof_statement, struct_definition_table *struct_table){
+  nightVM_uc pad_nop=op_nop;
+  for(nightVM_ui i=0;i<phrase_sizeof_statement->align_pad;i++){
+    if(add_to_outstream((unsigned char *)&pad_nop,1)){
+      return 1;
     }
-    *address+=align_pad;
   }
-  nVM_uc=op_pushl;
+  nightVM_uc nVM_uc=op_pushl;
   if(add_to_outstream((unsigned char *)&nVM_uc,1)){
     return 1;
   }
@@ -4278,28 +3708,22 @@ unsigned int gen_code_sizeof_statement(sizeof_statement *phrase_sizeof_statement
     }
   }
   else if(phrase_sizeof_statement->child_type==phrase_type_struct_name){
-    nVM_l=lookup_in_struct_definition_table(phrase_sizeof_statement->child.phrase_struct_name->identifier,struct_table,phrase_sizeof_statement->parent->parent->tu,false,NULL,ret_size);
+    nVM_l=lookup_in_struct_definition_table(phrase_sizeof_statement->child.phrase_struct_name->lex_identifier,struct_table,phrase_sizeof_statement->parent->parent->tu,false,NULL,ret_size);
   }
   if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
     return 1;
   }
-  *address+=1+SIZEOF_L;
   return 0;
 }
 
-unsigned int gen_code_alignof_statement(alignof_statement *phrase_alignof_statement, nightVM_l *address, struct_definition_table *struct_table){
-  nightVM_uc nVM_uc;
-  if((*address+1)%ALIGNOF_L!=0){
-    nightVM_ui align_pad=((*address+1)+ALIGNOF_L-1)-(((*address+1)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+1);
-    nVM_uc=op_nop;
-    for(nightVM_ui i=0;i<align_pad;i++){
-      if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-        return 1;
-      }
+unsigned int gen_code_alignof_statement(alignof_statement *phrase_alignof_statement, struct_definition_table *struct_table){
+  nightVM_uc pad_nop=op_nop;
+  for(nightVM_ui i=0;i<phrase_alignof_statement->align_pad;i++){
+    if(add_to_outstream((unsigned char *)&pad_nop,1)){
+      return 1;
     }
-    *address+=align_pad;
   }
-  nVM_uc=op_pushl;
+  nightVM_uc nVM_uc=op_pushl;
   if(add_to_outstream((unsigned char *)&nVM_uc,1)){
     return 1;
   }
@@ -4331,16 +3755,15 @@ unsigned int gen_code_alignof_statement(alignof_statement *phrase_alignof_statem
     }
   }
   else if(phrase_alignof_statement->child_type==phrase_type_struct_name){
-    nVM_l=lookup_in_struct_definition_table(phrase_alignof_statement->child.phrase_struct_name->identifier,struct_table,phrase_alignof_statement->parent->parent->tu,false,NULL,ret_align);
+    nVM_l=lookup_in_struct_definition_table(phrase_alignof_statement->child.phrase_struct_name->lex_identifier,struct_table,phrase_alignof_statement->parent->parent->tu,false,NULL,ret_align);
   }
   if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
     return 1;
   }
-  *address+=1+SIZEOF_L;
   return 0;
 }
 
-static inline unsigned int write_string_table(str_table *string_table, nightVM_l *address){
+static inline unsigned int write_string_table(str_table *string_table){
   while(string_table!=NULL){
     size_t len=cseqlen(string_table->string);
     for(size_t i=0;i<len+1;i++){
@@ -4348,13 +3771,12 @@ static inline unsigned int write_string_table(str_table *string_table, nightVM_l
         return 1;
       }
     }
-    *address+=len+1;
     string_table=string_table->next_node;
   }
   return 0;
 }
 
-static inline unsigned int write_libraries(libs *libraries, nightVM_l *address){
+static inline unsigned int write_libraries(libs *libraries){
   while(libraries!=NULL){
     size_t len=cseqlen(libraries->lib_name);
     for(size_t i=0;i<len+1;i++){
@@ -4362,32 +3784,26 @@ static inline unsigned int write_libraries(libs *libraries, nightVM_l *address){
         return 1;
       }
     }
-    *address+=len+1;
     libraries=libraries->next;
   }
   return 0;
 }
 
-static inline unsigned int write_libraries_init(libs *libraries, nightVM_l *address){
+static inline unsigned int write_libraries_init(libs *libraries){
   while(libraries!=NULL){
-    nightVM_uc nVM_uc;
-    if((*address+1)%ALIGNOF_L!=0){
-      nightVM_ui align_pad=((*address+1)+ALIGNOF_L-1)-(((*address+1)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+1);
-      nVM_uc=op_nop;
-      for(nightVM_ui i=0;i<align_pad;i++){
-        if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-          return 1;
-        }
+    nightVM_uc pad_nop=op_nop;
+    for(nightVM_ui i=0;i<libraries->align_pad;i++){
+      if(add_to_outstream((unsigned char *)&pad_nop,1)){
+        return 1;
       }
-      *address+=align_pad;
     }
     if(comp_attr.pic){
-      nVM_uc=op_pushl;
+      nightVM_uc nVM_uc=op_pushl;
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
-      libraries->loc=*address+1+SIZEOF_L-libraries->loc;
-      if(add_to_outstream((unsigned char *)&libraries->loc,SIZEOF_L)){
+      libraries->address=libraries->refi_address+1+SIZEOF_L-libraries->address;
+      if(add_to_outstream((unsigned char *)&libraries->address,SIZEOF_L)){
         return 1;
       }
       nVM_uc=op_pushpc;
@@ -4402,70 +3818,62 @@ static inline unsigned int write_libraries_init(libs *libraries, nightVM_l *addr
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
-      *address+=1+SIZEOF_L+1+1+1;
     }
     else{
-      nVM_uc=op_pushl;
+      nightVM_uc nVM_uc=op_pushl;
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
-      if(add_to_outstream((unsigned char *)&libraries->loc,SIZEOF_L)){
+      if(add_to_outstream((unsigned char *)&libraries->address,SIZEOF_L)){
         return 1;
       }
       nVM_uc=op_open;
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
-      *address+=1+SIZEOF_L+1;
     }
     libraries=libraries->next;
   }
   return 0;
 }
 
-unsigned int gen_code_statement(statement *phrase_statement, nightVM_l *address, str_table *string_table, sym_table *symbol_table, struct_definition_table *struct_table, libs *libraries){
+unsigned int gen_code_statement(statement *phrase_statement, str_table *string_table, sym_table *symbol_table, struct_definition_table *struct_table, libs *libraries){
   if(phrase_statement->child_type==phrase_type_push_statement){
-    if(gen_code_push_statement(phrase_statement->child.phrase_push_statement,address,string_table,symbol_table)){
+    if(gen_code_push_statement(phrase_statement->child.phrase_push_statement,string_table,symbol_table)){
       return 1;
     }
   }
   else if(phrase_statement->child_type==phrase_type_alignof_statement){
-    if(gen_code_alignof_statement(phrase_statement->child.phrase_alignof_statement,address,struct_table)){
+    if(gen_code_alignof_statement(phrase_statement->child.phrase_alignof_statement,struct_table)){
       return 1;
     }
   }
   else if(phrase_statement->child_type==phrase_type_sizeof_statement){
-    if(gen_code_sizeof_statement(phrase_statement->child.phrase_sizeof_statement,address,struct_table)){
+    if(gen_code_sizeof_statement(phrase_statement->child.phrase_sizeof_statement,struct_table)){
       return 1;
     }
   }
   else if(phrase_statement->child_type==phrase_type_instruction){
-    if(gen_code_phrase_instruction(phrase_statement->child.phrase_instruction,address)){
+    if(gen_code_phrase_instruction(phrase_statement->child.phrase_instruction)){
       return 1;
     }
   }
   else if(phrase_statement->child_type==phrase_type_tagged_expression){
-    if(gen_code_tagged_expression(phrase_statement->child.phrase_tagged_expression,address,struct_table)){
+    if(gen_code_tagged_expression(phrase_statement->child.phrase_tagged_expression,struct_table)){
       return 1;
     }
   }
-  else if(phrase_statement->child_type==phrase_type_label && strcmp(phrase_statement->child.phrase_label->identifier,"main")==0){
-    if(write_string_table(string_table,address)){
-      return 1;
-    }
-    if(write_libraries(libraries,address)){
-      return 1;
-    }
-    if(write_libraries_init(libraries,address)){
+  else if(phrase_statement->child_type==phrase_type_label && strcmp(phrase_statement->child.phrase_label->lex_identifier,"main")==0){
+    if(write_libraries_init(libraries)){
       return 1;
     }
   }
   return 0;
 }
 
-unsigned int gen_code_statement_sequence(statement_sequence *phrase_statement_sequence, nightVM_l *address, str_table *string_table, sym_table *symbol_table, struct_definition_table *struct_table, libs *libraries){
+unsigned int gen_code_statement_sequence(statement_sequence *phrase_statement_sequence, str_table *string_table, sym_table *symbol_table, struct_definition_table *struct_table, libs *libraries){
   while(phrase_statement_sequence!=NULL){
-    if(gen_code_statement(phrase_statement_sequence->phrase_statement,address,string_table,symbol_table,struct_table,libraries)){
+    if(gen_code_statement(phrase_statement_sequence->phrase_statement,string_table,symbol_table,struct_table,libraries)){
       return 1;
     }
     phrase_statement_sequence=phrase_statement_sequence->phrase_statement_sequence;
@@ -4473,14 +3881,14 @@ unsigned int gen_code_statement_sequence(statement_sequence *phrase_statement_se
   return 0;
 }
 
-unsigned int gen_code_translation_unit(translation_unit *phrase_translation_unit, nightVM_l *address, str_table *string_table, sym_table *symbol_table, struct_definition_table *struct_table, libs *libraries){
-  if(gen_code_statement_sequence(phrase_translation_unit->phrase_statement_sequence,address,string_table,symbol_table,struct_table,libraries)){
+unsigned int gen_code_translation_unit(translation_unit *phrase_translation_unit, str_table *string_table, sym_table *symbol_table, struct_definition_table *struct_table, libs *libraries){
+  if(gen_code_statement_sequence(phrase_translation_unit->phrase_statement_sequence,string_table,symbol_table,struct_table,libraries)){
     return 1;
   }
   return 0;
 }
 
-unsigned int gen_code_translation_unit_list(translation_unit_list *tu_list, nightVM_l *address, str_table *string_table, sym_table *symbol_table, struct_definition_table *struct_table, libs *libraries){
+unsigned int gen_code_translation_unit_list(translation_unit_list *tu_list, str_table *string_table, sym_table *symbol_table, struct_definition_table *struct_table, libs *libraries){
   if(comp_attr.out_fileformat==oform_esff23){
     nightVM_ui magic=0X000E3EFF;
     if(add_to_outstream((unsigned char *)&magic,SIZEOF_UI)){
@@ -4514,15 +3922,21 @@ unsigned int gen_code_translation_unit_list(translation_unit_list *tu_list, nigh
       clean_add_to_stream_res();
       return 1;
     }
-    nightVM_uns entry_point=lookup_in_symbol_table("main",symbol_table,NULL,NULL,NULL,0);
+    nightVM_uns entry_point=lookup_in_symbol_table("main",symbol_table,NULL,0,NULL);
     if(add_to_outstream((unsigned char *)&entry_point,SIZEOF_UNS)){
       fprintf(stderr,"implementation error: failed to write to file %s\n",comp_attr.outfile);
       clean_add_to_stream_res();
       return 1;
     }
   }
+  if(write_string_table(string_table)){
+    return 1;
+  }
+  if(write_libraries(libraries)){
+    return 1;
+  }
   while(tu_list!=NULL){
-    if(gen_code_translation_unit(tu_list->tu,address,string_table,symbol_table,struct_table,libraries)){
+    if(gen_code_translation_unit(tu_list->tu,string_table,symbol_table,struct_table,libraries)){
       clean_add_to_stream_res();
       return 1;
     }

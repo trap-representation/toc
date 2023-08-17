@@ -23,7 +23,7 @@ static inline bool check(token *tk, unsigned int m){
   return false;
 }
 
-static inline bool match_det(token **tk, unsigned int m){
+static inline bool match_type(token **tk, unsigned int m){
   if((*tk)->token_type==m){
     consume(tk);
     return true;
@@ -31,7 +31,7 @@ static inline bool match_det(token **tk, unsigned int m){
   return false;
 }
 
-static inline bool check_det(token *tk, unsigned int m){
+static inline bool check_type(token *tk, unsigned int m){
   if(tk->token_type==m){
     return true;
   }
@@ -39,7 +39,7 @@ static inline bool check_det(token *tk, unsigned int m){
 }
 
 unsigned int parse_instruction(statement *phrase_statement, token **curr, char *file_name){
-  if((phrase_statement->child.phrase_instruction=malloc(sizeof(sign)))==NULL){
+  if((phrase_statement->child.phrase_instruction=malloc(sizeof(instruction)))==NULL){
     fprintf(stderr,"implementation error: failed to allocate enough memory\n");
     return 1;
   }
@@ -81,7 +81,7 @@ unsigned int parse_sign(push_statement *phrase_push_statement, set_statement *ph
   phrase_sign->start_y=(*curr)->start_y;
   phrase_sign->end_x=(*curr)->end_x;
   phrase_sign->end_y=(*curr)->end_y;
-  if(check_det(*curr,punc_minus)){
+  if(check_type(*curr,punc_minus)){
     phrase_sign->sign_code=sign_negative;
     consume(curr);
   }
@@ -104,35 +104,35 @@ unsigned int parse_push_instruction(push_statement *phrase_push_statement, token
   phrase_push_instruction->start_y=(*curr)->start_y;
   phrase_push_instruction->end_x=(*curr)->end_x;
   phrase_push_instruction->end_y=(*curr)->end_y;
-  if(check_det(*curr,key_pushc)){
+  if(check_type(*curr,key_pushc)){
     phrase_push_instruction->push_instruction_code=key_pushc;
     consume(curr);
   }
-  else if(check_det(*curr,key_pushs)){
+  else if(check_type(*curr,key_pushs)){
     phrase_push_instruction->push_instruction_code=key_pushs;
     consume(curr);
   }
-  else if(check_det(*curr,key_pushi)){
+  else if(check_type(*curr,key_pushi)){
     phrase_push_instruction->push_instruction_code=key_pushi;
     consume(curr);
   }
-  else if(check_det(*curr,key_pushl)){
+  else if(check_type(*curr,key_pushl)){
     phrase_push_instruction->push_instruction_code=key_pushl;
     consume(curr);
   }
-  else if(check_det(*curr,key_pushp)){
+  else if(check_type(*curr,key_pushp)){
     phrase_push_instruction->push_instruction_code=key_pushp;
     consume(curr);
   }
-  else if(check_det(*curr,key_pushuc)){
+  else if(check_type(*curr,key_pushuc)){
     phrase_push_instruction->push_instruction_code=key_pushuc;
     consume(curr);
   }
-  else if(check_det(*curr,key_pushus)){
+  else if(check_type(*curr,key_pushus)){
     phrase_push_instruction->push_instruction_code=key_pushus;
     consume(curr);
   }
-  else{
+  else if(check_type(*curr,key_pushui)){
     phrase_push_instruction->push_instruction_code=key_pushui;
     consume(curr);
   }
@@ -164,12 +164,12 @@ unsigned int parse_symbol(push_statement *phrase_push_statement, set_statement *
   phrase_symbol->start_y=(*curr)->start_y;
   phrase_symbol->end_x=(*curr)->end_x;
   phrase_symbol->end_y=(*curr)->end_y;
-  if((phrase_symbol->identifier=malloc((*curr)->token_string_len+1))==NULL){
+  if((phrase_symbol->lex_identifier=malloc((*curr)->token_string_len+1))==NULL){
     fprintf(stderr,"implementation error: failed to allocate enough memory\n");
     return 1;
   }
-  strncpy(phrase_symbol->identifier,(*curr)->token_string,(*curr)->token_string_len);
-  phrase_symbol->identifier[(*curr)->token_string_len]='\0';
+  strncpy(phrase_symbol->lex_identifier,(*curr)->token_string,(*curr)->token_string_len);
+  phrase_symbol->lex_identifier[(*curr)->token_string_len]='\0';
   consume(curr);
   return 0;
 }
@@ -190,7 +190,7 @@ unsigned int parse_push_statement(statement *phrase_statement, token **curr, cha
     return 1;
   }
   bool has_sign=false;
-  if(check(*curr,tk_punctuator) && (check_det(*curr,punc_minus) || check_det(*curr,punc_plus))){
+  if(check(*curr,tk_punctuator) && (check_type(*curr,punc_minus) || check_type(*curr,punc_plus))){
     parse_sign(phrase_push_statement,NULL,curr,file_name);
     has_sign=true;
   }
@@ -202,42 +202,42 @@ unsigned int parse_push_statement(statement *phrase_statement, token **curr, cha
   }
   else if(check(*curr,tk_string_constant)){
     phrase_push_statement->child_type=lex_type_string_constant;
-    if((phrase_push_statement->child.string_constant=malloc((*curr)->token_string_len+1))==NULL){
+    if((phrase_push_statement->child.lex_string_constant=malloc((*curr)->token_string_len+1))==NULL){
       fprintf(stderr,"implementation error: failed to allocate enough memory\n");
       return 1;
     }
     if((*curr)->token_string!=NULL){
-      strncpy(phrase_push_statement->child.string_constant,(*curr)->token_string,(*curr)->token_string_len);
-      phrase_push_statement->child.string_constant[(*curr)->token_string_len]='\0';
+      strncpy(phrase_push_statement->child.lex_string_constant,(*curr)->token_string,(*curr)->token_string_len);
+      phrase_push_statement->child.lex_string_constant[(*curr)->token_string_len]='\0';
     }
     else{
-      phrase_push_statement->child.string_constant[0]='\0';
+      phrase_push_statement->child.lex_string_constant[0]='\0';
     }
     consume(curr);
   }
   else if(check(*curr,tk_character_constant)){
     phrase_push_statement->child_type=lex_type_character_constant;
-    if((phrase_push_statement->child.character_constant=malloc((*curr)->token_string_len+1))==NULL){
+    if((phrase_push_statement->child.lex_character_constant=malloc((*curr)->token_string_len+1))==NULL){
       fprintf(stderr,"implementation error: failed to allocate enough memory\n");
       return 1;
     }
     if((*curr)->token_string!=NULL){
-      strncpy(phrase_push_statement->child.character_constant,(*curr)->token_string,(*curr)->token_string_len);
-      phrase_push_statement->child.character_constant[(*curr)->token_string_len]='\0';
+      strncpy(phrase_push_statement->child.lex_character_constant,(*curr)->token_string,(*curr)->token_string_len);
+      phrase_push_statement->child.lex_character_constant[(*curr)->token_string_len]='\0';
     }
     else{
-      phrase_push_statement->child.character_constant[0]='\0';
+      phrase_push_statement->child.lex_character_constant[0]='\0';
     }
     consume(curr);
   }
   else if(check(*curr,tk_numeric_constant)){
     phrase_push_statement->child_type=lex_type_numeric_constant;
-    if((phrase_push_statement->child.numeric_constant=malloc((*curr)->token_string_len+1))==NULL){
+    if((phrase_push_statement->child.lex_numeric_constant=malloc((*curr)->token_string_len+1))==NULL){
       fprintf(stderr,"implementation error: failed to allocate enough memory\n");
       return 1;
     }
-    strncpy(phrase_push_statement->child.numeric_constant,(*curr)->token_string,(*curr)->token_string_len);
-    phrase_push_statement->child.numeric_constant[(*curr)->token_string_len]='\0';
+    strncpy(phrase_push_statement->child.lex_numeric_constant,(*curr)->token_string,(*curr)->token_string_len);
+    phrase_push_statement->child.lex_numeric_constant[(*curr)->token_string_len]='\0';
     consume(curr);
   }
   else{
@@ -263,19 +263,19 @@ unsigned int parse_set_statement(statement *phrase_statement, token **curr, char
   set_statement *phrase_set_statement=phrase_statement->child.phrase_set_statement;
   phrase_set_statement->file=phrase_statement->file;
   phrase_set_statement->parent=phrase_statement;
-  phrase_set_statement->identifier=NULL;
+  phrase_set_statement->lex_identifier=NULL;
   phrase_set_statement->phrase_sign=NULL;
   phrase_set_statement->child1_type=fill_incomplete;
   phrase_set_statement->start_x=(*curr)->start_x;
   phrase_set_statement->start_y=(*curr)->start_y;
   consume(curr);
   if(check(*curr,tk_identifier)){
-    if((phrase_set_statement->identifier=malloc((*curr)->token_string_len+1))==NULL){
+    if((phrase_set_statement->lex_identifier=malloc((*curr)->token_string_len+1))==NULL){
       fprintf(stderr,"implementation error: failed to allocate enough memory\n");
       return 1;
     }
-    strncpy(phrase_set_statement->identifier,(*curr)->token_string,(*curr)->token_string_len);
-    phrase_set_statement->identifier[(*curr)->token_string_len]='\0';
+    strncpy(phrase_set_statement->lex_identifier,(*curr)->token_string,(*curr)->token_string_len);
+    phrase_set_statement->lex_identifier[(*curr)->token_string_len]='\0';
     consume(curr);
   }
   else{
@@ -283,7 +283,7 @@ unsigned int parse_set_statement(statement *phrase_statement, token **curr, char
     return 1;
   }
   bool has_sign=false;
-  if(check(*curr,tk_punctuator) && (check_det(*curr,punc_minus) || check_det(*curr,punc_plus))){
+  if(check(*curr,tk_punctuator) && (check_type(*curr,punc_minus) || check_type(*curr,punc_plus))){
     parse_sign(NULL,phrase_set_statement,curr,file_name);
     has_sign=true;
   }
@@ -295,42 +295,42 @@ unsigned int parse_set_statement(statement *phrase_statement, token **curr, char
   }
   else if(check(*curr,tk_character_constant)){
     phrase_set_statement->child1_type=lex_type_character_constant;
-    if((phrase_set_statement->child1.character_constant=malloc((*curr)->token_string_len+1))==NULL){
+    if((phrase_set_statement->child1.lex_character_constant=malloc((*curr)->token_string_len+1))==NULL){
       fprintf(stderr,"implementation error: failed to allocate enough memory\n");
       return 1;
     }
     if((*curr)->token_string!=NULL){
-      strncpy(phrase_set_statement->child1.character_constant,(*curr)->token_string,(*curr)->token_string_len);
-      phrase_set_statement->child1.character_constant[(*curr)->token_string_len]='\0';
+      strncpy(phrase_set_statement->child1.lex_character_constant,(*curr)->token_string,(*curr)->token_string_len);
+      phrase_set_statement->child1.lex_character_constant[(*curr)->token_string_len]='\0';
     }
     else{
-      phrase_set_statement->child1.character_constant[0]='\0';
+      phrase_set_statement->child1.lex_character_constant[0]='\0';
     }
     consume(curr);
   }
   else if(check(*curr,tk_string_constant)){
     phrase_set_statement->child1_type=lex_type_string_constant;
-    if((phrase_set_statement->child1.string_constant=malloc((*curr)->token_string_len+1))==NULL){
+    if((phrase_set_statement->child1.lex_string_constant=malloc((*curr)->token_string_len+1))==NULL){
       fprintf(stderr,"implementation error: failed to allocate enough memory\n");
       return 1;
     }
     if((*curr)->token_string!=NULL){
-      strncpy(phrase_set_statement->child1.string_constant,(*curr)->token_string,(*curr)->token_string_len);
-      phrase_set_statement->child1.string_constant[(*curr)->token_string_len]='\0';
+      strncpy(phrase_set_statement->child1.lex_string_constant,(*curr)->token_string,(*curr)->token_string_len);
+      phrase_set_statement->child1.lex_string_constant[(*curr)->token_string_len]='\0';
     }
     else{
-      phrase_set_statement->child1.string_constant[0]='\0';
+      phrase_set_statement->child1.lex_string_constant[0]='\0';
     }
     consume(curr);
   }
   else if(check(*curr,tk_numeric_constant)){
     phrase_set_statement->child1_type=lex_type_numeric_constant;
-    if((phrase_set_statement->child1.numeric_constant=malloc((*curr)->token_string_len+1))==NULL){
+    if((phrase_set_statement->child1.lex_numeric_constant=malloc((*curr)->token_string_len+1))==NULL){
       fprintf(stderr,"implementation error: failed to allocate enough memory\n");
       return 1;
     }
-    strncpy(phrase_set_statement->child1.numeric_constant,(*curr)->token_string,(*curr)->token_string_len);
-    phrase_set_statement->child1.numeric_constant[(*curr)->token_string_len]='\0';
+    strncpy(phrase_set_statement->child1.lex_numeric_constant,(*curr)->token_string,(*curr)->token_string_len);
+    phrase_set_statement->child1.lex_numeric_constant[(*curr)->token_string_len]='\0';
     consume(curr);
   }
   else{
@@ -355,7 +355,7 @@ unsigned int parse_import_statement(statement *phrase_statement, token **curr, c
   import_statement *phrase_import_statement=phrase_statement->child.phrase_import_statement;
   phrase_import_statement->file=phrase_statement->file;
   phrase_import_statement->parent=phrase_statement;
-  phrase_import_statement->string_constant=NULL;
+  phrase_import_statement->lex_string_constant=NULL;
   phrase_import_statement->start_x=(*curr)->start_x;
   phrase_import_statement->start_y=(*curr)->start_y;
   consume(curr);
@@ -363,12 +363,12 @@ unsigned int parse_import_statement(statement *phrase_statement, token **curr, c
     write_error_from_tokens("error: expected a string-constant\n",*curr,(*curr)->prev_token,file_name);
     return 1;
   }
-  if((phrase_import_statement->string_constant=malloc((*curr)->token_string_len+1))==NULL){
+  if((phrase_import_statement->lex_string_constant=malloc((*curr)->token_string_len+1))==NULL){
     fprintf(stderr,"implementation error: failed to allocate enough memory\n");
     return 1;
   }
-  strncpy(phrase_import_statement->string_constant,(*curr)->token_string,(*curr)->token_string_len);
-  phrase_import_statement->string_constant[(*curr)->token_string_len]='\0';
+  strncpy(phrase_import_statement->lex_string_constant,(*curr)->token_string,(*curr)->token_string_len);
+  phrase_import_statement->lex_string_constant[(*curr)->token_string_len]='\0';
   consume(curr);
   phrase_import_statement->end_x=(*curr)->prev_token->end_x;
   phrase_import_statement->end_y=(*curr)->prev_token->end_y;
@@ -390,7 +390,7 @@ unsigned int parse_visibility(label *phrase_label, token **curr, char *file_name
   phrase_visibility->start_y=(*curr)->start_y;
   phrase_visibility->end_x=(*curr)->end_x;
   phrase_visibility->end_y=(*curr)->end_y;
-  if(check_det(*curr,key_hidden)){
+  if(check_type(*curr,key_hidden)){
     phrase_visibility->visibility_code=visibility_hidden;
     consume(curr);
   }
@@ -409,13 +409,13 @@ unsigned int parse_label(statement *phrase_statement, token **curr, char *file_n
   label *phrase_label=phrase_statement->child.phrase_label;
   phrase_label->file=phrase_statement->file;
   phrase_label->parent=phrase_statement;
-  phrase_label->identifier=NULL;
+  phrase_label->lex_identifier=NULL;
   phrase_label->phrase_visibility=NULL;
   phrase_label->start_x=(*curr)->start_x;
   phrase_label->start_y=(*curr)->start_y;
   consume(curr);
   bool doesnot_have_phrase_visibility=true;
-  if(check(*curr,tk_keyword) && (check_det(*curr,key_hidden) || check_det(*curr,key_exposed))){
+  if(check(*curr,tk_keyword) && (check_type(*curr,key_hidden) || check_type(*curr,key_exposed))){
     if(parse_visibility(phrase_label,curr,file_name)){
       return 0;
     }
@@ -429,12 +429,12 @@ unsigned int parse_label(statement *phrase_statement, token **curr, char *file_n
     }
     return 1;
   }
-  if((phrase_label->identifier=malloc((*curr)->token_string_len+1))==NULL){
+  if((phrase_label->lex_identifier=malloc((*curr)->token_string_len+1))==NULL){
     fprintf(stderr,"implementation error: failed to allocate enough memory\n");
     return 1;
   }
-  strncpy(phrase_label->identifier,(*curr)->token_string,(*curr)->token_string_len);
-  phrase_label->identifier[(*curr)->token_string_len]='\0';
+  strncpy(phrase_label->lex_identifier,(*curr)->token_string,(*curr)->token_string_len);
+  phrase_label->lex_identifier[(*curr)->token_string_len]='\0';
   consume(curr);
   phrase_label->end_x=(*curr)->prev_token->end_x;
   phrase_label->end_y=(*curr)->prev_token->end_y;
@@ -453,12 +453,12 @@ unsigned int parse_tag(tag_sequence *phrase_tag_sequence, token **curr, char *fi
   phrase_tag->start_y=(*curr)->start_y;
   phrase_tag->end_x=(*curr)->end_x;
   phrase_tag->end_y=(*curr)->end_y;
-  if((phrase_tag->identifier=malloc((*curr)->token_string_len+1))==NULL){
+  if((phrase_tag->lex_identifier=malloc((*curr)->token_string_len+1))==NULL){
     fprintf(stderr,"implementation error: failed to allocate enough memory\n");
     return 1;
   }
-  strncpy(phrase_tag->identifier,(*curr)->token_string,(*curr)->token_string_len);
-  phrase_tag->identifier[(*curr)->token_string_len]='\0';
+  strncpy(phrase_tag->lex_identifier,(*curr)->token_string,(*curr)->token_string_len);
+  phrase_tag->lex_identifier[(*curr)->token_string_len]='\0';
   consume(curr);
   return 0;
 }
@@ -506,12 +506,12 @@ extern unsigned int parse_struct_name(sizeof_statement *phrase_sizeof_statement,
   phrase_struct_name->start_y=(*curr)->start_y;
   phrase_struct_name->end_x=(*curr)->end_x;
   phrase_struct_name->end_y=(*curr)->end_y;
-  if((phrase_struct_name->identifier=malloc((*curr)->token_string_len+1))==NULL){
+  if((phrase_struct_name->lex_identifier=malloc((*curr)->token_string_len+1))==NULL){
     fprintf(stderr,"implementation error: failed to allocate enough memory\n");
     return 1;
   }
-  strncpy(phrase_struct_name->identifier,(*curr)->token_string,(*curr)->token_string_len);
-  phrase_struct_name->identifier[(*curr)->token_string_len]='\0';
+  strncpy(phrase_struct_name->lex_identifier,(*curr)->token_string,(*curr)->token_string_len);
+  phrase_struct_name->lex_identifier[(*curr)->token_string_len]='\0';
   consume(curr);
   return 0;
 }
@@ -564,7 +564,7 @@ unsigned int parse_struct_tag_definition(struct_tag_definition_sequence *phrase_
   phrase_struct_tag_definition->file=file_name;
   phrase_struct_tag_definition->parent=phrase_struct_tag_definition_sequence;
   phrase_struct_tag_definition->child_type=fill_incomplete;
-  phrase_struct_tag_definition->identifier=NULL;
+  phrase_struct_tag_definition->lex_identifier=NULL;
   phrase_struct_tag_definition->start_x=(*curr)->start_x;
   phrase_struct_tag_definition->start_y=(*curr)->start_y;
   if(check(*curr,tk_identifier)){
@@ -579,17 +579,17 @@ unsigned int parse_struct_tag_definition(struct_tag_definition_sequence *phrase_
       return 1;
     }
   }
-  if(!(check(*curr,tk_punctuator) && match_det(curr,punc_colon))){
-    write_error_from_tokens("error: expected a punctuator (`:')\n",*curr,(*curr)->prev_token,file_name);
+  if(!(check(*curr,tk_punctuator) && match_type(curr,punc_colon))){
+    write_error_from_tokens("error: expected a punctuator (:)\n",*curr,(*curr)->prev_token,file_name);
     return 1;
   }
   if(check(*curr,tk_identifier)){
-    if((phrase_struct_tag_definition->identifier=malloc((*curr)->token_string_len+1))==NULL){
+    if((phrase_struct_tag_definition->lex_identifier=malloc((*curr)->token_string_len+1))==NULL){
       fprintf(stderr,"implementation error: failed to allocate enough memory\n");
       return 1;
     }
-    strncpy(phrase_struct_tag_definition->identifier,(*curr)->token_string,(*curr)->token_string_len);
-    phrase_struct_tag_definition->identifier[(*curr)->token_string_len]='\0';
+    strncpy(phrase_struct_tag_definition->lex_identifier,(*curr)->token_string,(*curr)->token_string_len);
+    phrase_struct_tag_definition->lex_identifier[(*curr)->token_string_len]='\0';
     consume(curr);
   }
   else{
@@ -628,7 +628,7 @@ unsigned int parse_struct_tag_definition_sequence(struct_definition *phrase_stru
     if(parse_struct_tag_definition(phrase_struct_tag_definition_sequence,curr,file_name)){
       return 1;
     }
-    if((check(*curr,tk_keyword) && (check_det(*curr,key_uc) || check_det(*curr,key_us) || check_det(*curr,key_ui) || check_det(*curr,key_c) || check_det(*curr,key_s) || check_det(*curr,key_i) || check_det(*curr,key_l) || check_det(*curr,key_p))) || (check(*curr,tk_identifier))){
+    if((check(*curr,tk_keyword) && (check_type(*curr,key_uc) || check_type(*curr,key_us) || check_type(*curr,key_ui) || check_type(*curr,key_c) || check_type(*curr,key_s) || check_type(*curr,key_i) || check_type(*curr,key_l) || check_type(*curr,key_p))) || (check(*curr,tk_identifier))){
       parent=phrase_struct_tag_definition_sequence;
     }
     else{
@@ -646,7 +646,7 @@ unsigned int parse_struct_definition(statement *phrase_statement, token **curr, 
   struct_definition *phrase_struct_definition=phrase_statement->child.phrase_struct_definition;
   phrase_struct_definition->file=phrase_statement->file;
   phrase_struct_definition->parent=phrase_statement;
-  phrase_struct_definition->identifier=NULL;
+  phrase_struct_definition->lex_identifier=NULL;
   phrase_struct_definition->phrase_struct_tag_definition_sequence=NULL;
   phrase_struct_definition->start_x=(*curr)->start_x;
   phrase_struct_definition->start_y=(*curr)->start_y;
@@ -655,20 +655,20 @@ unsigned int parse_struct_definition(statement *phrase_statement, token **curr, 
     write_error_from_tokens("error: expected a struct-name\n",*curr,(*curr)->prev_token,file_name);
     return 1;
   }
-  if((phrase_struct_definition->identifier=malloc((*curr)->token_string_len+1))==NULL){
+  if((phrase_struct_definition->lex_identifier=malloc((*curr)->token_string_len+1))==NULL){
     fprintf(stderr,"implementation error: failed to allocate enough memory\n");
     return 1;
   }
-  strncpy(phrase_struct_definition->identifier,(*curr)->token_string,(*curr)->token_string_len);
-  phrase_struct_definition->identifier[(*curr)->token_string_len]='\0';
+  strncpy(phrase_struct_definition->lex_identifier,(*curr)->token_string,(*curr)->token_string_len);
+  phrase_struct_definition->lex_identifier[(*curr)->token_string_len]='\0';
   consume(curr);
-  if((check(*curr,tk_keyword) && (check_det(*curr,key_uc) || check_det(*curr,key_us) || check_det(*curr,key_ui) || check_det(*curr,key_c) || check_det(*curr,key_s) || check_det(*curr,key_i) || check_det(*curr,key_l) || check_det(*curr,key_p))) || (check(*curr,tk_identifier))){
+  if((check(*curr,tk_keyword) && (check_type(*curr,key_uc) || check_type(*curr,key_us) || check_type(*curr,key_ui) || check_type(*curr,key_c) || check_type(*curr,key_s) || check_type(*curr,key_i) || check_type(*curr,key_l) || check_type(*curr,key_p))) || (check(*curr,tk_identifier))){
     if(parse_struct_tag_definition_sequence(phrase_struct_definition,curr,file_name)){
       return 1;
     }
   }
-  if(!(check(*curr,tk_punctuator) && match_det(curr,punc_bang))){
-    write_error_from_tokens("error: expected a punctuator (`!')\n",*curr,(*curr)->prev_token,file_name);
+  if(!(check(*curr,tk_punctuator) && match_type(curr,punc_bang))){
+    write_error_from_tokens("error: expected a punctuator (!)\n",*curr,(*curr)->prev_token,file_name);
     return 1;
   }
   phrase_struct_definition->end_x=(*curr)->prev_token->end_x;
@@ -710,7 +710,7 @@ unsigned int parse_tag_sequence(tagged_expression *phrase_tagged_expression, tok
       write_error_from_tokens("error: expected a tag\n",*curr,(*curr)->prev_token,file_name);
       return 1;
     }
-    if(check(*curr,tk_punctuator) && check_det(*curr,punc_dot)){
+    if(check(*curr,tk_punctuator) && check_type(*curr,punc_dot)){
       parent=phrase_tag_sequence;
     }
     else{
@@ -732,7 +732,7 @@ unsigned int parse_alignof_statement(statement *phrase_statement, token **curr, 
   phrase_alignof_statement->start_x=(*curr)->start_x;
   phrase_alignof_statement->start_y=(*curr)->start_y;
   consume(curr);
-  if(check(*curr,tk_keyword) && (check_det(*curr,key_uc) || check_det(*curr,key_us) || check_det(*curr,key_ui) || check_det(*curr,key_c) || check_det(*curr,key_s) || check_det(*curr,key_i) || check_det(*curr,key_l) || check_det(*curr,key_p))){
+  if(check(*curr,tk_keyword) && (check_type(*curr,key_uc) || check_type(*curr,key_us) || check_type(*curr,key_ui) || check_type(*curr,key_c) || check_type(*curr,key_s) || check_type(*curr,key_i) || check_type(*curr,key_l) || check_type(*curr,key_p))){
     phrase_alignof_statement->child_type=phrase_type_type;
     if(parse_type(NULL,NULL,phrase_alignof_statement,curr,file_name)){
       return 1;
@@ -765,7 +765,7 @@ unsigned int parse_sizeof_statement(statement *phrase_statement, token **curr, c
   phrase_sizeof_statement->start_x=(*curr)->start_x;
   phrase_sizeof_statement->start_y=(*curr)->start_y;
   consume(curr);
-  if(check(*curr,tk_keyword) && (check_det(*curr,key_uc) || check_det(*curr,key_us) || check_det(*curr,key_ui) || check_det(*curr,key_c) || check_det(*curr,key_s) || check_det(*curr,key_i) || check_det(*curr,key_l) || check_det(*curr,key_p))){
+  if(check(*curr,tk_keyword) && (check_type(*curr,key_uc) || check_type(*curr,key_us) || check_type(*curr,key_ui) || check_type(*curr,key_c) || check_type(*curr,key_s) || check_type(*curr,key_i) || check_type(*curr,key_l) || check_type(*curr,key_p))){
     phrase_sizeof_statement->child_type=phrase_type_type;
     if(parse_type(NULL,phrase_sizeof_statement,NULL,curr,file_name)){
       return 1;
@@ -807,7 +807,7 @@ unsigned int parse_tagged_expression(statement *phrase_statement, token **curr, 
     write_error_from_tokens("error: expected a struct-name\n",*curr,(*curr)->prev_token,file_name);
     return 1;
   }
-  if(check(*curr,tk_punctuator) && check_det(*curr,punc_dot)){
+  if(check(*curr,tk_punctuator) && check_type(*curr,punc_dot)){
     if(parse_tag_sequence(phrase_tagged_expression,curr,file_name)){
       return 1;
     }
@@ -826,60 +826,58 @@ unsigned int parse_statement(statement_sequence *phrase_statement_sequence, toke
   phrase_statement->file=file_name;
   phrase_statement->parent=phrase_statement_sequence;
   phrase_statement->child_type=fill_incomplete;
-  if(check(*curr,tk_punctuator) && check_det(*curr,punc_colon)){
+  if(check(*curr,tk_punctuator) && check_type(*curr,punc_colon)){
     phrase_statement->child_type=phrase_type_label;
     if(parse_label(phrase_statement,curr,file_name)){
       return 1;
     }
   }
-  else if(check(*curr,tk_punctuator) && check_det(*curr,punc_plus)){
+  else if(check(*curr,tk_punctuator) && check_type(*curr,punc_plus)){
     phrase_statement->child_type=phrase_type_tagged_expression;
     if(parse_tagged_expression(phrase_statement,curr,file_name)){
       return 1;
     }
   }
+  else if(check_type(*curr,key_pushc) || check_type(*curr,key_pushs) || check_type(*curr,key_pushi) || check_type(*curr,key_pushl) || check_type(*curr,key_pushuc) || check_type(*curr,key_pushus) || check_type(*curr,key_pushui) || check_type(*curr,key_pushp)){
+    phrase_statement->child_type=phrase_type_push_statement;
+    if(parse_push_statement(phrase_statement,curr,file_name)){
+      return 1;
+    }
+  }
+  else if(check_type(*curr,key_alignof)){
+    phrase_statement->child_type=phrase_type_alignof_statement;
+    if(parse_alignof_statement(phrase_statement,curr,file_name)){
+      return 1;
+    }
+  }
+  else if(check_type(*curr,key_sizeof)){
+    phrase_statement->child_type=phrase_type_sizeof_statement;
+    if(parse_sizeof_statement(phrase_statement,curr,file_name)){
+      return 1;
+    }
+  }
+  else if(check_type(*curr,key_set)){
+    phrase_statement->child_type=phrase_type_set_statement;
+    if(parse_set_statement(phrase_statement,curr,file_name)){
+      return 1;
+    }
+  }
+  else if(check_type(*curr,key_import)){
+    phrase_statement->child_type=phrase_type_import_statement;
+    if(parse_import_statement(phrase_statement,curr,file_name)){
+      return 1;
+    }
+  }
+  else if(check_type(*curr,key_struct)){
+    phrase_statement->child_type=phrase_type_struct_definition;
+    if(parse_struct_definition(phrase_statement,curr,file_name)){
+      return 1;
+    }
+  }
   else{
-    if(check_det(*curr,key_pushc) || check_det(*curr,key_pushs) || check_det(*curr,key_pushi) || check_det(*curr,key_pushl) || check_det(*curr,key_pushuc) || check_det(*curr,key_pushus) || check_det(*curr,key_pushui) || check_det(*curr,key_pushp)){
-      phrase_statement->child_type=phrase_type_push_statement;
-      if(parse_push_statement(phrase_statement,curr,file_name)){
-        return 1;
-      }
-    }
-    else if(check_det(*curr,key_alignof)){
-      phrase_statement->child_type=phrase_type_alignof_statement;
-      if(parse_alignof_statement(phrase_statement,curr,file_name)){
-        return 1;
-      }
-    }
-    else if(check_det(*curr,key_sizeof)){
-      phrase_statement->child_type=phrase_type_sizeof_statement;
-      if(parse_sizeof_statement(phrase_statement,curr,file_name)){
-        return 1;
-      }
-    }
-    else if(check_det(*curr,key_set)){
-      phrase_statement->child_type=phrase_type_set_statement;
-      if(parse_set_statement(phrase_statement,curr,file_name)){
-        return 1;
-      }
-    }
-    else if(check_det(*curr,key_import)){
-      phrase_statement->child_type=phrase_type_import_statement;
-      if(parse_import_statement(phrase_statement,curr,file_name)){
-        return 1;
-      }
-    }
-    else if(check_det(*curr,key_struct)){
-      phrase_statement->child_type=phrase_type_struct_definition;
-      if(parse_struct_definition(phrase_statement,curr,file_name)){
-        return 1;
-      }
-    }
-    else{
-      phrase_statement->child_type=phrase_type_instruction;
-      if(parse_instruction(phrase_statement,curr,file_name)){
-        return 1;
-      }
+    phrase_statement->child_type=phrase_type_instruction;
+    if(parse_instruction(phrase_statement,curr,file_name)){
+      return 1;
     }
   }
   phrase_statement->end_x=(*curr)->prev_token->end_x;
@@ -915,7 +913,7 @@ statement_sequence *parse_statement_sequence(translation_unit *phrase_translatio
     if(parse_statement(phrase_statement_sequence,curr,file_name)){
       return NULL;
     }
-    if((check(*curr,tk_punctuator) && check_det(*curr,punc_colon)) || (check(*curr,tk_punctuator) && check_det(*curr,punc_plus)) || (check(*curr,tk_keyword))){
+    if((check(*curr,tk_punctuator) && check_type(*curr,punc_colon)) || (check(*curr,tk_punctuator) && check_type(*curr,punc_plus)) || (check(*curr,tk_keyword))){
       parent=phrase_statement_sequence;
     }
     else{
@@ -934,7 +932,7 @@ unsigned int parse_translation_unit(translation_unit **phrase_translation_unit, 
   (*phrase_translation_unit)->phrase_statement_sequence=NULL;
   (*phrase_translation_unit)->start_x=curr->start_x;
   (*phrase_translation_unit)->start_y=curr->start_y;
-  if((check(curr,tk_punctuator) && check_det(curr,punc_colon)) || (check(curr,tk_punctuator) && check_det(curr,punc_plus)) || check(curr,tk_keyword)){
+  if((check(curr,tk_punctuator) && check_type(curr,punc_colon)) || (check(curr,tk_punctuator) && check_type(curr,punc_plus)) || check(curr,tk_keyword)){
     if(parse_statement_sequence(*phrase_translation_unit,NULL,&curr,file_name)==NULL){
       return 1;
     }

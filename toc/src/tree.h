@@ -13,6 +13,7 @@ typedef struct s_sizeof_statement {
     struct s_struct_name *phrase_struct_name;
   } child;
   struct s_statement *parent;
+  nightVM_ui align_pad;
   char *file;
   uintmax_t start_x;
   uintmax_t start_y;
@@ -27,6 +28,7 @@ typedef struct s_alignof_statement {
     struct s_struct_name *phrase_struct_name;
   } child;
   struct s_statement *parent;
+  nightVM_ui align_pad;
   char *file;
   uintmax_t start_x;
   uintmax_t start_y;
@@ -40,15 +42,17 @@ typedef struct s_push_statement {
   unsigned int child_type;
   union push_statement_child_type_union {
     #define lex_type_numeric_constant 2
-    char *numeric_constant;
+    char *lex_numeric_constant;
     #define lex_type_string_constant 3
-    char *string_constant;
+    char *lex_string_constant;
     #define lex_type_character_constant 4
-    char *character_constant;
+    char *lex_character_constant;
     #define phrase_type_symbol 5
     struct s_symbol *phrase_symbol;
   } child;
   struct s_statement *parent;
+  nightVM_ui align_pad;
+  nightVM_l address;
   char *file;
   uintmax_t start_x;
   uintmax_t start_y;
@@ -57,7 +61,7 @@ typedef struct s_push_statement {
 } push_statement;
 
 typedef struct s_label {
-  char *identifier;
+  char *lex_identifier;
   struct s_visibility *phrase_visibility;
   struct s_statement *parent;
   char *file;
@@ -68,13 +72,13 @@ typedef struct s_label {
 } label;
 
 typedef struct s_set_statement {
-  char *identifier;
+  char *lex_identifier;
   struct s_sign *phrase_sign;
   unsigned int child1_type;
   union set_statement_child1_type_union {
-    char *numeric_constant;
-    char *character_constant;
-    char *string_constant;
+    char *lex_numeric_constant;
+    char *lex_character_constant;
+    char *lex_string_constant;
     struct s_symbol *phrase_symbol;
   } child1;
   struct s_statement *parent;
@@ -86,7 +90,7 @@ typedef struct s_set_statement {
 } set_statement;
 
 typedef struct s_import_statement {
-  char *string_constant;
+  char *lex_string_constant;
   struct s_statement *parent;
   char *file;
   uintmax_t start_x;
@@ -112,6 +116,7 @@ typedef struct s_tagged_expression {
   struct s_struct_name *phrase_struct_name;
   struct s_tag_sequence *phrase_tag_sequence;
   struct s_statement *parent;
+  nightVM_ui align_pad;
   char *file;
   uintmax_t start_x;
   uintmax_t start_y;
@@ -125,7 +130,7 @@ typedef struct s_struct_tag_definition {
     struct s_type *phrase_type;
     struct s_struct_name *phrase_struct_name;
   } child;
-  char *identifier;
+  char *lex_identifier;
   struct s_struct_tag_definition_sequence *parent;
   char *file;
   uintmax_t start_x;
@@ -148,7 +153,7 @@ typedef struct s_struct_tag_definition_sequence {
 } struct_tag_definition_sequence;
 
 typedef struct s_struct_definition {
-  char *identifier;
+  char *lex_identifier;
   struct s_struct_tag_definition_sequence *phrase_struct_tag_definition_sequence;
   struct s_statement *parent;
   char *file;
@@ -216,7 +221,7 @@ typedef struct s_type {
 } type;
 
 typedef struct s_struct_name {
-  char *identifier;
+  char *lex_identifier;
   unsigned int parent_type;
   union struct_name_parent_type_union {
     struct s_sizeof_statement *phrase_sizeof_statement;
@@ -249,6 +254,7 @@ typedef struct s_sign {
 typedef struct s_instruction {
   unsigned int instruction_code;
   struct s_statement *parent;
+  nightVM_ui align_pad;
   char *file;
   uintmax_t start_x;
   uintmax_t start_y;
@@ -257,7 +263,7 @@ typedef struct s_instruction {
 } instruction;
 
 typedef struct s_symbol {
-  char *identifier;
+  char *lex_identifier;
   unsigned int parent_type;
   union symbol_parent_type_union {
     struct s_push_statement *phrase_push_statement;
@@ -271,7 +277,7 @@ typedef struct s_symbol {
 } symbol;
 
 typedef struct s_tag {
-  char *identifier;
+  char *lex_identifier;
   struct s_tag_sequence *parent;
   char *file;
   uintmax_t start_x;

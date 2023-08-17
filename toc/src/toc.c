@@ -598,8 +598,7 @@ int main(int argc, char *argv[]){
     }
     trav_tu_list=trav_tu_list->next_tu;
   }
-  address=0;
-  unsigned int exit_code=gen_code_translation_unit_list(tu_list,&address,string_table,symbol_table,struct_table,libraries);
+  unsigned int exit_code=gen_code_translation_unit_list(tu_list,string_table,symbol_table,struct_table,libraries);
   clean_up_libraries(libraries);
   clean_up_string_table(string_table);
   clean_up_symbol_table(symbol_table);

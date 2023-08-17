@@ -56,7 +56,7 @@ void clean_up_tokens_list(token *tokens){
 
 void clean_up_symbol(symbol *phrase_symbol){
   if(phrase_symbol!=NULL){
-    free(phrase_symbol->identifier);
+    free(phrase_symbol->lex_identifier);
     free(phrase_symbol);
   }
 }
@@ -74,13 +74,13 @@ void clean_up_push_statement(push_statement *phrase_push_statement){
     clean_up_sign(phrase_push_statement->phrase_sign);
     clean_up_push_instruction(phrase_push_statement->phrase_push_instruction);
     if(phrase_push_statement->child_type==lex_type_numeric_constant){
-      free(phrase_push_statement->child.numeric_constant);
+      free(phrase_push_statement->child.lex_numeric_constant);
     }
     else if(phrase_push_statement->child_type==lex_type_character_constant){
-      free(phrase_push_statement->child.character_constant);
+      free(phrase_push_statement->child.lex_character_constant);
     }
     else if(phrase_push_statement->child_type==lex_type_string_constant){
-      free(phrase_push_statement->child.string_constant);
+      free(phrase_push_statement->child.lex_string_constant);
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
       clean_up_symbol(phrase_push_statement->child.phrase_symbol);
@@ -91,7 +91,7 @@ void clean_up_push_statement(push_statement *phrase_push_statement){
 
 void clean_up_import_statement(import_statement *phrase_import_statement){
   if(phrase_import_statement!=NULL){
-    free(phrase_import_statement->string_constant);
+    free(phrase_import_statement->lex_string_constant);
     free(phrase_import_statement);
   }
 }
@@ -103,20 +103,20 @@ void clean_up_visibility(visibility *phrase_visibility){
 void clean_up_label(label *phrase_label){
   if(phrase_label!=NULL){
     clean_up_visibility(phrase_label->phrase_visibility);
-    free(phrase_label->identifier);
+    free(phrase_label->lex_identifier);
     free(phrase_label);
   }
 }
 
 void clean_up_set_statement(set_statement *phrase_set_statement){
   if(phrase_set_statement!=NULL){
-    free(phrase_set_statement->identifier);
+    free(phrase_set_statement->lex_identifier);
     clean_up_sign(phrase_set_statement->phrase_sign);
     if(phrase_set_statement->child1_type==lex_type_numeric_constant){
-      free(phrase_set_statement->child1.numeric_constant);
+      free(phrase_set_statement->child1.lex_numeric_constant);
     }
     else if(phrase_set_statement->child1_type==lex_type_string_constant){
-      free(phrase_set_statement->child1.string_constant);
+      free(phrase_set_statement->child1.lex_string_constant);
     }
     else if(phrase_set_statement->child1_type==phrase_type_symbol){
       clean_up_symbol(phrase_set_statement->child1.phrase_symbol);
@@ -127,7 +127,7 @@ void clean_up_set_statement(set_statement *phrase_set_statement){
 
 void clean_up_tag(tag *phrase_tag){
   if(phrase_tag!=NULL){
-    free(phrase_tag->identifier);
+    free(phrase_tag->lex_identifier);
     free(phrase_tag);
   }
 }
@@ -143,7 +143,7 @@ void clean_up_tag_sequence(tag_sequence *phrase_tag_sequence){
 
 void clean_up_phrase_struct_name(struct_name *phrase_struct_name){
   if(phrase_struct_name!=NULL){
-    free(phrase_struct_name->identifier);
+    free(phrase_struct_name->lex_identifier);
     free(phrase_struct_name);
   }
 }
@@ -165,10 +165,10 @@ void clean_up_struct_tag_definition(struct_tag_definition *phrase_struct_tag_def
     if(phrase_struct_tag_definition->child_type==phrase_type_struct_name){
       clean_up_phrase_struct_name(phrase_struct_tag_definition->child.phrase_struct_name);
     }
-    else{
+    else if(phrase_struct_tag_definition->child_type==phrase_type_type){
       clean_up_phrase_type(phrase_struct_tag_definition->child.phrase_type);
     }
-    free(phrase_struct_tag_definition->identifier);
+    free(phrase_struct_tag_definition->lex_identifier);
     free(phrase_struct_tag_definition);
   }
 }
@@ -184,7 +184,7 @@ void clean_up_struct_tag_definition_sequence(struct_tag_definition_sequence *phr
 
 void clean_up_struct_definition(struct_definition *phrase_struct_definition){
   if(phrase_struct_definition!=NULL){
-    free(phrase_struct_definition->identifier);
+    free(phrase_struct_definition->lex_identifier);
     clean_up_struct_tag_definition_sequence(phrase_struct_definition->phrase_struct_tag_definition_sequence);
     free(phrase_struct_definition);
   }
@@ -195,7 +195,7 @@ void clean_up_sizeof_statement(sizeof_statement *phrase_sizeof_statement){
     if(phrase_sizeof_statement->child_type==phrase_type_struct_name){
       clean_up_phrase_struct_name(phrase_sizeof_statement->child.phrase_struct_name);
     }
-    else{
+    else if(phrase_sizeof_statement->child_type==phrase_type_type){
       clean_up_phrase_type(phrase_sizeof_statement->child.phrase_type);
     }
     free(phrase_sizeof_statement);
@@ -207,7 +207,7 @@ void clean_up_alignof_statement(alignof_statement *phrase_alignof_statement){
     if(phrase_alignof_statement->child_type==phrase_type_struct_name){
       clean_up_phrase_struct_name(phrase_alignof_statement->child.phrase_struct_name);
     }
-    else{
+    else if (phrase_alignof_statement->child_type==phrase_type_type){
       clean_up_phrase_type(phrase_alignof_statement->child.phrase_type);
     }
     free(phrase_alignof_statement);

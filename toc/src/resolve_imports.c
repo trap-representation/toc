@@ -14,7 +14,7 @@ unsigned int resolve_imports(translation_unit *tu){
   statement_sequence *phrase_statement_sequence=tu->phrase_statement_sequence;
   while(phrase_statement_sequence!=NULL){
     if(phrase_statement_sequence->phrase_statement->child_type==phrase_type_import_statement){
-      char *file_name=phrase_statement_sequence->phrase_statement->child.phrase_import_statement->string_constant;
+      char *file_name=phrase_statement_sequence->phrase_statement->child.phrase_import_statement->lex_string_constant;
       if(strcmp(file_name,"stdlib.chloreh")==0){
         file_name="/usr/local/include/stdlib.chloreh";
       }
@@ -73,7 +73,9 @@ unsigned int resolve_imports(translation_unit *tu){
           return 1;
         }
         end_statement_sequence->phrase_statement_sequence=append_statement_sequence;
-        append_statement_sequence->parent.phrase_statement_sequence=end_statement_sequence;
+        if(append_statement_sequence!=NULL){
+          append_statement_sequence->parent.phrase_statement_sequence=end_statement_sequence;
+        }
         clean_up_tokens_list(tokens);
       }
     }

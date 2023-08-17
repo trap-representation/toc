@@ -15,19 +15,13 @@
 
 typedef struct s_str_table {
   nightVM_c *string;
-  nightVM_l ptr;
+  nightVM_l address;
   struct s_str_table *next_node;
 } str_table;
 
 typedef struct s_sym_table {
   char *symbol_identifier;
   unsigned int visibility_code;
-  unsigned int sym_type;
-  bool val_filled;
-  union sym_table_loc_union {
-    label *label_loc;
-    set_statement *set_statement_loc;
-  } tu_loc;
   nightVM_l val;
   translation_unit *tu;
   struct s_sym_table *next_node;
@@ -35,7 +29,7 @@ typedef struct s_sym_table {
 
 typedef struct s_struct_definition_table {
   char *struct_name_identifier;
-  struct_definition *loc;
+  struct_definition *address;
   nightVM_l size;
   nightVM_ui alignment;
   translation_unit *tu;
@@ -62,7 +56,7 @@ extern str_table* create_str_table(str_table **last_string_table_node, str_table
 
 extern nightVM_l lookup_in_string_table(char *s, str_table *string_table);
 
-extern nightVM_l lookup_in_symbol_table(char *s, sym_table *symbol_table, label **ret_label, set_statement **ret_set_statement, translation_unit *tu, bool stop_early);
+extern nightVM_l lookup_in_symbol_table(char *s, sym_table *symbol_table, translation_unit *tu, bool stop_early, bool *found);
 
 extern sym_table *create_sym_table_and_calculate_addresses(sym_table **last_symbol_table_node, sym_table *e_symbol_table, translation_unit *tu, str_table *string_table, libs *libraries, nightVM_l *address, unsigned int *ret);
 
