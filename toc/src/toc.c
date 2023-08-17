@@ -191,7 +191,7 @@ int main(int argc, char *argv[]){
     if(strcmp(argv[i],"-i")==0 || strcmp(argv[i],"--input")==0){
       i++;
       if(i==argc){
-        fprintf(stderr,"error: expected a i-args after %s\n",argv[i-1]);
+        fprintf(stderr,"error: expected [file...] after %s\n",argv[i-1]);
         clean_up_libraries(libraries);
         return 1;
       }
@@ -206,7 +206,7 @@ int main(int argc, char *argv[]){
     else if(strcmp(argv[i],"-l")==0 || strcmp(argv[i],"--load")==0){
       i++;
       if(i==argc){
-        fprintf(stderr,"error: expected a l-args after %s\n",argv[i-1]);
+        fprintf(stderr,"error: expected [file...] after %s\n",argv[i-1]);
         clean_up_libraries(libraries);
         return 1;
       }
@@ -247,7 +247,7 @@ int main(int argc, char *argv[]){
     else if(strcmp(argv[i],"-o")==0 || strcmp(argv[i],"--out")==0){
       i++;
       if(i==argc){
-        fprintf(stderr,"error: expected a file-path after %s\n",argv[i-1]);
+        fprintf(stderr,"error: expected a file after %s\n",argv[i-1]);
         clean_up_libraries(libraries);
         return 1;
       }
@@ -258,7 +258,7 @@ int main(int argc, char *argv[]){
     else if(strcmp(argv[i],"-oform")==0 || strcmp(argv[i],"--out-fileformat")==0){
       i++;
       if(i==argc){
-        fprintf(stderr,"error: expected a oform-type after %s\n",argv[i-1]);
+        fprintf(stderr,"error: expected an outfileformat after %s\n",argv[i-1]);
         clean_up_libraries(libraries);
         return 1;
       }
@@ -267,7 +267,7 @@ int main(int argc, char *argv[]){
           comp_attr.out_fileformat=std_nc;
         }
         else{
-          fprintf(stderr,"error: not a valid oform-type %s\n",argv[i]);
+          fprintf(stderr,"error: not a valid outfileformat %s\n",argv[i]);
           clean_up_libraries(libraries);
           return 1;
         }
@@ -276,7 +276,7 @@ int main(int argc, char *argv[]){
     else if(strcmp(argv[i],"-std")==0 || strcmp(argv[i],"--standard")==0){
       i++;
       if(i==argc){
-        fprintf(stderr,"error: expected a standard-type after %s\n",argv[i-1]);
+        fprintf(stderr,"error: expected a standardtype after %s\n",argv[i-1]);
         clean_up_libraries(libraries);
         return 1;
       }
@@ -291,7 +291,7 @@ int main(int argc, char *argv[]){
           comp_attr.std=std_chlore2x_toc;
         }
         else{
-          fprintf(stderr,"error: not a valid standard-type %s\n",argv[i]);
+          fprintf(stderr,"error: not a valid standardtype %s\n",argv[i]);
           clean_up_libraries(libraries);
           return 1;
         }
@@ -300,7 +300,7 @@ int main(int argc, char *argv[]){
     else if(strcmp(argv[i],"-ca")==0 || strcmp(argv[i],"--code-alignment")==0){
       i++;
       if(i==argc){
-        fprintf(stderr,"error: expected a numeric-constant after %s\n",argv[i-1]);
+        fprintf(stderr,"error: expected an unsignedinteger after %s\n",argv[i-1]);
         clean_up_libraries(libraries);
         return 1;
       }
@@ -308,7 +308,7 @@ int main(int argc, char *argv[]){
         unsigned int ret;
         comp_attr.code_alignment=str_to_ui(argv[i],&ret);
         if(ret==1){
-          fprintf(stderr,"error: expected a numeric-constant after %s\n",argv[i-1]);
+          fprintf(stderr,"error: expected an unsignedinteger after %s\n",argv[i-1]);
           clean_up_libraries(libraries);
           return 1;
         }
@@ -322,7 +322,7 @@ int main(int argc, char *argv[]){
     else if(strcmp(argv[i],"-ha")==0 || strcmp(argv[i],"--heap-alignment")==0){
       i++;
       if(i==argc){
-        fprintf(stderr,"error: expected a numeric-constant after %s\n",argv[i-1]);
+        fprintf(stderr,"error: expected an unsignedinteger after %s\n",argv[i-1]);
         clean_up_libraries(libraries);
         return 1;
       }
@@ -330,7 +330,7 @@ int main(int argc, char *argv[]){
         unsigned int ret;
         comp_attr.heap_alignment=str_to_ui(argv[i],&ret);
         if(ret==1){
-          fprintf(stderr,"error: expected a numeric-constant after %s\n",argv[i-1]);
+          fprintf(stderr,"error: expected an unsignedinteger after %s\n",argv[i-1]);
           clean_up_libraries(libraries);
           return 1;
         }
@@ -344,7 +344,7 @@ int main(int argc, char *argv[]){
     else if(strcmp(argv[i],"-ssz")==0 || strcmp(argv[i],"--stack-size")==0){
       i++;
       if(i==argc){
-        fprintf(stderr,"error: expected a numeric-constant after %s\n",argv[i-1]);
+        fprintf(stderr,"error: expected an unsignedinteger after %s\n",argv[i-1]);
         clean_up_libraries(libraries);
         return 1;
       }
@@ -352,7 +352,7 @@ int main(int argc, char *argv[]){
         unsigned int ret;
         comp_attr.stack_size=str_to_uns(argv[i],&ret);
         if(ret==1){
-          fprintf(stderr,"error: expected a numeric-constant after %s\n",argv[i-1]);
+          fprintf(stderr,"error: expected an unsignedinteger after %s\n",argv[i-1]);
           clean_up_libraries(libraries);
           return 1;
         }
@@ -366,7 +366,7 @@ int main(int argc, char *argv[]){
     else if(strcmp(argv[i],"-hsz")==0 || strcmp(argv[i],"--heap-size")==0){
       i++;
       if(i==argc){
-        fprintf(stderr,"error: expected a numeric-constant after %s\n",argv[i-1]);
+        fprintf(stderr,"error: expected an unsignedinteger after %s\n",argv[i-1]);
         clean_up_libraries(libraries);
         return 1;
       }
@@ -374,7 +374,7 @@ int main(int argc, char *argv[]){
         unsigned int ret;
         comp_attr.heap_size=str_to_uns(argv[i],&ret);
         if(ret==1){
-          fprintf(stderr,"error: expected a numeric-constant after %s\n",argv[i-1]);
+          fprintf(stderr,"error: expected an unsignedinteger after %s\n",argv[i-1]);
           clean_up_libraries(libraries);
           return 1;
         }
@@ -420,15 +420,16 @@ int main(int argc, char *argv[]){
     else if(strcmp(argv[i],"-h")==0 || strcmp(argv[i],"--help")==0){
       fprintf(stderr,"    --help (-h): display this message and quit\n");
       fprintf(stderr,"*   --input (-i) [file...]: specify the input file (default: %s); if more than one file is present in the sequence, they are all linked\n",infile);
+      fprintf(stderr,"    --out (-) file: specify the output file\n");
       fprintf(stderr,"    --out-fileformat (-oform) outfileformat: specify the output file format (default: ESFF23)\n");
       fprintf(stderr,"*   --load (-l) [file...]: specify one or more libraries that will be opened by nightVM at startup\n");
       fprintf(stderr,"    --nostdlib (-nstd): do not load the standard library\n");
       fprintf(stderr,"    --standard (-std) standardtype: specify a chlore standard (default: non-conforming)\n");
       fprintf(stderr,"    --position-independent (-pic): generate position independent code\n");
-      fprintf(stderr,"    --code-alignment (-ca) numeric-constant: specify the alignment of the code (default: %" PRINVMUI " bytes)\n",comp_attr.code_alignment);
-      fprintf(stderr,"    --heap-alignment (-ha) numeric-constant: specify the alignment of the heap (default: %" PRINVMUI " bytes)\n",comp_attr.heap_alignment);
-      fprintf(stderr,"    --stack-size (-ssz) numeric-constant: specify the stack size (default: %" PRINVMxUNS ")\n",comp_attr.stack_size);
-      fprintf(stderr,"    --heap-size (-hsz) numeric-constant: specify the heap size (default: %" PRINVMxUNS ")\n",comp_attr.heap_size);
+      fprintf(stderr,"    --code-alignment (-ca) unsignedinteger: specify the alignment of the code (default: %" PRINVMUI " bytes)\n",comp_attr.code_alignment);
+      fprintf(stderr,"    --heap-alignment (-ha) unsignedinteger: specify the alignment of the heap (default: %" PRINVMUI " bytes)\n",comp_attr.heap_alignment);
+      fprintf(stderr,"    --stack-size (-ssz) unsignedinteger: specify the stack size (default: %" PRINVMxUNS ")\n",comp_attr.stack_size);
+      fprintf(stderr,"    --heap-size (-hsz) unsignedinteger: specify the heap size (default: %" PRINVMxUNS ")\n",comp_attr.heap_size);
       fprintf(stderr,"    --credits (-c): display license information and quit\n");
       fprintf(stderr,"    --about (-a): display information about this implementation and quit\n\n");
 
