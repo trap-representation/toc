@@ -119,9 +119,11 @@ unsigned int lex_buffer(char *buf, size_t read_size, token **token_head, token *
     "alignc","aligns","aligni","alignp","alignl","alignuc","alignus","alignui",
     "incsp","decsp","exit",
     "force_panic","jmp_panic",
-    "pushlt", "import", "hidden","exposed","struct",
+    "pushlt","import","hidden","exposed","struct",
     "uc","us","ui","c","s","i","l","p",
     "alignof","sizeof",
+    "ceq","cgt","cls","cge","cle",
+    "cne","cz","cnz",
 
     //toc-specific
     "open","invoke","pushpc","pushcs"

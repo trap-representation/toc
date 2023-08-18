@@ -1162,6 +1162,54 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
+  else if(phrase_instruction->instruction_code==key_ceq){
+    nightVM_uc nVM_uc=op_ceq;
+    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
+      return 1;
+    }
+  }
+  else if(phrase_instruction->instruction_code==key_cgt){
+    nightVM_uc nVM_uc=op_cgt;
+    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
+      return 1;
+    }
+  }
+  else if(phrase_instruction->instruction_code==key_cls){
+    nightVM_uc nVM_uc=op_cls;
+    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
+      return 1;
+    }
+  }
+  else if(phrase_instruction->instruction_code==key_cle){
+    nightVM_uc nVM_uc=op_cle;
+    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
+      return 1;
+    }
+  }
+  else if(phrase_instruction->instruction_code==key_cge){
+    nightVM_uc nVM_uc=op_cge;
+    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
+      return 1;
+    }
+  }
+  else if(phrase_instruction->instruction_code==key_cne){
+    nightVM_uc nVM_uc=op_cne;
+    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
+      return 1;
+    }
+  }
+  else if(phrase_instruction->instruction_code==key_cz){
+    nightVM_uc nVM_uc=op_cz;
+    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
+      return 1;
+    }
+  }
+  else if(phrase_instruction->instruction_code==key_cnz){
+    nightVM_uc nVM_uc=op_cnz;
+    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
+      return 1;
+    }
+  }
   else if(phrase_instruction->instruction_code==key_jeq){
     nightVM_uc nVM_uc=op_jeq;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){

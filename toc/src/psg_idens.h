@@ -239,12 +239,20 @@
 #define key_p 233
 #define key_alignof 234
 #define key_sizeof 235
+#define key_ceq 236
+#define key_cgt 237
+#define key_cls 238
+#define key_cge 239
+#define key_cle 240
+#define key_cne 241
+#define key_cz 242
+#define key_cnz 243
 
 //toc-specific
-#define key_open 236
-#define key_invoke 237
-#define key_pushpc 238
-#define key_pushcs 239
+#define key_open 244
+#define key_invoke 245
+#define key_pushpc 246
+#define key_pushcs 247
 
 #endif
 #endif
