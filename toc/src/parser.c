@@ -191,7 +191,9 @@ unsigned int parse_push_statement(statement *phrase_statement, token **curr, cha
   }
   bool has_sign=false;
   if(check(*curr,tk_punctuator) && (check_type(*curr,punc_minus) || check_type(*curr,punc_plus))){
-    parse_sign(phrase_push_statement,NULL,curr,file_name);
+    if(parse_sign(phrase_push_statement,NULL,curr,file_name)){
+      return 1;
+    }
     has_sign=true;
   }
   if(check(*curr,tk_identifier)){
@@ -284,7 +286,9 @@ unsigned int parse_set_statement(statement *phrase_statement, token **curr, char
   }
   bool has_sign=false;
   if(check(*curr,tk_punctuator) && (check_type(*curr,punc_minus) || check_type(*curr,punc_plus))){
-    parse_sign(NULL,phrase_set_statement,curr,file_name);
+    if(parse_sign(NULL,phrase_set_statement,curr,file_name)){
+      return 1;
+    }
     has_sign=true;
   }
   if(check(*curr,tk_identifier)){
@@ -414,14 +418,15 @@ unsigned int parse_label(statement *phrase_statement, token **curr, char *file_n
   phrase_label->start_x=(*curr)->start_x;
   phrase_label->start_y=(*curr)->start_y;
   consume(curr);
-  bool doesnot_have_phrase_visibility=true;
+  bool has_visibility=false;
   if(check(*curr,tk_keyword) && (check_type(*curr,key_hidden) || check_type(*curr,key_exposed))){
     if(parse_visibility(phrase_label,curr,file_name)){
-      return 0;
+      return 1;
     }
+    has_visibility=true;
   }
   if(!check(*curr,tk_identifier)){
-    if(doesnot_have_phrase_visibility){
+    if(!has_visibility){
       write_error_from_tokens("error: expected a symbol\n",*curr,(*curr)->prev_token,file_name);
     }
     else{
