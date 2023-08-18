@@ -1,7 +1,5 @@
 :hidden phclean
-  write1
   pushp STDLIB_ID
   pushp "ph_clean"
   invoke
-  get1
   ret

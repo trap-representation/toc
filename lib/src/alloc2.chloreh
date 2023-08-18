@@ -1,39 +1,29 @@
 :hidden aaseg
-  write1
   pushp STDLIB_ID
   pushp "aaseg"
   invoke
-  get1
   ret
 
 :hidden aseg
-  write1
   pushp STDLIB_ID
   pushp "aseg"
   invoke
-  get1
   ret
 
 :hidden arseg
-  write1
   pushp STDLIB_ID
   pushp "arseg"
   invoke
-  get1
   ret
 
 :hidden rseg
-  write1
   pushp STDLIB_ID
   pushp "rseg"
   invoke
-  get1
   ret
 
 :hidden flush
-  write1
   pushp STDLIB_ID
   pushp "flush"
   invoke
-  get1
   ret

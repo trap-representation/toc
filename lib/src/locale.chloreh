@@ -32,17 +32,13 @@ struct lctable
   c: locale_int_n_sign_posn!
 
 :hidden setlocale
-  write1
   pushp STDLIB_ID
   pushp "set_locale"
   invoke
-  get1
   ret
 
 :hidden filllctable
-  write1
   pushp STDLIB_ID
   pushp "filllctable"
   invoke
-  get1
   ret

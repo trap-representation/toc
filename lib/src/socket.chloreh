@@ -16,49 +16,37 @@ set MSG_DONTROUTE 4
 set MSG_EOR 128
 
 :hidden socket 
-  write1
   pushp STDLIB_ID
   pushp "create_socket"
   invoke
-  get1
   ret
 
 :hidden connect
-  write1
   pushp STDLIB_ID
   pushp "sock_connect"
   invoke
-  get1
   ret
 
 :hidden recv
-  write1
   pushp STDLIB_ID
   pushp "sock_recv"
   invoke
-  get1
   ret
 
 :hidden send
-  write1
   pushp STDLIB_ID
   pushp "sock_send"
   invoke
-  get1
   ret
 
 :hidden recvstr
-  write1
   pushp STDLIB_ID
   pushp "sock_recvstr"
   invoke
-  get1
   ret
 
 :hidden sendstr
-  write1
   pushp STDLIB_ID
   pushp "sock_sendstr"
   invoke
-  get1
   ret

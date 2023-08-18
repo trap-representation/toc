@@ -1156,7 +1156,13 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_jmp || phrase_instruction->instruction_code==key_ret){
+  else if(phrase_instruction->instruction_code==key_ret){
+    nightVM_uc nVM_uc=op_ret;
+    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
+      return 1;
+    }
+  }
+  else if(phrase_instruction->instruction_code==key_jmp){
     nightVM_uc nVM_uc=op_jmp;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -3603,27 +3609,55 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     }
   }
   else if(phrase_instruction->instruction_code==key_call){
-    nVM_uc=op_pushpc;
+    nightVM_uc nVM_uc=op_call;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+  }
+  else if(phrase_instruction->instruction_code==key_cleq){
+    nightVM_uc nVM_uc=op_cleq;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=1+SIZEOF_L+1+1+1+1;
-    if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
-      return 1;
-    }
-    nVM_uc=op_addl;
+  }
+  else if(phrase_instruction->instruction_code==key_clgt){
+    nightVM_uc nVM_uc=op_clgt;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_swap;
+  }
+  else if(phrase_instruction->instruction_code==key_clls){
+    nightVM_uc nVM_uc=op_clls;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_jmp;
+  }
+  else if(phrase_instruction->instruction_code==key_clle){
+    nightVM_uc nVM_uc=op_clle;
+    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
+      return 1;
+    }
+  }
+  else if(phrase_instruction->instruction_code==key_clge){
+    nightVM_uc nVM_uc=op_clge;
+    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
+      return 1;
+    }
+  }
+  else if(phrase_instruction->instruction_code==key_clne){
+    nightVM_uc nVM_uc=op_clne;
+    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
+      return 1;
+    }
+  }
+  else if(phrase_instruction->instruction_code==key_clz){
+    nightVM_uc nVM_uc=op_clz;
+    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
+      return 1;
+    }
+  }
+  else if(phrase_instruction->instruction_code==key_clnz){
+    nightVM_uc nVM_uc=op_clnz;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }

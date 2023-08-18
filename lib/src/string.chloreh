@@ -1,119 +1,89 @@
 :hidden strlen
-  write1
   pushp STDLIB_ID
   pushp "str_len"
   invoke
-  get1
   ret
 
 :hidden bytecount
-  write1
   pushp STDLIB_ID
   pushp "byte_count"
   invoke
-  get1
   ret
 
 :hidden memcmp
-  write1
   pushp STDLIB_ID
   pushp "cmp_mem"
   invoke
-  get1
   ret
 
 :hidden strcmp
-  write1
   pushp STDLIB_ID
   pushp "cmp_str"
   invoke
-  get1
   ret
 
 :hidden wstrcmp
-  write1
   pushp STDLIB_ID
   pushp "wcmp_str"
   invoke
-  get1
   ret
 
 :hidden chrnstr
-  write1
   pushp STDLIB_ID
   pushp "chr_n_str"
   invoke
-  get1
   ret
 
 :hidden wchrnstr
-  write1
   pushp STDLIB_ID
   pushp "wchr_n_str"
   invoke
-  get1
   ret
 
 :hidden chrstr
-  write1
   pushp STDLIB_ID
   pushp "chr_str"
   invoke
-  get1
   ret
 
 :hidden wchrstr
-  write1
   pushp STDLIB_ID
   pushp "wchr_str"
   invoke
-  get1
   ret
 
 :hidden strncmp
-  write1
   pushp STDLIB_ID
   pushp "cmp_n_str"
   invoke
-  get1
   ret
 
 :hidden wstrncmp
-  write1
   pushp STDLIB_ID
   pushp "wcmp_n_str"
   invoke
-  get1
   ret
 
 :hidden memcpy
-  write1
   pushp STDLIB_ID
   pushp "cpy_mem"
   invoke
-  get1
   ret
 
 :hidden memset
-  write1
   pushp STDLIB_ID
   pushp "set_mem"
   invoke
-  get1
   ret
 
 :hidden isspace
-  write1
   pushp STDLIB_ID
   pushp "is_space"
   invoke
-  get1
   ret
 
 :hidden nextchar
-  write1
   pushp STDLIB_ID
   pushp "next_character"
   invoke
-  get1
   ret

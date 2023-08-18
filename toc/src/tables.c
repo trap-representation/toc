@@ -593,14 +593,7 @@ sym_table *create_sym_table_and_calculate_addresses(sym_table **last_symbol_tabl
     }
     else if(phrase_statement->child_type==phrase_type_instruction){
       phrase_statement->child.phrase_instruction->align_pad=0;
-      if(phrase_statement->child.phrase_instruction->instruction_code==key_call){
-        if((*address+2)%ALIGNOF_L!=0){
-          phrase_statement->child.phrase_instruction->align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
-          *address+=phrase_statement->child.phrase_instruction->align_pad;
-        }
-        *address+=1+1+(SIZEOF_L)+1+1+1;
-      }
-      else if(phrase_statement->child.phrase_instruction->instruction_code==key_addp){
+      if(phrase_statement->child.phrase_instruction->instruction_code==key_addp){
         if((*address+2)%ALIGNOF_L!=0){
           phrase_statement->child.phrase_instruction->align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
           *address+=phrase_statement->child.phrase_instruction->align_pad;

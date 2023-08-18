@@ -3,57 +3,43 @@ set WRITEFD 1
 set EXCEPTFD 2
 
 :hidden fd_zero
-  write1
   pushp STDLIB_ID
   pushp "fdset_zero"
   invoke
-  get1
   ret
 
 :hidden fd_set
-  write1
   pushp STDLIB_ID
   pushp "fdset_set"
   invoke
-  get1
   ret
 
 :hidden fd_clear
-  write1
   pushp STDLIB_ID
   pushp "fdset_clear"
   invoke
-  get1
   ret
 
 :hidden fd_isset
-  write1
   pushp STDLIB_ID
   pushp "fdset_isset"
   invoke
-  get1
   ret
 
 :hidden watch_new
-  write1
   pushp STDLIB_ID
   pushp "watch_new"
   invoke
-  get1
   ret
 
 :hidden watch_close
-  write1
   pushp STDLIB_ID
   pushp "watch_close"
   invoke
-  get1
   ret
 
 :hidden watch
-  write1
   pushp STDLIB_ID
   pushp "watch"
   invoke
-  get1
   ret

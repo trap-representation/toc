@@ -22,9 +22,9 @@
 
 #include LIB_NVM_IMPLEMENTATION_H
 
-#define dl_params int argc, char **argv, nightVM_l *stack, void **code, nightVM_ui code_alignment, void **heap, nightVM_ui heap_alignment, nightVM_l reg_ssz_val, nightVM_l *reg_hsz_val, nightVM_l *reg_sp_val, nightVM_l *reg_cs_val, nightVM_l reg_pc_val, nightVM_l *gpr
+#define dl_params int argc, char **argv, nightVM_l *stack, void **code, nightVM_ui code_alignment, void **heap, nightVM_ui heap_alignment, nightVM_l reg_ssz_val, nightVM_l *reg_hsz_val, nightVM_l *reg_sp_val, nightVM_l *reg_cs_val, nightVM_l reg_pc_val, nightVM_l *gpr, nightVM_l *call_stack, nightVM_l reg_clp_val
 
-#define dl_pass argc, argv, stack, code, code_alignment, heap, heap_alignment, reg_ssz_val, reg_hsz_val, reg_sp_val, reg_cs_val, reg_pc_val, gpr
+#define dl_pass argc,argv,stack,code,code_alignment,heap,heap_alignment,reg_ssz_val,reg_hsz_val,reg_sp_val,reg_cs_val,reg_pc_val,gpr,call_stack,reg_clp_val
 
 #define NULL_PTR 4611686018427387903
 #define MAX_ADDR_MEM 4611686018427387903
