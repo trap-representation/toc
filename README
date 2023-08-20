@@ -26,7 +26,7 @@ After you have made the appropriate changes, just translate the following source
 | Getting the implementation of the standard library working |
 +------------------------------------------------------------+
 
-NOTE: The standard library is still highly work-in-progress.
+NOTE: The implementation of the standard library is still highly work-in-progress.
 
 Check ./lib/src/ for the source of the implementation of the standard library.
 
