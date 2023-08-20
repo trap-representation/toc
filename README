@@ -36,4 +36,4 @@ includes the source file implementation.h as defined in nightVM.
 
 ./lib/src/libchlore.c can be translated to generate a library.
 
-As of now, it conforms to the ISO/IEC 2899:2011 standard with the assumption that the system interfaces provided by SUSv4-2018 are available, and during translation, a preprocessing directive of the form as mentioned in the intallation guide for the toc compiler, searches for the named source file the way it is defined in SUSv4-2018 4.13 (Pathname resolution).
+As of now, it conforms to the ISO/IEC 2899:2011 standard with the assumption that the system interfaces provided by SUSv4-2018 are available, and during translation, a preprocessing directive of the form as mentioned in the installation guide for the toc compiler, searches for the named source file the way it is defined in SUSv4-2018 4.13 (Pathname resolution).
