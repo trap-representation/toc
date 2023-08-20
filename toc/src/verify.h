@@ -6,17 +6,15 @@
 
 extern compilation_attributes comp_attr;
 
-extern bool is_tagged_expression_construct_ok(translation_unit *tu, tagged_expression *phrase_tagged_expression, struct_definition_table *struct_table);
-
-extern bool tagged_expression_constructs_ok(translation_unit *tu, struct_definition_table *struct_table);
+extern bool tagged_statement_constructs_ok(struct_definition_table *struct_table, translation_unit *tu);
 
 extern bool no_dup_tag_in_struct_tag_definition_sequence(struct_definition_table *struct_table);
 
-extern bool no_use_of_unset_symbol_in_push_statements(translation_unit *tu, sym_table *symbol_table);
+extern bool no_use_of_unset_symbols_in_push_statements(sym_table *symbol_table, translation_unit *tu);
 
-extern bool alignof_statements_ok(translation_unit *tu, struct_definition_table *struct_table);
+extern bool alignof_statements_ok(struct_definition_table *struct_table, translation_unit *tu);
 
-extern bool sizeof_statements_ok(translation_unit *tu, struct_definition_table *struct_table);
+extern bool sizeof_statements_ok(struct_definition_table *struct_table, translation_unit *tu);
 
 extern bool entrypoint_exists(sym_table *symbol_table);
 

@@ -43,7 +43,7 @@
   (*tokens_curr)->next_token->token_class=tokens_list_end; \
   (*tokens_curr)->next_token->prev_token=*tokens_curr;
 
-static inline bool is_latin_character(char c){
+static bool is_latin_character(char c){
   switch(c){
     case 'a': case 'b': case 'c': case 'd': case 'e': case 'f': case 'g': case 'h': case 'i': case 'j': case 'k': case 'l': case 'm': case 'n': case 'o': case 'p': case 'q': case 'r': case 's': case 't': case 'u': case 'v': case 'w': case 'x': case 'y': case 'z':
     case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G': case 'H': case 'I': case 'J': case 'K': case 'L': case 'M': case 'N': case 'O': case 'P': case 'Q': case 'R': case 'S': case 'T': case 'U': case 'V': case 'W': case 'X': case 'Y': case 'Z':
@@ -52,7 +52,7 @@ static inline bool is_latin_character(char c){
   return false;
 }
 
-static inline bool is_hexadecimal_digit(char c){
+static bool is_hexadecimal_digit(char c){
   switch(c){
     case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
     case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
@@ -64,32 +64,32 @@ static inline bool is_hexadecimal_digit(char c){
   return false;
 }
 
-static inline void transition(unsigned int *lstate, unsigned int new_state){
+static void transition(unsigned int *lstate, unsigned int new_state){
   *lstate=new_state;
 }
 
-static inline bool check(unsigned int lstate, unsigned state){
+static bool check(unsigned int lstate, unsigned state){
   if(lstate==state){
     return true;
   }
   return false;
 }
 
-static inline bool match(char c, char m){
+static bool match(char c, char m){
   if(c==m){
     return true;
   }
   return false;
 }
 
-static inline void consume(size_t *c){
+static void consume(size_t *c){
   (*c)++;
 }
 
 unsigned int lex_buffer(char *buf, size_t read_size, token **token_head, token **tokens_curr, unsigned int *lstate, char *token_string_buf, size_t *token_string_buf_pt, uintmax_t *curr_x, uintmax_t *curr_y, char *file_name){
   char *keywords_list[]={
     "pushc","pushs","pushi","pushp","pushl","pushuc","pushus","pushui",
-    "jmp","jeq","jgt","jls","jge","jle","jne","jz","jnz",
+    "eq","gt","ls","ge","le","ne","zr","nz",
     "addc","adds","addi","addp","addl","adduc","addus","addui",
     "subc","subs","subi","subp","subl","subuc","subus","subui",
     "mulc","muls","muli","mull","muluc","mulus","mului",
@@ -114,17 +114,15 @@ unsigned int lex_buffer(char *buf, size_t read_size, token **token_head, token *
     "vstorec","vstores","vstorei","vstorep","vstorel","vstoreuc","vstoreus","vstoreui",
     "astorec","astores","astorei","astorep","astorel","astoreuc","astoreus","astoreui",
     "vastorec","vastores","vastorei","vastorep","vastorel","vastoreuc","vastoreus","vastoreui",
-    "hlt","call","cleq","clgt","clls","clge","clle","clne","clz","clnz",
+    "hlt","call",
     "copy","pcopy","popa","put","pushsp",
-    "set","hltr","nop",
-    "alignc","aligns","aligni","alignp","alignl","alignuc","alignus","alignui",
+    "set","hltr",
     "incsp","decsp","exit",
-    "force_panic","jmp_panic",
+    "force_panic",
     "pushlt","import","hidden","exposed","struct",
     "uc","us","ui","c","s","i","l","p",
     "alignof","sizeof",
-    "ceq","cgt","cls","cge","cle",
-    "cne","cz","cnz",
+    "if","else","rcall",
 
     //toc-specific
     "open","invoke","pushpc","pushcs"
@@ -154,7 +152,7 @@ unsigned int lex_buffer(char *buf, size_t read_size, token **token_head, token *
       last_i=i;
     }
     if(check(*lstate,state_pending)){
-      if(is_latin_character(buf[i]) || match(buf[i],'_') || match(buf[i],'^') || match(buf[i],'`') || match(buf[i],'@') || match(buf[i],'|') || match(buf[i],'\\') || match(buf[i],'[') || match(buf[i],']') || match(buf[i],',') || match(buf[i],'#') || match(buf[i],'(') || match(buf[i],')') || match(buf[i],'{') || match(buf[i],'}') || match(buf[i],'%') || match(buf[i],'&') || match(buf[i],'~') || match(buf[i],'*')){
+      if(is_latin_character(buf[i]) || match(buf[i],'_') || match(buf[i],'?') || match(buf[i],'@')){
         *token_string_buf_pt=0;
         create_new_token_node;
         (*tokens_curr)->token_class=tk_identifier;
@@ -180,7 +178,7 @@ unsigned int lex_buffer(char *buf, size_t read_size, token **token_head, token *
         consume(&i);
         transition(lstate,state_character_sequence_character);
       }
-      else if(match(buf[i],':') || match(buf[i],'-') || match(buf[i],'+') || match(buf[i],'$') || match(buf[i],'!') || match(buf[i],'.')){
+      else if(match(buf[i],':') || match(buf[i],'-') || match(buf[i],'+') || match(buf[i],'.') || match(buf[i],'{') || match(buf[i],'}') || match(buf[i],'(') || match(buf[i],')')){
         create_new_token_node;
         (*tokens_curr)->token_class=tk_punctuator;
         transition(lstate,state_punctuator);
@@ -393,14 +391,20 @@ unsigned int lex_buffer(char *buf, size_t read_size, token **token_head, token *
       else if(match(buf[i],'+')){
         (*tokens_curr)->token_type=punc_plus;
       }
-      else if(match(buf[i],'$')){
-        (*tokens_curr)->token_type=punc_dollar;
-      }
-      else if(match(buf[i],'!')){
-        (*tokens_curr)->token_type=punc_bang;
-      }
       else if(match(buf[i],'.')){
         (*tokens_curr)->token_type=punc_dot;
+      }
+      else if(match(buf[i],'{')){
+        (*tokens_curr)->token_type=punc_openingcbrace;
+      }
+      else if(match(buf[i],'}')){
+        (*tokens_curr)->token_type=punc_closingcbrace;
+      }
+      else if(match(buf[i],'(')){
+        (*tokens_curr)->token_type=punc_openingparen;
+      }
+      else if(match(buf[i],')')){
+        (*tokens_curr)->token_type=punc_closingparen;
       }
       consume(&i);
       (*tokens_curr)->end_x=*curr_x;
@@ -554,7 +558,7 @@ unsigned int lex_buffer(char *buf, size_t read_size, token **token_head, token *
       consume(&i);
     }
     else if(check(*lstate,state_identifier_or_keyword)){
-      if(is_latin_character(buf[i]) || match(buf[i],'_') || match(buf[i],'^') || match(buf[i],'`') || match(buf[i],'@') || match(buf[i],'|') || match(buf[i],'\\') || match(buf[i],'[') || match(buf[i],']') || match(buf[i],'(') || match(buf[i],')') || match(buf[i],',') || match(buf[i],'#') || match(buf[i],'{') || match(buf[i],'}') || match(buf[i],'%') || match(buf[i],'&') || match(buf[i],'~') || match(buf[i],'*') || (buf[i]>='0' && buf[i]<='9')){
+      if(is_latin_character(buf[i]) || match(buf[i],'_') || match(buf[i],'?') || match(buf[i],'@') || match(buf[i],'*') || (buf[i]>='0' && buf[i]<='9')){
         if(append_to_buf(buf[i],token_string_buf,token_string_buf_pt,MAX_TOKEN_STRING_BUF_SIZE,false,NULL,NULL)){
           return 1;
         }

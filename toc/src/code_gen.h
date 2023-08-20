@@ -13,11 +13,15 @@ extern unsigned int gen_code_push_statement(push_statement *phrase_push_statemen
 
 extern unsigned int gen_code_instruction(instruction *phrase_instruction);
 
-extern unsigned int gen_code_tagged_expression(tagged_expression *phrase_tagged_expression, struct_definition_table *struct_table);
+extern unsigned int gen_code_tagged_statement(tagged_statement *phrase_tagged_statement, struct_definition_table *struct_table);
 
 extern unsigned int gen_code_sizeof_statement(sizeof_statement *phrase_sizeof_statement, struct_definition_table *struct_table);
 
 extern unsigned int gen_code_alignof_statement(alignof_statement *phrase_alignof_statement, struct_definition_table *struct_table);
+
+extern unsigned int gen_code_selection_statement(selection_statement *phrase_selection_statement, str_table *string_table, sym_table *symbol_table, struct_definition_table *struct_table, libs *libraries);
+
+extern unsigned int gen_code_else_clause(else_clause *phrase_else_clause, str_table *string_table, sym_table *symbol_table, struct_definition_table *struct_table, libs *libraries);
 
 extern unsigned int gen_code_statement(statement *phrase_statement, str_table *string_table, sym_table *symbol_table, struct_definition_table *struct_table, libs *libraries);
 

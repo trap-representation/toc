@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "conv.h"
 #include "nvm_sources.h"
 #include TOC_NVM_OPCODES_H
 #include "write_error.h"
@@ -20,7 +21,7 @@ static nightVM_uc *outbuf=NULL;
 static size_t outbuf_filled_upto=0;
 static FILE *outstream=NULL;
 
-static inline unsigned int add_to_outstream(unsigned char *buf, size_t size){
+static unsigned int add_to_outstream(unsigned char *buf, size_t size){
   if(outstream==NULL){
     if((outstream=fopen(comp_attr.outfile,"wb"))==NULL){
       fprintf(stderr,"implementation error: failed to open file %s for writing\n",comp_attr.outfile);
@@ -48,7 +49,7 @@ static inline unsigned int add_to_outstream(unsigned char *buf, size_t size){
   return 0;
 }
 
-static inline unsigned int flush_to_outstream(void){
+static unsigned int flush_to_outstream(void){
   if(outstream!=NULL && outbuf!=NULL){
     if(fwrite(outbuf,sizeof(nightVM_uc),outbuf_filled_upto,outstream)<outbuf_filled_upto){
       fprintf(stderr,"implementation error: failed to write to file %s\n",comp_attr.outfile);
@@ -58,7 +59,7 @@ static inline unsigned int flush_to_outstream(void){
   return 0;
 }
 
-static inline void clean_add_to_stream_res(void){
+static void clean_add_to_stream_res(void){
   fclose(outstream);
   free(outbuf);
 }
@@ -94,7 +95,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
       }
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
-      nVM_uc=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->parent->tu,false,NULL);
+      nVM_uc=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->tu,false,NULL);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_uc*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -137,7 +138,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
       }
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
-      nVM_us=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->parent->tu,false,NULL);
+      nVM_us=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->tu,false,NULL);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_us*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -180,7 +181,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
       }
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
-      nVM_ui=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->parent->tu,false,NULL);
+      nVM_ui=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->tu,false,NULL);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_ui*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -223,7 +224,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
       }
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
-      nVM_c=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->parent->tu,false,NULL);
+      nVM_c=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->tu,false,NULL);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_c*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -266,7 +267,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
       }
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
-      nVM_s=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->parent->tu,false,NULL);
+      nVM_s=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->tu,false,NULL);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_s*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -309,7 +310,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
       }
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
-      nVM_i=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->parent->tu,false,NULL);
+      nVM_i=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->tu,false,NULL);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_i*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -352,7 +353,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
       }
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
-      nVM_l=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->parent->tu,false,NULL);
+      nVM_l=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->tu,false,NULL);
       if(phrase_push_statement->phrase_sign!=NULL){
         nVM_l*=phrase_push_statement->phrase_sign->sign_code;
       }
@@ -427,7 +428,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
       }
       else if(phrase_push_statement->child_type==phrase_type_symbol){
         bool negative=false;
-        nVM_l=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->parent->tu,false,NULL)-phrase_push_statement->address-1-SIZEOF_L;
+        nVM_l=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->tu,false,NULL)-phrase_push_statement->address-1-SIZEOF_L;
         if(phrase_push_statement->phrase_sign!=NULL){
           nVM_l*=phrase_push_statement->phrase_sign->sign_code;
         }
@@ -467,7 +468,7 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
         }
       }
       else if(phrase_push_statement->child_type==phrase_type_symbol){
-        nVM_l=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->parent->tu,false,NULL);
+        nVM_l=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->tu,false,NULL);
         if(phrase_push_statement->phrase_sign!=NULL){
           nVM_l*=phrase_push_statement->phrase_sign->sign_code;
         }
@@ -1162,104 +1163,56 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_jmp){
+  else if(phrase_instruction->instruction_code==key_rcall){
     nightVM_uc nVM_uc=op_jmp;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_ceq){
+  else if(phrase_instruction->instruction_code==key_eq){
     nightVM_uc nVM_uc=op_ceq;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_cgt){
+  else if(phrase_instruction->instruction_code==key_gt){
     nightVM_uc nVM_uc=op_cgt;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_cls){
+  else if(phrase_instruction->instruction_code==key_ls){
     nightVM_uc nVM_uc=op_cls;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_cle){
+  else if(phrase_instruction->instruction_code==key_le){
     nightVM_uc nVM_uc=op_cle;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_cge){
+  else if(phrase_instruction->instruction_code==key_ge){
     nightVM_uc nVM_uc=op_cge;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_cne){
+  else if(phrase_instruction->instruction_code==key_ne){
     nightVM_uc nVM_uc=op_cne;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_cz){
+  else if(phrase_instruction->instruction_code==key_zr){
     nightVM_uc nVM_uc=op_cz;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_cnz){
+  else if(phrase_instruction->instruction_code==key_nz){
     nightVM_uc nVM_uc=op_cnz;
-    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-      return 1;
-    }
-  }
-  else if(phrase_instruction->instruction_code==key_jeq){
-    nightVM_uc nVM_uc=op_jeq;
-    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-      return 1;
-    }
-  }
-  else if(phrase_instruction->instruction_code==key_jgt){
-    nightVM_uc nVM_uc=op_jgt;
-    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-      return 1;
-    }
-  }
-  else if(phrase_instruction->instruction_code==key_jls){
-    nightVM_uc nVM_uc=op_jls;
-    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-      return 1;
-    }
-  }
-  else if(phrase_instruction->instruction_code==key_jle){
-    nightVM_uc nVM_uc=op_jle;
-    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-      return 1;
-    }
-  }
-  else if(phrase_instruction->instruction_code==key_jge){
-    nightVM_uc nVM_uc=op_jge;
-    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-      return 1;
-    }
-  }
-  else if(phrase_instruction->instruction_code==key_jne){
-    nightVM_uc nVM_uc=op_jne;
-    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-      return 1;
-    }
-  }
-  else if(phrase_instruction->instruction_code==key_jz){
-    nightVM_uc nVM_uc=op_jz;
-    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-      return 1;
-    }
-  }
-  else if(phrase_instruction->instruction_code==key_jnz || phrase_instruction->instruction_code==key_jmp_panic){
-    nightVM_uc nVM_uc=op_jnz;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3542,12 +3495,6 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_nop){
-    nightVM_uc nVM_uc=op_nop;
-    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-      return 1;
-    }
-  }
   else if(phrase_instruction->instruction_code==key_incsp){
     nightVM_uc nVM_uc=op_incsp;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
@@ -3614,54 +3561,6 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_cleq){
-    nightVM_uc nVM_uc=op_cleq;
-    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-      return 1;
-    }
-  }
-  else if(phrase_instruction->instruction_code==key_clgt){
-    nightVM_uc nVM_uc=op_clgt;
-    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-      return 1;
-    }
-  }
-  else if(phrase_instruction->instruction_code==key_clls){
-    nightVM_uc nVM_uc=op_clls;
-    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-      return 1;
-    }
-  }
-  else if(phrase_instruction->instruction_code==key_clle){
-    nightVM_uc nVM_uc=op_clle;
-    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-      return 1;
-    }
-  }
-  else if(phrase_instruction->instruction_code==key_clge){
-    nightVM_uc nVM_uc=op_clge;
-    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-      return 1;
-    }
-  }
-  else if(phrase_instruction->instruction_code==key_clne){
-    nightVM_uc nVM_uc=op_clne;
-    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-      return 1;
-    }
-  }
-  else if(phrase_instruction->instruction_code==key_clz){
-    nightVM_uc nVM_uc=op_clz;
-    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-      return 1;
-    }
-  }
-  else if(phrase_instruction->instruction_code==key_clnz){
-    nightVM_uc nVM_uc=op_clnz;
-    if(add_to_outstream((unsigned char *)&nVM_uc,1)){
-      return 1;
-    }
-  }
   return 0;
 }
 
@@ -3718,16 +3617,16 @@ nightVM_l get_size_of_type(translation_unit *tu, struct_tag_definition_sequence 
   return size;
 }
 
-unsigned int gen_code_tagged_expression(tagged_expression *phrase_tagged_expression, struct_definition_table *struct_table){
+unsigned int gen_code_tagged_statement(tagged_statement *phrase_tagged_statement, struct_definition_table *struct_table){
   nightVM_l size=0;
   struct_definition *phrase_struct_definition;
-  char *lookup=phrase_tagged_expression->phrase_struct_name->lex_identifier;
-  lookup_in_struct_definition_table(lookup,struct_table,phrase_tagged_expression->parent->parent->tu,false,&phrase_struct_definition,ret_size);
-  tag_sequence *phrase_tag_sequence=phrase_tagged_expression->phrase_tag_sequence;
+  char *lookup=phrase_tagged_statement->phrase_struct_name->lex_identifier;
+  lookup_in_struct_definition_table(lookup,struct_table,phrase_tagged_statement->parent->tu,false,&phrase_struct_definition,ret_size);
+  tag_sequence *phrase_tag_sequence=phrase_tagged_statement->phrase_tag_sequence;
   while(phrase_tag_sequence!=NULL){
-    size+=get_size_of_type(phrase_tagged_expression->parent->parent->tu,phrase_struct_definition->phrase_struct_tag_definition_sequence,struct_table,phrase_tag_sequence->phrase_tag->lex_identifier,&lookup);
+    size+=get_size_of_type(phrase_tagged_statement->parent->tu,phrase_struct_definition->phrase_struct_tag_definition_sequence,struct_table,phrase_tag_sequence->phrase_tag->lex_identifier,&lookup);
     if(lookup!=NULL){
-      lookup_in_struct_definition_table(lookup,struct_table,phrase_tagged_expression->parent->parent->tu,false,&phrase_struct_definition,ret_size);
+      lookup_in_struct_definition_table(lookup,struct_table,phrase_tagged_statement->parent->tu,false,&phrase_struct_definition,ret_size);
     }
     else{
       break;
@@ -3735,7 +3634,7 @@ unsigned int gen_code_tagged_expression(tagged_expression *phrase_tagged_express
     phrase_tag_sequence=phrase_tag_sequence->phrase_tag_sequence;
   }
   nightVM_uc pad_nop=op_nop;
-  for(nightVM_ui i=0;i<phrase_tagged_expression->align_pad;i++){
+  for(nightVM_ui i=0;i<phrase_tagged_statement->align_pad;i++){
     if(add_to_outstream((unsigned char *)&pad_nop,1)){
       return 1;
     }
@@ -3744,9 +3643,78 @@ unsigned int gen_code_tagged_expression(tagged_expression *phrase_tagged_express
   if(add_to_outstream((unsigned char *)&nVM_uc,1)){
     return 1;
   }
-  nightVM_l nVM_l=size;
-  if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
+  if(add_to_outstream((unsigned char *)&size,SIZEOF_L)){
     return 1;
+  }
+  return 0;
+}
+
+unsigned int gen_code_else_clause(else_clause *phrase_else_clause, str_table *string_table, sym_table *symbol_table, struct_definition_table *struct_table, libs *libraries){
+  nightVM_uc pad_nop=op_nop;
+  for(nightVM_ui i=0;i<phrase_else_clause->align_pad;i++){
+    if(add_to_outstream((unsigned char *)&pad_nop,1)){
+      return 1;
+    }
+  }
+  nightVM_uc nVM_uc=op_pushl;
+  if(add_to_outstream((unsigned char *)&nVM_uc,1)){
+    return 1;
+  }
+  if(add_to_outstream((unsigned char *)&phrase_else_clause->rend_address,SIZEOF_L)){
+    return 1;
+  }
+  nVM_uc=op_rjmp;
+  if(add_to_outstream((unsigned char *)&nVM_uc,1)){
+    return 1;
+  }
+  if(phrase_else_clause->child_type==phrase_type_statement_sequence){
+    if(gen_code_statement_sequence(phrase_else_clause->child.phrase_statement_sequence,string_table,symbol_table,struct_table,libraries)){
+      return 1;
+    }
+  }
+  else{
+    if(gen_code_statement(phrase_else_clause->child.phrase_statement,string_table,symbol_table,struct_table,libraries)){
+      return 1;
+    }
+  }
+  return 0;
+}
+
+unsigned int gen_code_selection_statement(selection_statement *phrase_selection_statement, str_table *string_table, sym_table *symbol_table, struct_definition_table *struct_table, libs *libraries){
+  if(gen_code_statement_sequence(phrase_selection_statement->phrase_statement_sequence,string_table,symbol_table,struct_table,libraries)){
+    return 1;
+  }
+  nightVM_uc pad_nop=op_nop;
+  for(nightVM_ui i=0;i<phrase_selection_statement->align_pad;i++){
+    if(add_to_outstream((unsigned char *)&pad_nop,1)){
+      return 1;
+    }
+  }
+  nightVM_uc nVM_uc=op_pushl;
+  if(add_to_outstream((unsigned char *)&nVM_uc,1)){
+    return 1;
+  }
+  if(add_to_outstream((unsigned char *)&phrase_selection_statement->rend_address,SIZEOF_L)){
+    return 1;
+  }
+  nVM_uc=op_rjz;
+  if(add_to_outstream((unsigned char *)&nVM_uc,1)){
+    return 1;
+  }
+  if(phrase_selection_statement->child_type==phrase_type_statement_sequence){
+    if(gen_code_statement_sequence(phrase_selection_statement->child.phrase_statement_sequence,string_table,symbol_table,struct_table,libraries)){
+      return 1;
+    }
+  }
+  else{
+    if(gen_code_statement(phrase_selection_statement->child.phrase_statement,string_table,symbol_table,struct_table,libraries)){
+      return 1;
+    }
+  }
+  if(phrase_selection_statement->phrase_else_clause!=NULL){
+    if(gen_code_else_clause(phrase_selection_statement->phrase_else_clause,string_table,symbol_table,struct_table,libraries)){
+      return 1;
+    }
   }
   return 0;
 }
@@ -3790,7 +3758,7 @@ unsigned int gen_code_sizeof_statement(sizeof_statement *phrase_sizeof_statement
     }
   }
   else if(phrase_sizeof_statement->child_type==phrase_type_struct_name){
-    nVM_l=lookup_in_struct_definition_table(phrase_sizeof_statement->child.phrase_struct_name->lex_identifier,struct_table,phrase_sizeof_statement->parent->parent->tu,false,NULL,ret_size);
+    nVM_l=lookup_in_struct_definition_table(phrase_sizeof_statement->child.phrase_struct_name->lex_identifier,struct_table,phrase_sizeof_statement->parent->tu,false,NULL,ret_size);
   }
   if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
     return 1;
@@ -3837,7 +3805,7 @@ unsigned int gen_code_alignof_statement(alignof_statement *phrase_alignof_statem
     }
   }
   else if(phrase_alignof_statement->child_type==phrase_type_struct_name){
-    nVM_l=lookup_in_struct_definition_table(phrase_alignof_statement->child.phrase_struct_name->lex_identifier,struct_table,phrase_alignof_statement->parent->parent->tu,false,NULL,ret_align);
+    nVM_l=lookup_in_struct_definition_table(phrase_alignof_statement->child.phrase_struct_name->lex_identifier,struct_table,phrase_alignof_statement->parent->tu,false,NULL,ret_align);
   }
   if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
     return 1;
@@ -3845,7 +3813,7 @@ unsigned int gen_code_alignof_statement(alignof_statement *phrase_alignof_statem
   return 0;
 }
 
-static inline unsigned int write_string_table(str_table *string_table){
+static unsigned int write_string_table(str_table *string_table){
   while(string_table!=NULL){
     size_t len=cseqlen(string_table->string);
     for(size_t i=0;i<len+1;i++){
@@ -3858,7 +3826,7 @@ static inline unsigned int write_string_table(str_table *string_table){
   return 0;
 }
 
-static inline unsigned int write_libraries(libs *libraries){
+static unsigned int write_libraries(libs *libraries){
   while(libraries!=NULL){
     size_t len=cseqlen(libraries->lib_name);
     for(size_t i=0;i<len+1;i++){
@@ -3871,7 +3839,7 @@ static inline unsigned int write_libraries(libs *libraries){
   return 0;
 }
 
-static inline unsigned int write_libraries_init(libs *libraries){
+static unsigned int write_libraries_init(libs *libraries){
   while(libraries!=NULL){
     nightVM_uc pad_nop=op_nop;
     for(nightVM_ui i=0;i<libraries->align_pad;i++){
@@ -3940,8 +3908,13 @@ unsigned int gen_code_statement(statement *phrase_statement, str_table *string_t
       return 1;
     }
   }
-  else if(phrase_statement->child_type==phrase_type_tagged_expression){
-    if(gen_code_tagged_expression(phrase_statement->child.phrase_tagged_expression,struct_table)){
+  else if(phrase_statement->child_type==phrase_type_tagged_statement){
+    if(gen_code_tagged_statement(phrase_statement->child.phrase_tagged_statement,struct_table)){
+      return 1;
+    }
+  }
+  else if(phrase_statement->child_type==phrase_type_selection_statement){
+    if(gen_code_selection_statement(phrase_statement->child.phrase_selection_statement,string_table,symbol_table,struct_table,libraries)){
       return 1;
     }
   }

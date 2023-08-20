@@ -43,7 +43,11 @@ extern void clean_up_set_statement(set_statement *phrase_set_statement);
 
 extern void clean_up_tag_sequence(tag_sequence *phrase_tag_sequence);
 
-extern void clean_up_tagged_expression(tagged_expression *phrase_tagged_expression);
+extern void clean_up_tagged_statement(tagged_statement *phrase_tagged_statement);
+
+extern void clean_up_else_clause(else_clause *phrase_else_clause);
+
+extern void clean_up_selection_statement(selection_statement *phrase_selection_statement);
 
 extern void clean_up_struct_tag_definition(struct_tag_definition *phrase_struct_tag_definition);
 

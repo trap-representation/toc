@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "nvm_sources.h"
 #include TOC_NVM_IMPLEMENTATION_H
@@ -112,14 +113,14 @@ void clean_up_set_statement(set_statement *phrase_set_statement){
   if(phrase_set_statement!=NULL){
     free(phrase_set_statement->lex_identifier);
     clean_up_sign(phrase_set_statement->phrase_sign);
-    if(phrase_set_statement->child1_type==lex_type_numeric_constant){
-      free(phrase_set_statement->child1.lex_numeric_constant);
+    if(phrase_set_statement->child_type==lex_type_numeric_constant){
+      free(phrase_set_statement->child.lex_numeric_constant);
     }
-    else if(phrase_set_statement->child1_type==lex_type_string_constant){
-      free(phrase_set_statement->child1.lex_string_constant);
+    else if(phrase_set_statement->child_type==lex_type_string_constant){
+      free(phrase_set_statement->child.lex_string_constant);
     }
-    else if(phrase_set_statement->child1_type==phrase_type_symbol){
-      clean_up_symbol(phrase_set_statement->child1.phrase_symbol);
+    else if(phrase_set_statement->child_type==phrase_type_symbol){
+      clean_up_symbol(phrase_set_statement->child.phrase_symbol);
     }
     free(phrase_set_statement);
   }
@@ -148,11 +149,11 @@ void clean_up_phrase_struct_name(struct_name *phrase_struct_name){
   }
 }
 
-void clean_up_tagged_expression(tagged_expression *phrase_tagged_expression){
-  if(phrase_tagged_expression!=NULL){
-    clean_up_phrase_struct_name(phrase_tagged_expression->phrase_struct_name);
-    clean_up_tag_sequence(phrase_tagged_expression->phrase_tag_sequence);
-    free(phrase_tagged_expression);
+void clean_up_tagged_statement(tagged_statement *phrase_tagged_statement){
+  if(phrase_tagged_statement!=NULL){
+    clean_up_phrase_struct_name(phrase_tagged_statement->phrase_struct_name);
+    clean_up_tag_sequence(phrase_tagged_statement->phrase_tag_sequence);
+    free(phrase_tagged_statement);
   }
 }
 
@@ -218,6 +219,30 @@ void clean_up_instruction(instruction *phrase_instruction){
   free(phrase_instruction);
 }
 
+void clean_up_else_clause(else_clause *phrase_else_clause){
+  if(phrase_else_clause->child_type==phrase_type_statement_sequence){
+    clean_up_statement_sequence(phrase_else_clause->child.phrase_statement_sequence);
+  }
+  else if(phrase_else_clause->child_type==phrase_type_statement){
+    clean_up_statement(phrase_else_clause->child.phrase_statement);
+  }
+  free(phrase_else_clause);
+}
+
+void clean_up_selection_statement(selection_statement *phrase_selection_statement){
+  clean_up_statement_sequence(phrase_selection_statement->phrase_statement_sequence);
+  if(phrase_selection_statement->child_type==phrase_type_statement_sequence){
+    clean_up_statement_sequence(phrase_selection_statement->child.phrase_statement_sequence);
+  }
+  else if(phrase_selection_statement->child_type==phrase_type_statement){
+    clean_up_statement(phrase_selection_statement->child.phrase_statement);
+  }
+  if(phrase_selection_statement->phrase_else_clause!=NULL){
+    clean_up_else_clause(phrase_selection_statement->phrase_else_clause);
+  }
+  free(phrase_selection_statement);
+}
+
 void clean_up_statement(statement *phrase_statement){
   if(phrase_statement->child_type==phrase_type_push_statement){
       clean_up_push_statement(phrase_statement->child.phrase_push_statement);
@@ -237,14 +262,17 @@ void clean_up_statement(statement *phrase_statement){
   else if(phrase_statement->child_type==phrase_type_label){
     clean_up_label(phrase_statement->child.phrase_label);
   }
-  else if(phrase_statement->child_type==phrase_type_tagged_expression){
-    clean_up_tagged_expression(phrase_statement->child.phrase_tagged_expression);
+  else if(phrase_statement->child_type==phrase_type_tagged_statement){
+    clean_up_tagged_statement(phrase_statement->child.phrase_tagged_statement);
   }
   else if(phrase_statement->child_type==phrase_type_struct_definition){
     clean_up_struct_definition(phrase_statement->child.phrase_struct_definition);
   }
   else if(phrase_statement->child_type==phrase_type_instruction){
     clean_up_instruction(phrase_statement->child.phrase_instruction);
+  }
+  else if(phrase_statement->child_type==phrase_type_selection_statement){
+    clean_up_selection_statement(phrase_statement->child.phrase_selection_statement);
   }
   free(phrase_statement);
 }

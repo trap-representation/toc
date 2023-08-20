@@ -14,6 +14,7 @@
 
 #include "nvm_sources.h"
 #include TOC_NVM_IMPLEMENTATION_H
+#include "conv.h"
 #include "tu_list.h"
 #include "comp_properties.h"
 #include "token.h"
@@ -24,151 +25,6 @@
 #include "clean_up_routines.h"
 #include "resolve_imports.h"
 #include "verify.h"
-
-static inline unsigned int get_hexadecimal_digit_val_checked(char c){
-  switch(c){
-    case 'a': case 'A':
-      return 10;
-    case 'b': case 'B':
-      return 11;
-    case 'c': case 'C':
-      return 12;
-    case 'd': case 'D':
-      return 13;
-    case 'e': case 'E':
-      return 14;
-    case 'f': case 'F':
-      return 15;
-  }
-  if(c>='0' && c<='9'){
-    return c-'0';
-  }
-  return 16;
-}
-
-static inline nightVM_uns uint_power(nightVM_l i, nightVM_l e){
-  nightVM_l ret=1;
-  for(nightVM_l j=0;j<e;j++){
-    ret*=i;
-  }
-  return ret;
-}
-
-static inline nightVM_uns str_to_uns(char *s, unsigned int *ret){
-  *ret=0;
-  nightVM_uns n=0;
-  if(s[0]=='0' && s[1]=='x'){
-    s=&s[2];
-    size_t c_len=strlen(s);
-    for(size_t i=0;i<c_len;i++){
-      unsigned int hval;
-      if((hval=get_hexadecimal_digit_val_checked(s[i]))>15){
-        n+=(s[i]-'0')*uint_power(16,(c_len-1)-i);
-      }
-      else{
-        *ret=1;
-        return 0;
-      }
-    }
-  }
-  else if(s[0]=='0' && s[1]=='b'){
-    s=&s[2];
-    size_t c_len=strlen(s);
-    for(size_t i=0;i<c_len;i++){
-      if(s[i]=='0' || s[i]=='1'){
-        n+=(s[i]-'0')*uint_power(2,(c_len-1)-i);
-      }
-      else{
-        *ret=1;
-        return 0;
-      }
-    }
-  }
-  else if(s[0]=='0' && s[1]=='o'){
-    s=&s[2];
-    size_t c_len=strlen(s);
-    for(size_t i=0;i<c_len;i++){
-      if(s[i]>='0' && s[i]<='7'){
-        n+=(s[i]-'0')*uint_power(8,(c_len-1)-i);
-      }
-      else{
-        *ret=1;
-        return 0;
-      }
-    }
-  }
-  else{
-    for(size_t i=0;s[i]!='\0';i++){
-      if(s[i]>='0' && s[i]<='9'){
-        n*=10;
-        n+=s[i]-'0';
-      }
-      else{
-        *ret=1;
-        return 0;
-      }
-    }
-  }
-  return n;
-}
-
-static inline nightVM_ui str_to_ui(char *s, unsigned int *ret){
-  *ret=0;
-  nightVM_ui n=0;
-  if(s[0]=='0' && s[1]=='x'){
-    s=&s[2];
-    size_t c_len=strlen(s);
-    for(size_t i=0;i<c_len;i++){
-      unsigned int hval;
-      if((hval=get_hexadecimal_digit_val_checked(s[i]))>15){
-        n+=(s[i]-'0')*uint_power(16,(c_len-1)-i);
-      }
-      else{
-        *ret=1;
-        return 0;
-      }
-    }
-  }
-  else if(s[0]=='0' && s[1]=='b'){
-    s=&s[2];
-    size_t c_len=strlen(s);
-    for(size_t i=0;i<c_len;i++){
-      if(s[i]=='0' || s[i]=='1'){
-        n+=(s[i]-'0')*uint_power(2,(c_len-1)-i);
-      }
-      else{
-        *ret=1;
-        return 0;
-      }
-    }
-  }
-  else if(s[0]=='0' && s[1]=='o'){
-    s=&s[2];
-    size_t c_len=strlen(s);
-    for(size_t i=0;i<c_len;i++){
-      if(s[i]>='0' && s[i]<='7'){
-        n+=(s[i]-'0')*uint_power(8,(c_len-1)-i);
-      }
-      else{
-        *ret=1;
-        return 0;
-      }
-    }
-  }
-  else{
-    for(size_t i=0;s[i]!='\0';i++){
-      if(s[i]>='0' && s[i]<='9'){
-        n*=10;
-        n+=s[i]-'0';
-      }
-      else{
-        *ret=1;
-        return 0;
-      }
-    }
-  }
-  return n;
-}
 
 compilation_attributes comp_attr;
 
@@ -554,7 +410,7 @@ int main(int argc, char *argv[]){
   nightVM_l address=0;
   translation_unit_list *l_tu=tu_list;
   while(l_tu!=NULL){
-    sym_table *t_symbol_table=create_sym_table_and_calculate_addresses(&last_symbol_table_node,symbol_table,l_tu->tu,string_table,libraries,&address,&ret);
+    sym_table *t_symbol_table=create_sym_table(&last_symbol_table_node,symbol_table,l_tu->tu,string_table,libraries,&address,&ret);
     if(symbol_table==NULL){
       symbol_table=t_symbol_table;
     }
@@ -576,16 +432,16 @@ int main(int argc, char *argv[]){
   }
   trav_tu_list=tu_list;
   while(trav_tu_list!=NULL){
-    if(!tagged_expression_constructs_ok(trav_tu_list->tu,struct_table)){
+    if(!tagged_statement_constructs_ok(struct_table,trav_tu_list->tu)){
       ret=1;
     }
-    if(!no_use_of_unset_symbol_in_push_statements(trav_tu_list->tu,symbol_table)){
+    if(!no_use_of_unset_symbols_in_push_statements(symbol_table,trav_tu_list->tu)){
       ret=1;
     }
-    if(!alignof_statements_ok(trav_tu_list->tu,struct_table)){
+    if(!alignof_statements_ok(struct_table,trav_tu_list->tu)){
       ret=1;
     }
-    if(!sizeof_statements_ok(trav_tu_list->tu,struct_table)){
+    if(!sizeof_statements_ok(struct_table,trav_tu_list->tu)){
       ret=1;
     }
     if(ret==1){

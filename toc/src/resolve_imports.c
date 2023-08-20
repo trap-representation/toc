@@ -68,7 +68,7 @@ unsigned int resolve_imports(translation_unit *tu){
         statement_sequence *append_statement_sequence=phrase_statement_sequence->phrase_statement_sequence;
         statement_sequence *end_statement_sequence;
         token *curr=tokens;
-        if((end_statement_sequence=parse_statement_sequence(NULL,phrase_statement_sequence,&curr,file_name))==NULL){
+        if((end_statement_sequence=parse_statement_sequence(NULL,NULL,NULL,NULL,phrase_statement_sequence,&curr,file_name))==NULL){
           clean_up_tokens_list(tokens);
           return 1;
         }

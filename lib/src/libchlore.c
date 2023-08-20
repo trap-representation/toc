@@ -22,9 +22,9 @@
 
 #include LIB_NVM_IMPLEMENTATION_H
 
-#define dl_params int argc, char **argv, nightVM_l *stack, void **code, nightVM_ui code_alignment, void **heap, nightVM_ui heap_alignment, nightVM_l reg_ssz_val, nightVM_l *reg_hsz_val, nightVM_l *reg_sp_val, nightVM_l *reg_cs_val, nightVM_l reg_pc_val, nightVM_l *gpr, nightVM_l *call_stack, nightVM_l reg_clp_val
+#define dl_params int argc, char **argv, nightVM_l *stack, void **code, nightVM_ui code_alignment, void **heap, nightVM_ui heap_alignment, nightVM_l reg_ssz_val, nightVM_l *reg_hsz_val, nightVM_l *reg_sp_val, nightVM_l *reg_cs_val, nightVM_l reg_pc_val, nightVM_l reg_lop_val, nightVM_l *call_stack, nightVM_l reg_clp_val, nightVM_l *gpr
 
-#define dl_pass argc,argv,stack,code,code_alignment,heap,heap_alignment,reg_ssz_val,reg_hsz_val,reg_sp_val,reg_cs_val,reg_pc_val,gpr,call_stack,reg_clp_val
+#define dl_pass argc,argv,stack,code,code_alignment,heap,heap_alignment,reg_ssz_val,reg_hsz_val,reg_sp_val,reg_cs_val,reg_pc_val,reg_lop_val,call_stack,reg_clp_val,gpr
 
 #define NULL_PTR 4611686018427387903
 #define MAX_ADDR_MEM 4611686018427387903
@@ -750,6 +750,8 @@ void out_uc(dl_params){
     return;
   }
   free(fms);
+  gpr[0]=0;
+  *reg_sp_val-=1;
 }
 
 void out_us(dl_params){
@@ -783,6 +785,8 @@ void out_us(dl_params){
     return;
   }
   free(fms);
+  gpr[0]=0;
+  *reg_sp_val-=1;
 }
 
 void out_ui(dl_params){
@@ -816,6 +820,8 @@ void out_ui(dl_params){
     return;
   }
   free(fms);
+  gpr[0]=0;
+  *reg_sp_val-=1;
 }
 
 void out_c(dl_params){
@@ -849,6 +855,8 @@ void out_c(dl_params){
     return;
   }
   free(fms);
+  gpr[0]=0;
+  *reg_sp_val-=1;
 }
 
 void out_s(dl_params){
@@ -882,6 +890,8 @@ void out_s(dl_params){
     return;
   }
   free(fms);
+  gpr[0]=0;
+  *reg_sp_val-=1;
 }
 
 void out_i(dl_params){
@@ -915,6 +925,8 @@ void out_i(dl_params){
     return;
   }
   free(fms);
+  gpr[0]=0;
+  *reg_sp_val-=1;
 }
 
 void out_l(dl_params){
@@ -926,7 +938,6 @@ void out_l(dl_params){
     *reg_sp_val-=1;
     return;
   }
-  printf("got %d\n",n);
   char *fms;
   if((fms=malloc(n+1))==NULL){
     gpr[0]=Chlore_EOF;
@@ -949,6 +960,8 @@ void out_l(dl_params){
     return;
   }
   free(fms);
+  gpr[0]=0;
+  *reg_sp_val-=1;
 }
 
 void out_char(dl_params){

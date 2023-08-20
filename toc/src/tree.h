@@ -21,6 +21,41 @@ typedef struct s_sizeof_statement {
   uintmax_t end_y;
 } sizeof_statement;
 
+typedef struct s_else_clause {
+  unsigned int child_type;
+  union else_clause_child_type_union {
+    #define phrase_type_statement 2
+    struct s_statement *phrase_statement;
+    struct s_statement_sequence *phrase_statement_sequence;
+  } child;
+  struct s_selection_statement *parent;
+  nightVM_ui align_pad;
+  nightVM_l rend_address;
+  char *file;
+  uintmax_t start_x;
+  uintmax_t start_y;
+  uintmax_t end_x;
+  uintmax_t end_y;
+} else_clause;
+
+typedef struct s_selection_statement {
+  struct s_statement_sequence *phrase_statement_sequence;
+  unsigned int child_type;
+  union selection_statement_child_type_union {
+    struct s_statement *phrase_statement;
+    struct s_statement_sequence *phrase_statement_sequence;
+  } child;
+  struct s_else_clause *phrase_else_clause;
+  struct s_statement *parent;
+  nightVM_ui align_pad;
+  nightVM_l rend_address;
+  char *file;
+  uintmax_t start_x;
+  uintmax_t start_y;
+  uintmax_t end_x;
+  uintmax_t end_y;
+} selection_statement;
+
 typedef struct s_alignof_statement {
   unsigned int child_type;
   union alignof_statement_child_type_union {
@@ -41,13 +76,13 @@ typedef struct s_push_statement {
   struct s_sign *phrase_sign;
   unsigned int child_type;
   union push_statement_child_type_union {
-    #define lex_type_numeric_constant 2
+    #define lex_type_numeric_constant 3
     char *lex_numeric_constant;
-    #define lex_type_string_constant 3
+    #define lex_type_string_constant 4
     char *lex_string_constant;
-    #define lex_type_character_constant 4
+    #define lex_type_character_constant 5
     char *lex_character_constant;
-    #define phrase_type_symbol 5
+    #define phrase_type_symbol 6
     struct s_symbol *phrase_symbol;
   } child;
   struct s_statement *parent;
@@ -74,13 +109,13 @@ typedef struct s_label {
 typedef struct s_set_statement {
   char *lex_identifier;
   struct s_sign *phrase_sign;
-  unsigned int child1_type;
-  union set_statement_child1_type_union {
+  unsigned int child_type;
+  union set_statement_child_type_union {
     char *lex_numeric_constant;
     char *lex_character_constant;
     char *lex_string_constant;
     struct s_symbol *phrase_symbol;
-  } child1;
+  } child;
   struct s_statement *parent;
   char *file;
   uintmax_t start_x;
@@ -104,15 +139,15 @@ typedef struct s_tag_sequence {
   struct s_tag_sequence *phrase_tag_sequence;
   unsigned int parent_type;
   union tag_sequence_parent_type_union {
-    #define phrase_type_tagged_expression 6
-    struct s_tagged_expression *phrase_tagged_expression;
-    #define phrase_type_tag_sequence 7
+    #define phrase_type_tagged_statement 7
+    struct s_tagged_statement *phrase_tagged_statement;
+    #define phrase_type_tag_sequence 8
     struct s_tag_sequence *phrase_tag_sequence;
   } parent;
   char *file;
 } tag_sequence;
 
-typedef struct s_tagged_expression {
+typedef struct s_tagged_statement {
   struct s_struct_name *phrase_struct_name;
   struct s_tag_sequence *phrase_tag_sequence;
   struct s_statement *parent;
@@ -122,7 +157,7 @@ typedef struct s_tagged_expression {
   uintmax_t start_y;
   uintmax_t end_x;
   uintmax_t end_y;
-} tagged_expression;
+} tagged_statement;
 
 typedef struct s_struct_tag_definition {
   unsigned int child_type;
@@ -144,9 +179,9 @@ typedef struct s_struct_tag_definition_sequence {
   struct s_struct_tag_definition_sequence *phrase_struct_tag_definition_sequence;
   unsigned int parent_type;
   union struct_tag_definition_sequence_parent_union {
-    #define phrase_type_struct_definition 8
+    #define phrase_type_struct_definition 9
     struct s_struct_definition *phrase_struct_definition;
-    #define phrase_type_struct_tag_definition_sequence 9
+    #define phrase_type_struct_tag_definition_sequence 10
     struct s_struct_tag_definition_sequence *phrase_struct_tag_definition_sequence;
   } parent;
   char *file;
@@ -166,24 +201,34 @@ typedef struct s_struct_definition {
 typedef struct s_statement {
   unsigned int child_type;
   union statement_child_type_union {
-    #define phrase_type_push_statement 10
+    #define phrase_type_push_statement 11
     struct s_push_statement *phrase_push_statement;
-    #define phrase_type_set_statement 11
+    #define phrase_type_set_statement 12
     struct s_set_statement *phrase_set_statement;
-    #define phrase_type_alignof_statement 12
+    #define phrase_type_alignof_statement 13
     struct s_alignof_statement *phrase_alignof_statement;
-    #define phrase_type_sizeof_statement 13
+    #define phrase_type_sizeof_statement 14
     struct s_sizeof_statement *phrase_sizeof_statement;
-    #define phrase_type_label 14
+    #define phrase_type_label 15
     struct s_label *phrase_label;
-    #define phrase_type_import_statement 15
+    #define phrase_type_import_statement 16
     struct s_import_statement *phrase_import_statement;
     struct_definition *phrase_struct_definition;
-    struct s_tagged_expression *phrase_tagged_expression;
-    #define phrase_type_instruction 16
+    struct s_tagged_statement *phrase_tagged_statement;
+    #define phrase_type_instruction 17
     struct s_instruction *phrase_instruction;
+    #define phrase_type_selection_statement 18
+    struct s_selection_statement *phrase_selection_statement;
+    #define phrase_type_else_clause 19
+    struct s_selection_statement *phrase_else_clause;
   } child;
-  struct s_statement_sequence *parent;
+  unsigned int parent_type;
+  union statement_parent_type_union {
+    struct s_statement_sequence *phrase_statement_sequence;
+    struct s_selection_statement *phrase_selection_statement;
+    struct s_else_clause *phrase_else_clause;
+  } parent;
+  struct s_translation_unit *tu;
   char *file;
   uintmax_t start_x;
   uintmax_t start_y;
@@ -195,11 +240,13 @@ typedef struct s_statement_sequence {
   struct s_statement *phrase_statement;
   struct s_statement_sequence *phrase_statement_sequence;
   unsigned int parent_type;
-  union statement_parent_type_union {
-    #define phrase_type_translation_unit 17
+  union statement_sequence_parent_type_union {
+    #define phrase_type_translation_unit 20
     struct s_translation_unit *phrase_translation_unit;
-    #define phrase_type_statement_sequence 18
+    #define phrase_type_statement_sequence 21
     struct s_statement_sequence *phrase_statement_sequence;
+    struct s_selection_statement *phrase_selection_statement;
+    struct s_else_clause *phrase_else_clause;
   } parent;
   struct s_translation_unit *tu;
   char *file;
@@ -226,8 +273,8 @@ typedef struct s_struct_name {
   union struct_name_parent_type_union {
     struct s_sizeof_statement *phrase_sizeof_statement;
     struct s_alignof_statement *phrase_alignof_statement;
-    struct s_tagged_expression *phrase_tagged_expression;
-    #define phrase_type_struct_tag_definition 19
+    struct s_tagged_statement *phrase_tagged_statement;
+    #define phrase_type_struct_tag_definition 22
     struct s_struct_tag_definition *phrase_struct_tag_definition;
   } parent;
   char *file;
@@ -315,6 +362,6 @@ typedef struct s_translation_unit {
   uintmax_t end_y;
 } translation_unit;
 
-#define fill_incomplete 20
+#define fill_incomplete 23
 
 #endif
