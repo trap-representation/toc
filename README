@@ -20,7 +20,7 @@ In ./toc/src/toc.c (main), set the pointer to char designated by the identifier 
 
 In ./toc/src/resolve_imports.c (resolve_imports), set the pointer to char designated by the identifier file_name -- for each header provided by Chlore's standard library -- to denote the respective header files defined by said standard library (the files suffixed with .chlore in ./lib/src/), such that those files can be opened with fopen(file_name, "r").
 
-In ./toc/src/toc.c, the string-literal following the identifier ESFF23xCOM_STRL designates the comment that is written to the output output, if an ESFF23x executable is being generated. The string literal can be changed to write a custom comment to the generated ESFF executable.
+In ./toc/src/toc.c, the string-literal following the identifier ESFF23xCOM_STRL designates the comment that is written to the output, if an ESFF23x executable is being generated. The string literal can be changed to write a custom comment to the generated ESFF executable.
 
 After you have made the appropriate changes, just translate the following source files: ./toc/src/toc.c, ./toc/src/clean_up_routines.c, ./toc/src/code_gen.c, ./toc/src/resolve_imports.c, ./toc/src/lexer.c, ./toc/src/parser.c, ./toc/src/tables.c, ./toc/src/verify.c, ./toc/src/write_error.c and ./toc/src/buf_ops.c, and link them.
 
