@@ -26,11 +26,13 @@
 #include "resolve_imports.h"
 #include "verify.h"
 
+_Static_assert(_Alignof(nightVM_l)%_Alignof(nightVM_uc)==0 && _Alignof(nightVM_l)%_Alignof(nightVM_us)==0 && _Alignof(nightVM_l)%_Alignof(nightVM_ui)==0 && _Alignof(nightVM_l)%_Alignof(nightVM_c)==0 && _Alignof(nightVM_l)%_Alignof(nightVM_s)==0 && _Alignof(nightVM_l)%_Alignof(nightVM_i)==0,"static assert failure in " __FILE__);
+
 compilation_attributes comp_attr;
 
 int main(int argc, char *argv[]){
   comp_attr.std=std_chlore2x_toc;
-  comp_attr.out_fileformat=oform_esff23;
+  comp_attr.out_fileformat=oform_esff23x;
   comp_attr.pic=0;
   comp_attr.outfile="a";
   comp_attr.code_alignment=ALIGNOF_L;
@@ -47,7 +49,7 @@ int main(int argc, char *argv[]){
     if(strcmp(argv[i],"-i")==0 || strcmp(argv[i],"--input")==0){
       i++;
       if(i==argc){
-        fprintf(stderr,"error: expected [file...] after %s\n",argv[i-1]);
+        fprintf(stderr,"implementation error: expected [file...] after %s\n",argv[i-1]);
         clean_up_libraries(libraries);
         return 1;
       }
@@ -62,7 +64,7 @@ int main(int argc, char *argv[]){
     else if(strcmp(argv[i],"-l")==0 || strcmp(argv[i],"--load")==0){
       i++;
       if(i==argc){
-        fprintf(stderr,"error: expected [file...] after %s\n",argv[i-1]);
+        fprintf(stderr,"implementation error: expected [file...] after %s\n",argv[i-1]);
         clean_up_libraries(libraries);
         return 1;
       }
@@ -103,7 +105,7 @@ int main(int argc, char *argv[]){
     else if(strcmp(argv[i],"-o")==0 || strcmp(argv[i],"--out")==0){
       i++;
       if(i==argc){
-        fprintf(stderr,"error: expected a file after %s\n",argv[i-1]);
+        fprintf(stderr,"implementation error: expected a file after %s\n",argv[i-1]);
         clean_up_libraries(libraries);
         return 1;
       }
@@ -114,16 +116,19 @@ int main(int argc, char *argv[]){
     else if(strcmp(argv[i],"-oform")==0 || strcmp(argv[i],"--out-fileformat")==0){
       i++;
       if(i==argc){
-        fprintf(stderr,"error: expected an outfileformat after %s\n",argv[i-1]);
+        fprintf(stderr,"implementation error: expected an outfileformat after %s\n",argv[i-1]);
         clean_up_libraries(libraries);
         return 1;
       }
       else{
         if(strcmp(argv[i],"ESFF23")==0){
-          comp_attr.out_fileformat=std_nc;
+          comp_attr.out_fileformat=oform_esff23;
+        }
+        else if(strcmp(argv[i],"ESFF23x")==0){
+          comp_attr.out_fileformat=oform_esff23x;
         }
         else{
-          fprintf(stderr,"error: not a valid outfileformat %s\n",argv[i]);
+          fprintf(stderr,"implementation error: not a valid outfileformat %s\n",argv[i]);
           clean_up_libraries(libraries);
           return 1;
         }
@@ -132,7 +137,7 @@ int main(int argc, char *argv[]){
     else if(strcmp(argv[i],"-std")==0 || strcmp(argv[i],"--standard")==0){
       i++;
       if(i==argc){
-        fprintf(stderr,"error: expected a standardtype after %s\n",argv[i-1]);
+        fprintf(stderr,"implementation error: expected a standardtype after %s\n",argv[i-1]);
         clean_up_libraries(libraries);
         return 1;
       }
@@ -147,7 +152,7 @@ int main(int argc, char *argv[]){
           comp_attr.std=std_chlore2x_toc;
         }
         else{
-          fprintf(stderr,"error: not a valid standardtype %s\n",argv[i]);
+          fprintf(stderr,"implementation error: not a valid standardtype %s\n",argv[i]);
           clean_up_libraries(libraries);
           return 1;
         }
@@ -156,7 +161,7 @@ int main(int argc, char *argv[]){
     else if(strcmp(argv[i],"-ca")==0 || strcmp(argv[i],"--code-alignment")==0){
       i++;
       if(i==argc){
-        fprintf(stderr,"error: expected an unsignedinteger after %s\n",argv[i-1]);
+        fprintf(stderr,"implementation error: expected an unsignedinteger after %s\n",argv[i-1]);
         clean_up_libraries(libraries);
         return 1;
       }
@@ -164,12 +169,12 @@ int main(int argc, char *argv[]){
         unsigned int ret;
         comp_attr.code_alignment=str_to_ui(argv[i],&ret);
         if(ret==1){
-          fprintf(stderr,"error: expected an unsignedinteger after %s\n",argv[i-1]);
+          fprintf(stderr,"implementation error: expected an unsignedinteger after %s\n",argv[i-1]);
           clean_up_libraries(libraries);
           return 1;
         }
         else if(comp_attr.code_alignment==0){
-          fprintf(stderr,"error: alignment of the code cannot be 0\n");
+          fprintf(stderr,"implementation error: alignment of the code cannot be 0\n");
           clean_up_libraries(libraries);
           return 1;
         }
@@ -178,7 +183,7 @@ int main(int argc, char *argv[]){
     else if(strcmp(argv[i],"-ha")==0 || strcmp(argv[i],"--heap-alignment")==0){
       i++;
       if(i==argc){
-        fprintf(stderr,"error: expected an unsignedinteger after %s\n",argv[i-1]);
+        fprintf(stderr,"implementation error: expected an unsignedinteger after %s\n",argv[i-1]);
         clean_up_libraries(libraries);
         return 1;
       }
@@ -186,12 +191,12 @@ int main(int argc, char *argv[]){
         unsigned int ret;
         comp_attr.heap_alignment=str_to_ui(argv[i],&ret);
         if(ret==1){
-          fprintf(stderr,"error: expected an unsignedinteger after %s\n",argv[i-1]);
+          fprintf(stderr,"implementation error: expected an unsignedinteger after %s\n",argv[i-1]);
           clean_up_libraries(libraries);
           return 1;
         }
         else if(comp_attr.heap_alignment==0){
-          fprintf(stderr,"error: alignment of the heap cannot be 0\n");
+          fprintf(stderr,"implementation error: alignment of the heap cannot be 0\n");
           clean_up_libraries(libraries);
           return 1;
         }
@@ -200,7 +205,7 @@ int main(int argc, char *argv[]){
     else if(strcmp(argv[i],"-ssz")==0 || strcmp(argv[i],"--stack-size")==0){
       i++;
       if(i==argc){
-        fprintf(stderr,"error: expected an unsignedinteger after %s\n",argv[i-1]);
+        fprintf(stderr,"implementation error: expected an unsignedinteger after %s\n",argv[i-1]);
         clean_up_libraries(libraries);
         return 1;
       }
@@ -208,12 +213,12 @@ int main(int argc, char *argv[]){
         unsigned int ret;
         comp_attr.stack_size=str_to_uns(argv[i],&ret);
         if(ret==1){
-          fprintf(stderr,"error: expected an unsignedinteger after %s\n",argv[i-1]);
+          fprintf(stderr,"implementation error: expected an unsignedinteger after %s\n",argv[i-1]);
           clean_up_libraries(libraries);
           return 1;
         }
         else if(comp_attr.stack_size>(nightVM_uns)NVMUNS_MAX){
-          fprintf(stderr,"error: stack too large to be completely addressable\n");
+          fprintf(stderr,"implementation error: stack too large to be completely addressable\n");
           clean_up_libraries(libraries);
           return 1;
         }
@@ -222,7 +227,7 @@ int main(int argc, char *argv[]){
     else if(strcmp(argv[i],"-hsz")==0 || strcmp(argv[i],"--heap-size")==0){
       i++;
       if(i==argc){
-        fprintf(stderr,"error: expected an unsignedinteger after %s\n",argv[i-1]);
+        fprintf(stderr,"implementation error: expected an unsignedinteger after %s\n",argv[i-1]);
         clean_up_libraries(libraries);
         return 1;
       }
@@ -230,12 +235,12 @@ int main(int argc, char *argv[]){
         unsigned int ret;
         comp_attr.heap_size=str_to_uns(argv[i],&ret);
         if(ret==1){
-          fprintf(stderr,"error: expected an unsignedinteger after %s\n",argv[i-1]);
+          fprintf(stderr,"implementation error: expected an unsignedinteger after %s\n",argv[i-1]);
           clean_up_libraries(libraries);
           return 1;
         }
         else if(comp_attr.heap_size>0x3fffffffffffffff){
-          fprintf(stderr,"error: heap too large to be completely addressable\n");
+          fprintf(stderr,"implementation error: heap too large to be completely addressable\n");
           clean_up_libraries(libraries);
           return 1;
         }
@@ -277,7 +282,7 @@ int main(int argc, char *argv[]){
       fprintf(stderr,"    --help (-h): display this message and quit\n");
       fprintf(stderr,"*   --input (-i) [file...]: specify the input file (default: %s); if more than one file is present in the sequence, they are all linked\n",infile);
       fprintf(stderr,"    --out (-) file: specify the output file\n");
-      fprintf(stderr,"    --out-fileformat (-oform) outfileformat: specify the output file format (default: ESFF23)\n");
+      fprintf(stderr,"    --out-fileformat (-oform) outfileformat: specify the output file format (default: ESFF23x)\n");
       fprintf(stderr,"*   --load (-l) [file...]: specify one or more libraries that will be opened by nightVM at startup\n");
       fprintf(stderr,"    --nostdlib (-nstd): do not load the standard library\n");
       fprintf(stderr,"    --standard (-std) standardtype: specify a chlore standard (default: non-conforming)\n");
@@ -295,7 +300,7 @@ int main(int argc, char *argv[]){
       return 0;
     }
     else{
-      fprintf(stderr,"error: %s is an invalid argument; use the --help (-h) argument for a list of valid arguments\n",argv[i]);
+      fprintf(stderr,"implementation error: %s is an invalid argument; use the --help (-h) argument for a list of valid arguments\n",argv[i]);
       clean_up_libraries(libraries);
       return 1;
     }

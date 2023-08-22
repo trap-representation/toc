@@ -21,5 +21,6 @@ typedef struct s_compilation_attributes {
 #define std_chlore2x_toc 2
 
 #define oform_esff23 0
+#define oform_esff23x 1
 
 #endif

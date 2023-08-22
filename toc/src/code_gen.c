@@ -15,6 +15,8 @@
 
 extern compilation_attributes comp_attr;
 
+#define ESFF23xCOM_STRL "#!/usr/bin/env -S nightVM -i\n"
+
 #define OUTBUF_SIZE 1048576
 
 static nightVM_uc *outbuf=NULL;
@@ -3945,41 +3947,87 @@ unsigned int gen_code_translation_unit(translation_unit *phrase_translation_unit
 
 unsigned int gen_code_translation_unit_list(translation_unit_list *tu_list, str_table *string_table, sym_table *symbol_table, struct_definition_table *struct_table, libs *libraries){
   if(comp_attr.out_fileformat==oform_esff23){
-    nightVM_ui magic=0X000E3EFF;
+    nightVM_ui magic=0xE3EFF;
     if(add_to_outstream((unsigned char *)&magic,SIZEOF_UI)){
-      fprintf(stderr,"implementation error: failed to write to file %s\n",comp_attr.outfile);
       clean_add_to_stream_res();
       return 1;
     }
-    nightVM_ui specification_version=0x00000023;
+    nightVM_ui specification_version=0x00023;
     if(add_to_outstream((unsigned char *)&specification_version,SIZEOF_UI)){
-      fprintf(stderr,"implementation error: failed to write to file %s\n",comp_attr.outfile);
       clean_add_to_stream_res();
       return 1;
     }
     if(add_to_outstream((unsigned char *)&comp_attr.code_alignment,SIZEOF_UI)){
-      fprintf(stderr,"implementation error: failed to write to file %s\n",comp_attr.outfile);
       clean_add_to_stream_res();
       return 1;
     }
     if(add_to_outstream((unsigned char *)&comp_attr.heap_alignment,SIZEOF_UI)){
-      fprintf(stderr,"implementation error: failed to write to file %s\n",comp_attr.outfile);
       clean_add_to_stream_res();
       return 1;
     }
     if(add_to_outstream((unsigned char *)&comp_attr.heap_size,SIZEOF_UNS)){
-      fprintf(stderr,"implementation error: failed to write to file %s\n",comp_attr.outfile);
       clean_add_to_stream_res();
       return 1;
     }
     if(add_to_outstream((unsigned char *)&comp_attr.stack_size,SIZEOF_UNS)){
-      fprintf(stderr,"implementation error: failed to write to file %s\n",comp_attr.outfile);
       clean_add_to_stream_res();
       return 1;
     }
     nightVM_uns entry_point=lookup_in_symbol_table("main",symbol_table,NULL,0,NULL);
     if(add_to_outstream((unsigned char *)&entry_point,SIZEOF_UNS)){
-      fprintf(stderr,"implementation error: failed to write to file %s\n",comp_attr.outfile);
+      clean_add_to_stream_res();
+      return 1;
+    }
+  }
+  else if(comp_attr.out_fileformat==oform_esff23x){
+    nightVM_c *esff23xcom;
+    if((esff23xcom=str2cseq(ESFF23xCOM_STRL))==NULL){
+      fprintf(stderr,"implementation error: failed to allocate enough memory\n");
+      clean_add_to_stream_res();
+      return 1;
+    }
+    size_t len=cseqlen(esff23xcom);
+    for(size_t i=0;i<len;i++){
+      if(add_to_outstream((unsigned char *)&esff23xcom[i],1)){
+        free(esff23xcom);
+        clean_add_to_stream_res();
+        return 1;
+      }
+    }
+    free(esff23xcom);
+    nightVM_uc zero=0;
+    if(add_to_outstream((unsigned char *)&zero,1)){
+      clean_add_to_stream_res();
+      return 1;
+    }
+    nightVM_ui magic=0xE3EF6;
+    if(add_to_outstream((unsigned char *)&magic,SIZEOF_UI)){
+      clean_add_to_stream_res();
+      return 1;
+    }
+    nightVM_ui specification_version=0x00023;
+    if(add_to_outstream((unsigned char *)&specification_version,SIZEOF_UI)){
+      clean_add_to_stream_res();
+      return 1;
+    }
+    if(add_to_outstream((unsigned char *)&comp_attr.code_alignment,SIZEOF_UI)){
+      clean_add_to_stream_res();
+      return 1;
+    }
+    if(add_to_outstream((unsigned char *)&comp_attr.heap_alignment,SIZEOF_UI)){
+      clean_add_to_stream_res();
+      return 1;
+    }
+    if(add_to_outstream((unsigned char *)&comp_attr.heap_size,SIZEOF_UNS)){
+      clean_add_to_stream_res();
+      return 1;
+    }
+    if(add_to_outstream((unsigned char *)&comp_attr.stack_size,SIZEOF_UNS)){
+      clean_add_to_stream_res();
+      return 1;
+    }
+    nightVM_uns entry_point=lookup_in_symbol_table("main",symbol_table,NULL,0,NULL);
+    if(add_to_outstream((unsigned char *)&entry_point,SIZEOF_UNS)){
       clean_add_to_stream_res();
       return 1;
     }
