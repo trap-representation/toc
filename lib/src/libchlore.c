@@ -3,6 +3,8 @@
    The character set of the execution environment only consists of character-identifier and punctuator as defined in the Chlore grammar
 */
 
+#define _POSIX_C_SOURCE 200809L
+
 #include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>

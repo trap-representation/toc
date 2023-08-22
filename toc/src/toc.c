@@ -70,35 +70,27 @@ int main(int argc, char *argv[]){
       }
       else{
         for(int j=i;j<argc && strcmp(argv[j],"@-")!=0;j++){
-          char resolved_name[PATH_MAX];
-          if(realpath(argv[i],resolved_name)==NULL){
-            fprintf(stderr,"implementation error: failed to resolve absolute pathname of %s\n",argv[i]);
-            clean_up_libraries(libraries);
-            return 1;
+          if(libraries==NULL){
+            if((libraries=malloc(sizeof(libs)))==NULL){
+              fprintf(stderr,"implementation error: failed to allocate enough memory\n");
+              return 1;
+            }
+            libraries_trav=libraries;
           }
-          if(!(!comp_attr.nostdlib && strcmp(resolved_name,stdlib_pathname)==0)){
-            if(libraries==NULL){
-              if((libraries=malloc(sizeof(libs)))==NULL){
-                fprintf(stderr,"implementation error: failed to allocate enough memory\n");
-                return 1;
-              }
-              libraries_trav=libraries;
-            }
-            else{
-              if((libraries_trav->next=malloc(sizeof(libs)))==NULL){
-                fprintf(stderr,"implementation error: failed to allocate enough memory\n");
-                clean_up_libraries(libraries);
-                return 1;
-              }
-              libraries_trav=libraries_trav->next;
-            }
-            if((libraries_trav->lib_name=str2cseq(argv[i]))==NULL){
+          else{
+            if((libraries_trav->next=malloc(sizeof(libs)))==NULL){
               fprintf(stderr,"implementation error: failed to allocate enough memory\n");
               clean_up_libraries(libraries);
               return 1;
             }
-            libraries_trav->next=NULL;
+            libraries_trav=libraries_trav->next;
           }
+          if((libraries_trav->lib_name=str2cseq(argv[i]))==NULL){
+            fprintf(stderr,"implementation error: failed to allocate enough memory\n");
+            clean_up_libraries(libraries);
+            return 1;
+          }
+          libraries_trav->next=NULL;
         }
       }
     }
