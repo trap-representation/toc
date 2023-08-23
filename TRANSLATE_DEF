@@ -2,7 +2,6 @@ Set the current working directory to ./toc/src/. Also make sure that the source 
 
 [path_to_clang_gcc_or_similar] ./toc.c ./clean_up_routines.c ./code_gen.c ./resolve_imports.c ./lexer.c ./parser.c ./tables.c ./verify.c ./write_error.c ./buf_ops.c -o /usr/local/bin/toc -Wall -Wextra -Wno-unused -std=gnu11 -pedantic
 
-
 To make sure toc is present in /usr/local/bin/, you can invoke
 
 /usr/local/bin/toc --about
