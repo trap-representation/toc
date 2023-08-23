@@ -1,5 +1,5 @@
 +-----------------------------------------+
-| Installation guide for the toc compiler |
+| Translation guide for the toc compiler |
 +-----------------------------------------+
 
 This version of toc can only geterate output that are compatible with nightVM. Check ./toc/src/ for the source of the toc compiler.
@@ -39,3 +39,9 @@ includes the source file implementation.h as defined in nightVM.
 ./lib/src/libchlore.c can be translated to generate a library.
 
 As of now, it conforms to the ISO/IEC 2899:2011 standard with the assumption that the system interfaces provided by SUSv4-2018 are available, and during translation, a preprocessing directive of the form as mentioned in the installation guide for the toc compiler, searches for the named source file the way it is defined in SUSv4-2018 4.13 (Pathname resolution). It might not exactly be strictly POSIX conforming, since some minimum implementation limits might have been exceeded.
+
++----------------------------+
+| Translating the easier way |
++----------------------------+
+
+If you're using a SUSv4-2018 compliant system and are fine with toc and the implementation of the standard library being put in /usr/local/bin/ and /usr/local/lib/ respectively, you can check out the TRANSLATE_DEF file for instructions.
