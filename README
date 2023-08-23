@@ -1,6 +1,6 @@
-+-----------------------------------------+
++----------------------------------------+
 | Translation guide for the toc compiler |
-+-----------------------------------------+
++----------------------------------------+
 
 This version of toc can only geterate output that are compatible with nightVM. Check ./toc/src/ for the source of the toc compiler.
 
