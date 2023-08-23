@@ -1,0 +1,18 @@
+Set the current working directory to ./toc/src/. Also make sure that the source files named implementation.h and opcodes.h (in the nightVM project) can be referred to with ../../../nightVM/src/implementation.h and ../../../nightVM/src/opcodes.h respectively. Invoke the following command to translate the source files and store the output in /usr/local/bin.
+
+[path_to_clang_gcc_or_similar] ./toc.c ./clean_up_routines.c ./code_gen.c ./resolve_imports.c ./lexer.c ./parser.c ./tables.c ./verify.c ./write_error.c ./buf_ops.c -o /usr/local/bin/toc -Wall -Wextra -Wno-unused -std=gnu11 -pedantic
+
+
+To make sure toc is present in /usr/local/bin/, you can invoke
+
+/usr/local/bin/toc --about
+
+which should display some information about the toc compiler.
+
+---
+
+With the current working directory set to ./lib/src/, you can invoke the command
+
+[path_to_clang_gcc_or_similar] ./libchlore.c -o /usr/local/lib/elibchlore.so -shared -std=c11 -fPIC -Wall -Wextra -Wno-unused
+
+just make sure that the source files named implementation.h and opcodes.h (in the nightVM project) can be referred to with ../../../nightVM/src/implementation.h and ../../../nightVM/src/opcodes.h respectively.
