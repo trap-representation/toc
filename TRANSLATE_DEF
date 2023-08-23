@@ -10,8 +10,12 @@ which should display some information about the toc compiler.
 
 ---
 
-With the current working directory set to ./lib/src/, you can invoke the command
+With the current working directory set to ./lib/src/, invoke the command
 
 [path_to_clang_gcc_or_similar] ./libchlore.c -o /usr/local/lib/elibchlore.so -shared -std=c11 -fPIC -Wall -Wextra -Wno-unused
 
 just make sure that the source files named implementation.h and opcodes.h (in the nightVM project) can be referred to with ../../../nightVM/src/implementation.h and ../../../nightVM/src/opcodes.h respectively.
+
+Finally, invoke
+
+cp *.chloreh /usr/local/include/
