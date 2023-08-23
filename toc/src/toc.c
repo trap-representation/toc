@@ -26,7 +26,7 @@
 #include "resolve_imports.h"
 #include "verify.h"
 
-_Static_assert(_Alignof(nightVM_l)%_Alignof(nightVM_uc)==0 && _Alignof(nightVM_l)%_Alignof(nightVM_us)==0 && _Alignof(nightVM_l)%_Alignof(nightVM_ui)==0 && _Alignof(nightVM_l)%_Alignof(nightVM_c)==0 && _Alignof(nightVM_l)%_Alignof(nightVM_s)==0 && _Alignof(nightVM_l)%_Alignof(nightVM_i)==0,"static assert failure in " __FILE__);
+_Static_assert(_Alignof(nightVM_l)%_Alignof(nightVM_us)==0 && _Alignof(nightVM_l)%_Alignof(nightVM_ui)==0 && _Alignof(nightVM_l)%_Alignof(nightVM_s)==0 && _Alignof(nightVM_l)%_Alignof(nightVM_i)==0,"static assert failure in " __FILE__);
 
 compilation_attributes comp_attr;
 
