@@ -36,55 +36,109 @@
 
 :hidden putl
   pushp STDLIB_ID
-  pushp "out_l"
+  pushp "put_l"
   invoke
   ret
 
 :hidden putp
   pushp STDLIB_ID
-  pushp "out_p"
+  pushp "put_p"
   invoke
   ret
 
 :hidden puti
   pushp STDLIB_ID
-  pushp "out_i"
+  pushp "put_i"
   invoke
   ret
 
 :hidden puts
   pushp STDLIB_ID
-  pushp "out_s"
+  pushp "put_s"
   invoke
   ret
 
 :hidden putc
   pushp STDLIB_ID
-  pushp "out_c"
+  pushp "put_c"
   invoke
   ret
 
 :hidden putui
   pushp STDLIB_ID
-  pushp "out_ui"
+  pushp "put_ui"
   invoke
   ret
 
 :hidden putus
   pushp STDLIB_ID
-  pushp "out_us"
+  pushp "put_us"
   invoke
   ret
 
 :hidden putuc
   pushp STDLIB_ID
-  pushp "out_uc"
+  pushp "put_uc"
   invoke
   ret
 
 :hidden putchar
   pushp STDLIB_ID
-  pushp "out_char"
+  pushp "put_char"
+  invoke
+  ret
+
+:hidden putle
+  pushp STDLIB_ID
+  pushp "put_l_err"
+  invoke
+  ret
+
+:hidden putpe
+  pushp STDLIB_ID
+  pushp "put_p_err"
+  invoke
+  ret
+
+:hidden putie
+  pushp STDLIB_ID
+  pushp "put_i_err"
+  invoke
+  ret
+
+:hidden putse
+  pushp STDLIB_ID
+  pushp "put_s_err"
+  invoke
+  ret
+
+:hidden putce
+  pushp STDLIB_ID
+  pushp "put_c_err"
+  invoke
+  ret
+
+:hidden putuie
+  pushp STDLIB_ID
+  pushp "put_ui_err"
+  invoke
+  ret
+
+:hidden putuse
+  pushp STDLIB_ID
+  pushp "put_us_err"
+  invoke
+  ret
+
+:hidden putuce
+  pushp STDLIB_ID
+  pushp "put_uc_err"
+  invoke
+  ret
+
+:hidden putchare
+  pushp STDLIB_ID
+  pushp "put_char_err"
   invoke
   ret
 

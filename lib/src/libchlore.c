@@ -676,7 +676,7 @@ void arseg(dl_params){
   io.chloreh
 */
 
-void out_p(dl_params){
+static void out_p(dl_params, int fd){
   if(stack[*reg_sp_val-1]==NULL_PTR){
     if(write(FD_STDOUT,"(null)",6)==-1){
       gpr[0]=Chlore_EOF;
@@ -708,7 +708,7 @@ void out_p(dl_params){
       *reg_sp_val-=1;
       return;
     }
-    if(write(FD_STDOUT,fms,n)==-1){
+    if(write(fd,fms,n)==-1){
       free(fms);
       gpr[0]=Chlore_EOF;
       errn=EPERR;
@@ -721,7 +721,7 @@ void out_p(dl_params){
   *reg_sp_val-=1;
 }
 
-void out_uc(dl_params){
+static void out_uc(dl_params, int fd){
   char efms[1];
   int n;
   if((n=snprintf(efms,1,"%" PRINVMUC,(nightVM_uc)stack[*reg_sp_val-1]))<0){
@@ -744,7 +744,7 @@ void out_uc(dl_params){
     *reg_sp_val-=1;
     return;
   }
-  if(write(FD_STDOUT,fms,n)==-1){
+  if(write(fd,fms,n)==-1){
     free(fms);
     gpr[0]=Chlore_EOF;
     errn=EPERR;
@@ -756,7 +756,7 @@ void out_uc(dl_params){
   *reg_sp_val-=1;
 }
 
-void out_us(dl_params){
+static void out_us(dl_params, int fd){
   char efms[1];
   int n;
   if((n=snprintf(efms,1,"%" PRINVMUS,(nightVM_us)stack[*reg_sp_val-1]))<0){
@@ -779,7 +779,7 @@ void out_us(dl_params){
     *reg_sp_val-=1;
     return;
   }
-  if(write(FD_STDOUT,fms,n)==-1){
+  if(write(fd,fms,n)==-1){
     free(fms);
     gpr[0]=Chlore_EOF;
     errn=EPERR;
@@ -791,7 +791,7 @@ void out_us(dl_params){
   *reg_sp_val-=1;
 }
 
-void out_ui(dl_params){
+static void out_ui(dl_params, int fd){
   char efms[1];
   int n;
   if((n=snprintf(efms,1,"%" PRINVMUI,(nightVM_ui)stack[*reg_sp_val-1]))<0){
@@ -814,7 +814,7 @@ void out_ui(dl_params){
     *reg_sp_val-=1;
     return;
   }
-  if(write(FD_STDOUT,fms,n)==-1){
+  if(write(fd,fms,n)==-1){
     free(fms);
     gpr[0]=Chlore_EOF;
     errn=EPERR;
@@ -826,7 +826,7 @@ void out_ui(dl_params){
   *reg_sp_val-=1;
 }
 
-void out_c(dl_params){
+static void out_c(dl_params, int fd){
   char efms[1];
   int n;
   if((n=snprintf(efms,1,"%" PRINVMC,(nightVM_c)stack[*reg_sp_val-1]))<0){
@@ -849,7 +849,7 @@ void out_c(dl_params){
     *reg_sp_val-=1;
     return;
   }
-  if(write(FD_STDOUT,fms,n)==-1){
+  if(write(fd,fms,n)==-1){
     free(fms);
     gpr[0]=Chlore_EOF;
     errn=EPERR;
@@ -861,7 +861,7 @@ void out_c(dl_params){
   *reg_sp_val-=1;
 }
 
-void out_s(dl_params){
+static void out_s(dl_params, int fd){
   char efms[1];
   int n;
   if((n=snprintf(efms,1,"%" PRINVMS,(nightVM_s)stack[*reg_sp_val-1]))<0){
@@ -884,7 +884,7 @@ void out_s(dl_params){
     *reg_sp_val-=1;
     return;
   }
-  if(write(FD_STDOUT,fms,n)==-1){
+  if(write(fd,fms,n)==-1){
     free(fms);
     gpr[0]=Chlore_EOF;
     errn=EPERR;
@@ -896,7 +896,7 @@ void out_s(dl_params){
   *reg_sp_val-=1;
 }
 
-void out_i(dl_params){
+static void out_i(dl_params, int fd){
   char efms[1];
   int n;
   if((n=snprintf(efms,1,"%" PRINVMI,(nightVM_i)stack[*reg_sp_val-1]))<0){
@@ -919,7 +919,7 @@ void out_i(dl_params){
     *reg_sp_val-=1;
     return;
   }
-  if(write(FD_STDOUT,fms,n)==-1){
+  if(write(fd,fms,n)==-1){
     free(fms);
     gpr[0]=Chlore_EOF;
     errn=EPERR;
@@ -931,7 +931,7 @@ void out_i(dl_params){
   *reg_sp_val-=1;
 }
 
-void out_l(dl_params){
+static void out_l(dl_params, int fd){
   char efms[1];
   int n;
   if((n=snprintf(efms,1,"%" PRINVML,(nightVM_l)stack[*reg_sp_val-1]))<0){
@@ -954,7 +954,7 @@ void out_l(dl_params){
     *reg_sp_val-=1;
     return;
   }
-  if(write(FD_STDOUT,fms,n)==-1){
+  if(write(fd,fms,n)==-1){
     free(fms);
     gpr[0]=Chlore_EOF;
     errn=EPERR;
@@ -966,9 +966,9 @@ void out_l(dl_params){
   *reg_sp_val-=1;
 }
 
-void out_char(dl_params){
+static void out_char(dl_params, int fd){
   char c=stack[*reg_sp_val-1];
-  if(write(FD_STDOUT,&c,1)==-1){
+  if(write(fd,&c,1)==-1){
     gpr[0]=Chlore_EOF;
     errn=EPERR;
   }
@@ -976,6 +976,78 @@ void out_char(dl_params){
     gpr[0]=0;
   }
   *reg_sp_val-=1;
+}
+
+void put_char(dl_params){
+  out_char(dl_pass,FD_STDOUT);
+}
+
+void put_char_err(dl_params){
+  out_char(dl_pass,FD_STDERR);
+}
+
+void put_l(dl_params){
+  out_l(dl_pass,FD_STDOUT);
+}
+
+void put_l_err(dl_params){
+  out_l(dl_pass,FD_STDERR);
+}
+
+void put_i(dl_params){
+  out_i(dl_pass,FD_STDOUT);
+}
+
+void put_i_err(dl_params){
+  out_i(dl_pass,FD_STDERR);
+}
+
+void put_s(dl_params){
+  out_s(dl_pass,FD_STDOUT);
+}
+
+void put_s_err(dl_params){
+  out_s(dl_pass,FD_STDERR);
+}
+
+void put_c(dl_params){
+  out_c(dl_pass,FD_STDOUT);
+}
+
+void put_c_err(dl_params){
+  out_c(dl_pass,FD_STDERR);
+}
+
+void put_ui(dl_params){
+  out_ui(dl_pass,FD_STDOUT);
+}
+
+void put_ui_err(dl_params){
+  out_ui(dl_pass,FD_STDERR);
+}
+
+void put_us(dl_params){
+  out_us(dl_pass,FD_STDOUT);
+}
+
+void put_us_err(dl_params){
+  out_us(dl_pass,FD_STDERR);
+}
+
+void put_uc(dl_params){
+  out_uc(dl_pass,FD_STDOUT);
+}
+
+void put_uc_err(dl_params){
+  out_uc(dl_pass,FD_STDERR);
+}
+
+void put_p(dl_params){
+  out_p(dl_pass,FD_STDOUT);
+}
+
+void put_p_err(dl_params){
+  out_p(dl_pass,FD_STDERR);
 }
 
 void close_file(dl_params){
@@ -1239,7 +1311,7 @@ void get_argv(dl_params){
   *reg_sp_val-=3;
 }
 
-void print_n_str_fd(dl_params, int fd){
+static void print_n_str_fd(dl_params, int fd){
   gpr[0]=0;
   nightVM_c *read_from;
   if(ptr_typ(stack[*reg_sp_val-1])==TYP_HEAP){
@@ -1268,7 +1340,7 @@ void print_n_str(dl_params){
   print_n_str_fd(dl_pass,FD_STDOUT);
 }
 
-void print_str_fd(dl_params, int fd){
+static void print_str_fd(dl_params, int fd){
   char *s;
   if(ptr_typ(stack[*reg_sp_val-1])==TYP_HEAP){
     if((s=cseq2str(&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-1])]))==NULL){
@@ -1306,7 +1378,7 @@ void print_str(dl_params){
   print_str_fd(dl_pass,FD_STDOUT);
 }
 
-void print_fmt_fd(dl_params, int fd){
+static void print_fmt_fd(dl_params, int fd){
   char *fmt_string=NULL;
   *reg_sp_val-=1;
   if(ptr_typ(stack[*reg_sp_val])==TYP_HEAP){
