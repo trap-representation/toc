@@ -4,10 +4,21 @@
 #include "nvm_sources.h"
 #include TOC_NVM_IMPLEMENTATION_H
 
+enum standard_type {
+  std_nc,
+  std_chlore2x,
+  std_chlore2x_toc
+};
+
+enum output_format {
+  oform_esff23,
+  oform_esff23x
+};
+
 typedef struct s_compilation_attributes {
   char *outfile;
-  unsigned long out_fileformat;
-  unsigned long std;
+  enum output_format out_fileformat;
+  enum standard_type std;
   bool nostdlib;
   bool pic;
   nightVM_ui code_alignment;
@@ -15,12 +26,5 @@ typedef struct s_compilation_attributes {
   nightVM_uns heap_size;
   nightVM_uns stack_size;
 } compilation_attributes;
-
-#define std_nc 0
-#define std_chlore2x 1
-#define std_chlore2x_toc 2
-
-#define oform_esff23 0
-#define oform_esff23x 1
 
 #endif

@@ -6,11 +6,6 @@
 
 #include "parser.h"
 #include "write_error.h"
-#define TOC_ADD_VISIBILITY
-#define TOC_ADD_KEYWORD
-#define TOC_ADD_SIGN
-#define TOC_ADD_PUNCTUATOR
-#include "psg_idens.h"
 
 #define can_be_leftmost_key_in_statement (check_type(*curr,key_pushc) || check_type(*curr,key_pushs) || check_type(*curr,key_pushi) || check_type(*curr,key_pushp) || check_type(*curr,key_pushl) || check_type(*curr,key_pushuc) || check_type(*curr,key_pushus) || check_type(*curr,key_pushui) || check_type(*curr,key_eq) || check_type(*curr,key_gt) || check_type(*curr,key_ls) || check_type(*curr,key_ge) || check_type(*curr,key_le) || check_type(*curr,key_ne) || check_type(*curr,key_zr) || check_type(*curr,key_nz) || check_type(*curr,key_addc) || check_type(*curr,key_adds) || check_type(*curr,key_addi) || check_type(*curr,key_addp) || check_type(*curr,key_addl) || check_type(*curr,key_adduc) || check_type(*curr,key_addus) || check_type(*curr,key_addui) || check_type(*curr,key_subc) || check_type(*curr,key_subs) || check_type(*curr,key_subi) || check_type(*curr,key_subp) || check_type(*curr,key_subl) || check_type(*curr,key_subuc) || check_type(*curr,key_subus) || check_type(*curr,key_subui) || check_type(*curr,key_mulc) || check_type(*curr,key_muls) || check_type(*curr,key_muli) || check_type(*curr,key_mull) || check_type(*curr,key_muluc) || check_type(*curr,key_mulus) || check_type(*curr,key_mului) || check_type(*curr,key_divc) || check_type(*curr,key_divs) || check_type(*curr,key_divi) || check_type(*curr,key_divl) || check_type(*curr,key_divuc) || check_type(*curr,key_divus) || check_type(*curr,key_divui) || check_type(*curr,key_remc) || check_type(*curr,key_rems) || check_type(*curr,key_remi) || check_type(*curr,key_reml) || check_type(*curr,key_remuc) || check_type(*curr,key_remus) || check_type(*curr,key_remui) || check_type(*curr,key_lshc) || check_type(*curr,key_lshs) || check_type(*curr,key_lshi) || check_type(*curr,key_lshl) || check_type(*curr,key_lshuc) || check_type(*curr,key_lshus) || check_type(*curr,key_lshui) || check_type(*curr,key_rshc) || check_type(*curr,key_rshs) || check_type(*curr,key_rshi) || check_type(*curr,key_rshl) || check_type(*curr,key_rshuc) || check_type(*curr,key_rshus) || check_type(*curr,key_rshui) || check_type(*curr,key_orc) || check_type(*curr,key_ors) || check_type(*curr,key_ori) || check_type(*curr,key_orl) || check_type(*curr,key_oruc) || check_type(*curr,key_orus) || check_type(*curr,key_orui) || check_type(*curr,key_andc) || check_type(*curr,key_ands) || check_type(*curr,key_andi) || check_type(*curr,key_andl) || check_type(*curr,key_anduc) || check_type(*curr,key_andus) || check_type(*curr,key_andui) || check_type(*curr,key_notc) || check_type(*curr,key_nots) || check_type(*curr,key_noti) || check_type(*curr,key_notl) || check_type(*curr,key_notuc) || check_type(*curr,key_notus) || check_type(*curr,key_notui) || check_type(*curr,key_xorc) || check_type(*curr,key_xors) || check_type(*curr,key_xori) || check_type(*curr,key_xorl) || check_type(*curr,key_xoruc) || check_type(*curr,key_xorus) || check_type(*curr,key_xorui) || check_type(*curr,key_swap) || check_type(*curr,key_pop) || check_type(*curr,key_dup) || check_type(*curr,key_ret) || check_type(*curr,key_over) || check_type(*curr,key_panic) || check_type(*curr,key_write0) || check_type(*curr,key_write1) || check_type(*curr,key_write2) || check_type(*curr,key_write3) || check_type(*curr,key_write4) || check_type(*curr,key_write5) || check_type(*curr,key_write6) || check_type(*curr,key_write7) || check_type(*curr,key_vwrite0) || check_type(*curr,key_vwrite1) || check_type(*curr,key_vwrite2) || check_type(*curr,key_vwrite3) || check_type(*curr,key_vwrite4) || check_type(*curr,key_vwrite5) || check_type(*curr,key_vwrite6) || check_type(*curr,key_vwrite7) || check_type(*curr,key_get0) || check_type(*curr,key_get1) || check_type(*curr,key_get2) || check_type(*curr,key_get3) || check_type(*curr,key_get4) || check_type(*curr,key_get5) || check_type(*curr,key_get6) || check_type(*curr,key_get7) || check_type(*curr,key_vget0) || check_type(*curr,key_vget1) || check_type(*curr,key_vget2) || check_type(*curr,key_vget3) || check_type(*curr,key_vget4) || check_type(*curr,key_vget5) || check_type(*curr,key_vget6) || check_type(*curr,key_vget7) || check_type(*curr,key_loadc) || check_type(*curr,key_loads) || check_type(*curr,key_loadi) || check_type(*curr,key_loadp) || check_type(*curr,key_loadl) || check_type(*curr,key_loaduc) || check_type(*curr,key_loadus) || check_type(*curr,key_loadui) || check_type(*curr,key_vloadc) || check_type(*curr,key_vloads) || check_type(*curr,key_vloadi) || check_type(*curr,key_vloadp) || check_type(*curr,key_vloadl) || check_type(*curr,key_vloaduc) || check_type(*curr,key_vloadus) || check_type(*curr,key_vloadui) || check_type(*curr,key_aloadc) || check_type(*curr,key_aloads) || check_type(*curr,key_aloadi) || check_type(*curr,key_aloadp) || check_type(*curr,key_aloadl) || check_type(*curr,key_aloaduc) || check_type(*curr,key_aloadus) || check_type(*curr,key_aloadui) || check_type(*curr,key_valoadc) || check_type(*curr,key_valoads) || check_type(*curr,key_valoadi) || check_type(*curr,key_valoadp) || check_type(*curr,key_valoadl) || check_type(*curr,key_valoaduc) || check_type(*curr,key_valoadus) || check_type(*curr,key_valoadui) || check_type(*curr,key_storec) || check_type(*curr,key_stores) || check_type(*curr,key_storei) || check_type(*curr,key_storep) || check_type(*curr,key_storel) || check_type(*curr,key_storeuc) || check_type(*curr,key_storeus) || check_type(*curr,key_storeui) || check_type(*curr,key_vstorec) || check_type(*curr,key_vstores) || check_type(*curr,key_vstorei) || check_type(*curr,key_vstorep) || check_type(*curr,key_vstorel) || check_type(*curr,key_vstoreuc) || check_type(*curr,key_vstoreus) || check_type(*curr,key_vstoreui) || check_type(*curr,key_astorec) || check_type(*curr,key_astores) || check_type(*curr,key_astorei) || check_type(*curr,key_astorep) || check_type(*curr,key_astorel) || check_type(*curr,key_astoreuc) || check_type(*curr,key_astoreus) || check_type(*curr,key_astoreui) || check_type(*curr,key_vastorec) || check_type(*curr,key_vastores) || check_type(*curr,key_vastorei) || check_type(*curr,key_vastorep) || check_type(*curr,key_vastorel) || check_type(*curr,key_vastoreuc) || check_type(*curr,key_vastoreus) || check_type(*curr,key_vastoreui) || check_type(*curr,key_hlt) || check_type(*curr,key_call) || check_type(*curr,key_copy) || check_type(*curr,key_pcopy) || check_type(*curr,key_popa) || check_type(*curr,key_put) || check_type(*curr,key_pushsp) || check_type(*curr,key_set) || check_type(*curr,key_hltr) || check_type(*curr,key_incsp) || check_type(*curr,key_decsp) || check_type(*curr,key_exit) || check_type(*curr,key_force_panic) || check_type(*curr,key_pushlt) || check_type(*curr,key_import) || check_type(*curr,key_hidden) || check_type(*curr,key_exposed) || check_type(*curr,key_struct) || check_type(*curr,key_uc) || check_type(*curr,key_us) || check_type(*curr,key_ui) || check_type(*curr,key_c) || check_type(*curr,key_s) || check_type(*curr,key_i) || check_type(*curr,key_l) || check_type(*curr,key_p) || check_type(*curr,key_alignof) || check_type(*curr,key_sizeof) || check_type(*curr,key_if) || check_type(*curr,key_rcall) || check_type(*curr,key_open) || check_type(*curr,key_invoke) || check_type(*curr,key_pushpc) || check_type(*curr,key_pushcs))
 
@@ -52,7 +47,7 @@ unsigned int parse_instruction(statement *parent_phrase_statement, token **curr,
   phrase_instruction->start_y=(*curr)->start_y;
   phrase_instruction->end_x=(*curr)->end_x;
   phrase_instruction->end_y=(*curr)->end_y;
-  phrase_instruction->instruction_code=(*curr)->token_type;
+  phrase_instruction->instruction_type=(enum e_instruction_type)(*curr)->token_type;
   parent_phrase_statement->child.phrase_instruction=phrase_instruction;
   consume(curr);
   return 0;
@@ -84,11 +79,11 @@ unsigned int parse_sign(push_statement *parent_phrase_push_statement, set_statem
   phrase_sign->end_x=(*curr)->end_x;
   phrase_sign->end_y=(*curr)->end_y;
   if(check_type(*curr,punc_minus)){
-    phrase_sign->sign_code=sign_negative;
+    phrase_sign->sign_type=sign_negative;
     consume(curr);
   }
   else{
-    phrase_sign->sign_code=sign_positive;
+    phrase_sign->sign_type=sign_positive;
     consume(curr);
   }
   return 0;
@@ -107,35 +102,35 @@ unsigned int parse_push_instruction(push_statement *parent_phrase_push_statement
   phrase_push_instruction->end_x=(*curr)->end_x;
   phrase_push_instruction->end_y=(*curr)->end_y;
   if(check_type(*curr,key_pushc)){
-    phrase_push_instruction->push_instruction_code=key_pushc;
+    phrase_push_instruction->push_instruction_type=push_instruction_pushc;
     consume(curr);
   }
   else if(check_type(*curr,key_pushs)){
-    phrase_push_instruction->push_instruction_code=key_pushs;
+    phrase_push_instruction->push_instruction_type=push_instruction_pushs;
     consume(curr);
   }
   else if(check_type(*curr,key_pushi)){
-    phrase_push_instruction->push_instruction_code=key_pushi;
+    phrase_push_instruction->push_instruction_type=push_instruction_pushi;
     consume(curr);
   }
   else if(check_type(*curr,key_pushl)){
-    phrase_push_instruction->push_instruction_code=key_pushl;
+    phrase_push_instruction->push_instruction_type=push_instruction_pushl;
     consume(curr);
   }
   else if(check_type(*curr,key_pushp)){
-    phrase_push_instruction->push_instruction_code=key_pushp;
+    phrase_push_instruction->push_instruction_type=push_instruction_pushp;
     consume(curr);
   }
   else if(check_type(*curr,key_pushuc)){
-    phrase_push_instruction->push_instruction_code=key_pushuc;
+    phrase_push_instruction->push_instruction_type=push_instruction_pushuc;
     consume(curr);
   }
   else if(check_type(*curr,key_pushus)){
-    phrase_push_instruction->push_instruction_code=key_pushus;
+    phrase_push_instruction->push_instruction_type=push_instruction_pushus;
     consume(curr);
   }
   else if(check_type(*curr,key_pushui)){
-    phrase_push_instruction->push_instruction_code=key_pushui;
+    phrase_push_instruction->push_instruction_type=push_instruction_pushui;
     consume(curr);
   }
   return 0;
@@ -397,11 +392,11 @@ unsigned int parse_visibility(label *parent_phrase_label, token **curr, char *fi
   phrase_visibility->end_x=(*curr)->end_x;
   phrase_visibility->end_y=(*curr)->end_y;
   if(check_type(*curr,key_hidden)){
-    phrase_visibility->visibility_code=visibility_hidden;
+    phrase_visibility->visibility_type=visibility_hidden;
     consume(curr);
   }
   else{
-    phrase_visibility->visibility_code=visibility_exposed;
+    phrase_visibility->visibility_type=visibility_exposed;
     consume(curr);
   }
   return 0;
@@ -557,7 +552,30 @@ extern unsigned int parse_type(struct_tag_definition *parent_phrase_struct_tag_d
   phrase_type->start_y=(*curr)->start_y;
   phrase_type->end_x=(*curr)->end_x;
   phrase_type->end_y=(*curr)->end_y;
-  phrase_type->type_code=(*curr)->token_type;
+  if(check_type(*curr,key_uc)){
+    phrase_type->type_type=type_uc;
+  }
+  else if(check_type(*curr,key_us)){
+    phrase_type->type_type=type_us;
+  }
+  else if(check_type(*curr,key_ui)){
+    phrase_type->type_type=type_ui;
+  }
+  else if(check_type(*curr,key_c)){
+    phrase_type->type_type=type_c;
+  }
+  else if(check_type(*curr,key_s)){
+    phrase_type->type_type=type_s;
+  }
+  else if(check_type(*curr,key_i)){
+    phrase_type->type_type=type_i;
+  }
+  else if(check_type(*curr,key_l)){
+    phrase_type->type_type=type_l;
+  }
+  else if(check_type(*curr,key_p)){
+    phrase_type->type_type=type_p;
+  }
   consume(curr);
   return 0;
 }

@@ -22,7 +22,7 @@ typedef struct s_str_table {
 
 typedef struct s_sym_table {
   char *symbol_identifier;
-  unsigned int visibility_code;
+  unsigned int visibility_type;
   nightVM_l val;
   translation_unit *tu;
   struct s_sym_table *next_node;

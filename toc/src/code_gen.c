@@ -9,8 +9,7 @@
 #include TOC_NVM_OPCODES_H
 #include "write_error.h"
 #include "comp_properties.h"
-#define TOC_ADD_KEYWORD
-#include "psg_idens.h"
+#include "tree.h"
 #include "code_gen.h"
 
 extern compilation_attributes comp_attr;
@@ -73,15 +72,15 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
       return 1;
     }
   }
-  if(phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushuc){
+  if(phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushuc){
     nightVM_uc nVM_uc=op_pushuc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
     if(phrase_push_statement->child_type==lex_type_numeric_constant){
       nVM_uc=numeric_constant_to_uc(phrase_push_statement->child.lex_numeric_constant);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_uc*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_uc*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
@@ -89,8 +88,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==lex_type_string_constant){
       nVM_uc=lookup_in_string_table(phrase_push_statement->child.lex_string_constant,string_table);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_uc*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_uc*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
@@ -98,8 +97,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
       nVM_uc=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->tu,false,NULL);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_uc*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_uc*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
@@ -107,15 +106,15 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==lex_type_character_constant){
       nVM_uc=phrase_push_statement->child.lex_character_constant[0];
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_uc*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_uc*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
   }
-  else if(phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushus){
+  else if(phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushus){
     nightVM_uc nVM_uc=op_pushus;
     nightVM_us nVM_us;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
@@ -123,8 +122,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     if(phrase_push_statement->child_type==lex_type_numeric_constant){
       nVM_us=numeric_constant_to_us(phrase_push_statement->child.lex_numeric_constant);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_us*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_us*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_us,SIZEOF_US)){
         return 1;
@@ -132,8 +131,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==lex_type_string_constant){
       nVM_us=lookup_in_string_table(phrase_push_statement->child.lex_string_constant,string_table);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_us*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_us*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_us,SIZEOF_US)){
         return 1;
@@ -141,8 +140,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
       nVM_us=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->tu,false,NULL);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_us*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_us*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_us,SIZEOF_US)){
         return 1;
@@ -150,15 +149,15 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==lex_type_character_constant){
       nVM_us=phrase_push_statement->child.lex_character_constant[0];
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_us*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_us*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_us,SIZEOF_US)){
         return 1;
       }
     }
   }
-  else if(phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushui){
+  else if(phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushui){
     nightVM_uc nVM_uc=op_pushui;
     nightVM_ui nVM_ui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
@@ -166,8 +165,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     if(phrase_push_statement->child_type==lex_type_numeric_constant){
       nVM_ui=numeric_constant_to_ui(phrase_push_statement->child.lex_numeric_constant);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_ui*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_ui*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_ui,SIZEOF_UI)){
         return 1;
@@ -175,8 +174,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==lex_type_string_constant){
       nVM_ui=lookup_in_string_table(phrase_push_statement->child.lex_string_constant,string_table);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_ui*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_ui*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_ui,SIZEOF_UI)){
         return 1;
@@ -184,8 +183,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
       nVM_ui=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->tu,false,NULL);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_ui*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_ui*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_ui,SIZEOF_UI)){
         return 1;
@@ -193,15 +192,15 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==lex_type_character_constant){
       nVM_ui=phrase_push_statement->child.lex_character_constant[0];
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_ui*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_ui*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_ui,SIZEOF_UI)){
         return 1;
       }
     }
   }
-  else if(phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushc){
+  else if(phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushc){
     nightVM_uc nVM_uc=op_pushc;
     nightVM_c nVM_c;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
@@ -209,8 +208,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     if(phrase_push_statement->child_type==lex_type_numeric_constant){
       nVM_c=numeric_constant_to_c(phrase_push_statement->child.lex_numeric_constant);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_c*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_c*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_c,1)){
         return 1;
@@ -218,8 +217,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==lex_type_string_constant){
       nVM_c=lookup_in_string_table(phrase_push_statement->child.lex_string_constant,string_table);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_c*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_c*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_c,1)){
         return 1;
@@ -227,8 +226,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
       nVM_c=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->tu,false,NULL);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_c*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_c*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_c,1)){
         return 1;
@@ -236,15 +235,15 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==lex_type_character_constant){
       nVM_c=phrase_push_statement->child.lex_character_constant[0];
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_c*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_c*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_c,1)){
         return 1;
       }
     }
   }
-  else if(phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushs){
+  else if(phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushs){
     nightVM_uc nVM_uc=op_pushs;
     nightVM_s nVM_s;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
@@ -252,8 +251,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     if(phrase_push_statement->child_type==lex_type_numeric_constant){
       nVM_s=numeric_constant_to_s(phrase_push_statement->child.lex_numeric_constant);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_s*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_s*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_s,SIZEOF_S)){
         return 1;
@@ -261,8 +260,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==lex_type_string_constant){
       nVM_s=lookup_in_string_table(phrase_push_statement->child.lex_string_constant,string_table);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_s*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_s*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_s,SIZEOF_S)){
         return 1;
@@ -270,8 +269,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
       nVM_s=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->tu,false,NULL);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_s*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_s*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_s,SIZEOF_S)){
         return 1;
@@ -279,15 +278,15 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==lex_type_character_constant){
       nVM_s=phrase_push_statement->child.lex_character_constant[0];
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_s*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_s*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_s,SIZEOF_S)){
         return 1;
       }
     }
   }
-  else if(phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushi){
+  else if(phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushi){
     nightVM_uc nVM_uc=op_pushi;
     nightVM_i nVM_i;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
@@ -295,8 +294,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     if(phrase_push_statement->child_type==lex_type_numeric_constant){
       nVM_i=numeric_constant_to_i(phrase_push_statement->child.lex_numeric_constant);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_i*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_i*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_i,SIZEOF_I)){
         return 1;
@@ -304,8 +303,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==lex_type_string_constant){
       nVM_i=lookup_in_string_table(phrase_push_statement->child.lex_string_constant,string_table);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_i*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_i*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_i,SIZEOF_I)){
         return 1;
@@ -313,8 +312,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
       nVM_i=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->tu,false,NULL);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_i*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_i*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_i,SIZEOF_I)){
         return 1;
@@ -322,15 +321,15 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==lex_type_character_constant){
       nVM_i=phrase_push_statement->child.lex_character_constant[0];
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_i*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_i*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_i,SIZEOF_I)){
         return 1;
       }
     }
   }
-  else if(phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushl){
+  else if(phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushl){
     nightVM_uc nVM_uc=op_pushl;
     nightVM_l nVM_l;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
@@ -338,8 +337,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     if(phrase_push_statement->child_type==lex_type_numeric_constant){
       nVM_l=numeric_constant_to_l(phrase_push_statement->child.lex_numeric_constant);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_l*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_l*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
         return 1;
@@ -347,8 +346,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==lex_type_string_constant){
       nVM_l=lookup_in_string_table(phrase_push_statement->child.lex_string_constant,string_table);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_l*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_l*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
         return 1;
@@ -356,8 +355,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==phrase_type_symbol){
       nVM_l=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->tu,false,NULL);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_l*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_l*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
         return 1;
@@ -365,15 +364,15 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==lex_type_character_constant){
       nVM_l=phrase_push_statement->child.lex_character_constant[0];
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_l*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_l*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
         return 1;
       }
     }
   }
-  else if(phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushp){
+  else if(phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushp){
     nightVM_uc nVM_uc=op_pushl;
     nightVM_l nVM_l;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
@@ -381,8 +380,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     if(phrase_push_statement->child_type==lex_type_numeric_constant){
       nVM_l=numeric_constant_to_p(phrase_push_statement->child.lex_numeric_constant);
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_l*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_l*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
         return 1;
@@ -390,8 +389,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
     else if(phrase_push_statement->child_type==lex_type_character_constant){
       nVM_l=phrase_push_statement->child.lex_character_constant[0];
-      if(phrase_push_statement->phrase_sign!=NULL){
-        nVM_l*=phrase_push_statement->phrase_sign->sign_code;
+      if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+        nVM_l*=-1;
       }
       if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
         return 1;
@@ -401,8 +400,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
       if(phrase_push_statement->child_type==lex_type_string_constant){
         bool negative=false;
         nVM_l=lookup_in_string_table(phrase_push_statement->child.lex_string_constant,string_table)-phrase_push_statement->address-1-SIZEOF_L;
-        if(phrase_push_statement->phrase_sign!=NULL){
-          nVM_l*=phrase_push_statement->phrase_sign->sign_code;
+        if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+          nVM_l*=-1;
         }
         if(nVM_l<0){
           nVM_l*=-1;
@@ -431,8 +430,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
       else if(phrase_push_statement->child_type==phrase_type_symbol){
         bool negative=false;
         nVM_l=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->tu,false,NULL)-phrase_push_statement->address-1-SIZEOF_L;
-        if(phrase_push_statement->phrase_sign!=NULL){
-          nVM_l*=phrase_push_statement->phrase_sign->sign_code;
+        if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+          nVM_l*=-1;
         }
         if(nVM_l<0){
           nVM_l*=-1;
@@ -462,8 +461,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     else{
       if(phrase_push_statement->child_type==lex_type_string_constant){
         nVM_l=lookup_in_string_table(phrase_push_statement->child.lex_string_constant,string_table);
-        if(phrase_push_statement->phrase_sign!=NULL){
-          nVM_l*=phrase_push_statement->phrase_sign->sign_code;
+        if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+          nVM_l*=-1;
         }
         if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
           return 1;
@@ -471,8 +470,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
       }
       else if(phrase_push_statement->child_type==phrase_type_symbol){
         nVM_l=lookup_in_symbol_table(phrase_push_statement->child.phrase_symbol->lex_identifier,symbol_table,phrase_push_statement->parent->tu,false,NULL);
-        if(phrase_push_statement->phrase_sign!=NULL){
-          nVM_l*=phrase_push_statement->phrase_sign->sign_code;
+        if(phrase_push_statement->phrase_sign!=NULL && phrase_push_statement->phrase_sign->sign_type==sign_negative){
+          nVM_l*=-1;
         }
         if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
           return 1;
@@ -491,25 +490,25 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     }
   }
   nightVM_uc nVM_uc;
-  if(phrase_instruction->instruction_code==key_addc){
+  if(phrase_instruction->instruction_type==instruction_addc){
     nightVM_uc nVM_uc=op_adduc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_adds){
+  else if(phrase_instruction->instruction_type==instruction_adds){
     nightVM_uc nVM_uc=op_addus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_addi){
+  else if(phrase_instruction->instruction_type==instruction_addi){
     nightVM_uc nVM_uc=op_addui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_addp){
+  else if(phrase_instruction->instruction_type==instruction_addp){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -603,49 +602,49 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_addl){
+  else if(phrase_instruction->instruction_type==instruction_addl){
     nightVM_uc nVM_uc=op_addl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_adduc){
+  else if(phrase_instruction->instruction_type==instruction_adduc){
     nightVM_uc nVM_uc=op_adduc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_addus){
+  else if(phrase_instruction->instruction_type==instruction_addus){
     nightVM_uc nVM_uc=op_addus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_addui){
+  else if(phrase_instruction->instruction_type==instruction_addui){
     nightVM_uc nVM_uc=op_addui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_subc){
+  else if(phrase_instruction->instruction_type==instruction_subc){
     nightVM_uc nVM_uc=op_subc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_subs){
+  else if(phrase_instruction->instruction_type==instruction_subs){
     nightVM_uc nVM_uc=op_subs;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_subi){
+  else if(phrase_instruction->instruction_type==instruction_subi){
     nightVM_uc nVM_uc=op_subl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_subp){
+  else if(phrase_instruction->instruction_type==instruction_subp){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -739,595 +738,595 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_subl){
+  else if(phrase_instruction->instruction_type==instruction_subl){
     nightVM_uc nVM_uc=op_subl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_subuc){
+  else if(phrase_instruction->instruction_type==instruction_subuc){
     nightVM_uc nVM_uc=op_subuc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_subus){
+  else if(phrase_instruction->instruction_type==instruction_subus){
     nightVM_uc nVM_uc=op_subus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_subui){
+  else if(phrase_instruction->instruction_type==instruction_subui){
     nightVM_uc nVM_uc=op_subui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_mulc){
+  else if(phrase_instruction->instruction_type==instruction_mulc){
     nightVM_uc nVM_uc=op_mulc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_muls){
+  else if(phrase_instruction->instruction_type==instruction_muls){
     nightVM_uc nVM_uc=op_muls;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_muli){
+  else if(phrase_instruction->instruction_type==instruction_muli){
     nightVM_uc nVM_uc=op_mull;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_mull){
+  else if(phrase_instruction->instruction_type==instruction_mull){
     nightVM_uc nVM_uc=op_mull;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_muluc){
+  else if(phrase_instruction->instruction_type==instruction_muluc){
     nightVM_uc nVM_uc=op_muluc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_mulus){
+  else if(phrase_instruction->instruction_type==instruction_mulus){
     nightVM_uc nVM_uc=op_mulus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_mului){
+  else if(phrase_instruction->instruction_type==instruction_mului){
     nightVM_uc nVM_uc=op_mului;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_divc){
+  else if(phrase_instruction->instruction_type==instruction_divc){
     nightVM_uc nVM_uc=op_divc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_divs){
+  else if(phrase_instruction->instruction_type==instruction_divs){
     nightVM_uc nVM_uc=op_divs;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_divi){
+  else if(phrase_instruction->instruction_type==instruction_divi){
     nightVM_uc nVM_uc=op_divl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_divl){
+  else if(phrase_instruction->instruction_type==instruction_divl){
     nightVM_uc nVM_uc=op_divl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_divuc){
+  else if(phrase_instruction->instruction_type==instruction_divuc){
     nightVM_uc nVM_uc=op_divuc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_divus){
+  else if(phrase_instruction->instruction_type==instruction_divus){
     nightVM_uc nVM_uc=op_divus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_divui){
+  else if(phrase_instruction->instruction_type==instruction_divui){
     nightVM_uc nVM_uc=op_divui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_remc){
+  else if(phrase_instruction->instruction_type==instruction_remc){
     nightVM_uc nVM_uc=op_remc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_rems){
+  else if(phrase_instruction->instruction_type==instruction_rems){
     nightVM_uc nVM_uc=op_rems;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_remi){
+  else if(phrase_instruction->instruction_type==instruction_remi){
     nightVM_uc nVM_uc=op_reml;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_reml){
+  else if(phrase_instruction->instruction_type==instruction_reml){
     nightVM_uc nVM_uc=op_reml;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_remuc){
+  else if(phrase_instruction->instruction_type==instruction_remuc){
     nightVM_uc nVM_uc=op_remuc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_remus){
+  else if(phrase_instruction->instruction_type==instruction_remus){
     nightVM_uc nVM_uc=op_remus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_remui){
+  else if(phrase_instruction->instruction_type==instruction_remui){
     nightVM_uc nVM_uc=op_remui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_lshc){
+  else if(phrase_instruction->instruction_type==instruction_lshc){
     nightVM_uc nVM_uc=op_lshc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_lshs){
+  else if(phrase_instruction->instruction_type==instruction_lshs){
     nightVM_uc nVM_uc=op_lshs;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_lshi){
+  else if(phrase_instruction->instruction_type==instruction_lshi){
     nightVM_uc nVM_uc=op_lshl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_lshl){
+  else if(phrase_instruction->instruction_type==instruction_lshl){
     nightVM_uc nVM_uc=op_lshl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_lshuc){
+  else if(phrase_instruction->instruction_type==instruction_lshuc){
     nightVM_uc nVM_uc=op_lshuc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_lshus){
+  else if(phrase_instruction->instruction_type==instruction_lshus){
     nightVM_uc nVM_uc=op_lshus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_lshui){
+  else if(phrase_instruction->instruction_type==instruction_lshui){
     nightVM_uc nVM_uc=op_lshui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_rshc){
+  else if(phrase_instruction->instruction_type==instruction_rshc){
     nightVM_uc nVM_uc=op_rshc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_rshs){
+  else if(phrase_instruction->instruction_type==instruction_rshs){
     nightVM_uc nVM_uc=op_rshs;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_rshi){
+  else if(phrase_instruction->instruction_type==instruction_rshi){
     nightVM_uc nVM_uc=op_rshl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_rshl){
+  else if(phrase_instruction->instruction_type==instruction_rshl){
     nightVM_uc nVM_uc=op_rshl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_rshuc){
+  else if(phrase_instruction->instruction_type==instruction_rshuc){
     nightVM_uc nVM_uc=op_rshuc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_rshus){
+  else if(phrase_instruction->instruction_type==instruction_rshus){
     nightVM_uc nVM_uc=op_rshus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_rshui){
+  else if(phrase_instruction->instruction_type==instruction_rshui){
     nightVM_uc nVM_uc=op_rshui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_orc){
+  else if(phrase_instruction->instruction_type==instruction_orc){
     nightVM_uc nVM_uc=op_orc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_ors){
+  else if(phrase_instruction->instruction_type==instruction_ors){
     nightVM_uc nVM_uc=op_ors;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_ori){
+  else if(phrase_instruction->instruction_type==instruction_ori){
     nightVM_uc nVM_uc=op_orl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_orl){
+  else if(phrase_instruction->instruction_type==instruction_orl){
     nightVM_uc nVM_uc=op_orl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_oruc){
+  else if(phrase_instruction->instruction_type==instruction_oruc){
     nightVM_uc nVM_uc=op_oruc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_orus){
+  else if(phrase_instruction->instruction_type==instruction_orus){
     nightVM_uc nVM_uc=op_orus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_orui){
+  else if(phrase_instruction->instruction_type==instruction_orui){
     nightVM_uc nVM_uc=op_orui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_andc){
+  else if(phrase_instruction->instruction_type==instruction_andc){
     nightVM_uc nVM_uc=op_andc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_ands){
+  else if(phrase_instruction->instruction_type==instruction_ands){
     nightVM_uc nVM_uc=op_ands;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_andi){
+  else if(phrase_instruction->instruction_type==instruction_andi){
     nightVM_uc nVM_uc=op_andl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_andl){
+  else if(phrase_instruction->instruction_type==instruction_andl){
     nightVM_uc nVM_uc=op_andl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_anduc){
+  else if(phrase_instruction->instruction_type==instruction_anduc){
     nightVM_uc nVM_uc=op_anduc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_andus){
+  else if(phrase_instruction->instruction_type==instruction_andus){
     nightVM_uc nVM_uc=op_andus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_andui){
+  else if(phrase_instruction->instruction_type==instruction_andui){
     nightVM_uc nVM_uc=op_andui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_notc){
+  else if(phrase_instruction->instruction_type==instruction_notc){
     nightVM_uc nVM_uc=op_notc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_nots){
+  else if(phrase_instruction->instruction_type==instruction_nots){
     nightVM_uc nVM_uc=op_nots;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_noti){
+  else if(phrase_instruction->instruction_type==instruction_noti){
     nightVM_uc nVM_uc=op_notl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_notl){
+  else if(phrase_instruction->instruction_type==instruction_notl){
     nightVM_uc nVM_uc=op_notl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_notuc){
+  else if(phrase_instruction->instruction_type==instruction_notuc){
     nightVM_uc nVM_uc=op_notuc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_notus){
+  else if(phrase_instruction->instruction_type==instruction_notus){
     nightVM_uc nVM_uc=op_notus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_notui){
+  else if(phrase_instruction->instruction_type==instruction_notui){
     nightVM_uc nVM_uc=op_notui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_xorc){
+  else if(phrase_instruction->instruction_type==instruction_xorc){
     nightVM_uc nVM_uc=op_xorc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_xors){
+  else if(phrase_instruction->instruction_type==instruction_xors){
     nightVM_uc nVM_uc=op_xors;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_xori){
+  else if(phrase_instruction->instruction_type==instruction_xori){
     nightVM_uc nVM_uc=op_xorl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_xorl){
+  else if(phrase_instruction->instruction_type==instruction_xorl){
     nightVM_uc nVM_uc=op_xorl;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_xoruc){
+  else if(phrase_instruction->instruction_type==instruction_xoruc){
     nightVM_uc nVM_uc=op_xoruc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_xorus){
+  else if(phrase_instruction->instruction_type==instruction_xorus){
     nightVM_uc nVM_uc=op_xorus;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_xorui){
+  else if(phrase_instruction->instruction_type==instruction_xorui){
     nightVM_uc nVM_uc=op_xorui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_swap){
+  else if(phrase_instruction->instruction_type==instruction_swap){
     nightVM_uc nVM_uc=op_swap;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_pop){
+  else if(phrase_instruction->instruction_type==instruction_pop){
     nightVM_uc nVM_uc=op_pop;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_dup){
+  else if(phrase_instruction->instruction_type==instruction_dup){
     nightVM_uc nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_ret){
+  else if(phrase_instruction->instruction_type==instruction_ret){
     nightVM_uc nVM_uc=op_ret;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_rcall){
+  else if(phrase_instruction->instruction_type==instruction_rcall){
     nightVM_uc nVM_uc=op_jmp;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_eq){
+  else if(phrase_instruction->instruction_type==instruction_eq){
     nightVM_uc nVM_uc=op_ceq;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_gt){
+  else if(phrase_instruction->instruction_type==instruction_gt){
     nightVM_uc nVM_uc=op_cgt;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_ls){
+  else if(phrase_instruction->instruction_type==instruction_ls){
     nightVM_uc nVM_uc=op_cls;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_le){
+  else if(phrase_instruction->instruction_type==instruction_le){
     nightVM_uc nVM_uc=op_cle;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_ge){
+  else if(phrase_instruction->instruction_type==instruction_ge){
     nightVM_uc nVM_uc=op_cge;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_ne){
+  else if(phrase_instruction->instruction_type==instruction_ne){
     nightVM_uc nVM_uc=op_cne;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_zr){
+  else if(phrase_instruction->instruction_type==instruction_zr){
     nightVM_uc nVM_uc=op_cz;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_nz){
+  else if(phrase_instruction->instruction_type==instruction_nz){
     nightVM_uc nVM_uc=op_cnz;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_over){
+  else if(phrase_instruction->instruction_type==instruction_over){
     nightVM_uc nVM_uc=op_over;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_panic){
+  else if(phrase_instruction->instruction_type==instruction_panic){
     nightVM_uc nVM_uc=op_panic;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_write0 || phrase_instruction->instruction_code==key_vwrite0){
+  else if(phrase_instruction->instruction_type==instruction_write0 || phrase_instruction->instruction_type==instruction_vwrite0){
     nightVM_uc nVM_uc=op_str0;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_write1 || phrase_instruction->instruction_code==key_vwrite1){
+  else if(phrase_instruction->instruction_type==instruction_write1 || phrase_instruction->instruction_type==instruction_vwrite1){
     nightVM_uc nVM_uc=op_str1;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_write2 || phrase_instruction->instruction_code==key_vwrite2){
+  else if(phrase_instruction->instruction_type==instruction_write2 || phrase_instruction->instruction_type==instruction_vwrite2){
     nightVM_uc nVM_uc=op_str2;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_write3 || phrase_instruction->instruction_code==key_vwrite3){
+  else if(phrase_instruction->instruction_type==instruction_write3 || phrase_instruction->instruction_type==instruction_vwrite3){
     nightVM_uc nVM_uc=op_str3;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_write4 || phrase_instruction->instruction_code==key_vwrite4){
+  else if(phrase_instruction->instruction_type==instruction_write4 || phrase_instruction->instruction_type==instruction_vwrite4){
     nightVM_uc nVM_uc=op_str4;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_write5 || phrase_instruction->instruction_code==key_vwrite5){
+  else if(phrase_instruction->instruction_type==instruction_write5 || phrase_instruction->instruction_type==instruction_vwrite5){
     nightVM_uc nVM_uc=op_str5;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_write6 || phrase_instruction->instruction_code==key_vwrite6){
+  else if(phrase_instruction->instruction_type==instruction_write6 || phrase_instruction->instruction_type==instruction_vwrite6){
     nightVM_uc nVM_uc=op_str6;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_write7 || phrase_instruction->instruction_code==key_vwrite7){
+  else if(phrase_instruction->instruction_type==instruction_write7 || phrase_instruction->instruction_type==instruction_vwrite7){
     nightVM_uc nVM_uc=op_str7;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_get0 || phrase_instruction->instruction_code==key_vget0){
+  else if(phrase_instruction->instruction_type==instruction_get0 || phrase_instruction->instruction_type==instruction_vget0){
     nightVM_uc nVM_uc=op_ldr0;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_get1 || phrase_instruction->instruction_code==key_vget1){
+  else if(phrase_instruction->instruction_type==instruction_get1 || phrase_instruction->instruction_type==instruction_vget1){
     nightVM_uc nVM_uc=op_ldr1;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_get2 || phrase_instruction->instruction_code==key_vget2){
+  else if(phrase_instruction->instruction_type==instruction_get2 || phrase_instruction->instruction_type==instruction_vget2){
     nightVM_uc nVM_uc=op_ldr2;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_get3 || phrase_instruction->instruction_code==key_vget3){
+  else if(phrase_instruction->instruction_type==instruction_get3 || phrase_instruction->instruction_type==instruction_vget3){
     nightVM_uc nVM_uc=op_ldr3;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_get4 || phrase_instruction->instruction_code==key_vget4){
+  else if(phrase_instruction->instruction_type==instruction_get4 || phrase_instruction->instruction_type==instruction_vget4){
     nightVM_uc nVM_uc=op_ldr4;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_get5 || phrase_instruction->instruction_code==key_vget5){
+  else if(phrase_instruction->instruction_type==instruction_get5 || phrase_instruction->instruction_type==instruction_vget5){
     nightVM_uc nVM_uc=op_ldr5;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_get6 || phrase_instruction->instruction_code==key_vget6){
+  else if(phrase_instruction->instruction_type==instruction_get6 || phrase_instruction->instruction_type==instruction_vget6){
     nightVM_uc nVM_uc=op_ldr6;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_get7 || phrase_instruction->instruction_code==key_vget7){
+  else if(phrase_instruction->instruction_type==instruction_get7 || phrase_instruction->instruction_type==instruction_vget7){
     nightVM_uc nVM_uc=op_ldr7;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_loadc || phrase_instruction->instruction_code==key_vloadc){
+  else if(phrase_instruction->instruction_type==instruction_loadc || phrase_instruction->instruction_type==instruction_vloadc){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -1403,7 +1402,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_loads || phrase_instruction->instruction_code==key_vloads){
+  else if(phrase_instruction->instruction_type==instruction_loads || phrase_instruction->instruction_type==instruction_vloads){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -1479,7 +1478,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_loadi || phrase_instruction->instruction_code==key_vloadi){
+  else if(phrase_instruction->instruction_type==instruction_loadi || phrase_instruction->instruction_type==instruction_vloadi){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -1555,7 +1554,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_loadl || phrase_instruction->instruction_code==key_loadp || phrase_instruction->instruction_code==key_vloadl || phrase_instruction->instruction_code==key_vloadp){
+  else if(phrase_instruction->instruction_type==instruction_loadl || phrase_instruction->instruction_type==instruction_loadp || phrase_instruction->instruction_type==instruction_vloadl || phrase_instruction->instruction_type==instruction_vloadp){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -1631,7 +1630,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_loaduc || phrase_instruction->instruction_code==key_vloaduc){
+  else if(phrase_instruction->instruction_type==instruction_loaduc || phrase_instruction->instruction_type==instruction_vloaduc){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -1707,7 +1706,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_loadus || phrase_instruction->instruction_code==key_vloadus){
+  else if(phrase_instruction->instruction_type==instruction_loadus || phrase_instruction->instruction_type==instruction_vloadus){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -1783,7 +1782,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_loadui || phrase_instruction->instruction_code==key_vloadui){
+  else if(phrase_instruction->instruction_type==instruction_loadui || phrase_instruction->instruction_type==instruction_vloadui){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -1859,7 +1858,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_aloadc || phrase_instruction->instruction_code==key_valoadc){
+  else if(phrase_instruction->instruction_type==instruction_aloadc || phrase_instruction->instruction_type==instruction_valoadc){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -1935,7 +1934,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_aloads || phrase_instruction->instruction_code==key_valoads){
+  else if(phrase_instruction->instruction_type==instruction_aloads || phrase_instruction->instruction_type==instruction_valoads){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2011,7 +2010,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_aloadi || phrase_instruction->instruction_code==key_valoadi){
+  else if(phrase_instruction->instruction_type==instruction_aloadi || phrase_instruction->instruction_type==instruction_valoadi){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2087,7 +2086,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_aloadl || phrase_instruction->instruction_code==key_aloadp || phrase_instruction->instruction_code==key_valoadl || phrase_instruction->instruction_code==key_valoadp){
+  else if(phrase_instruction->instruction_type==instruction_aloadl || phrase_instruction->instruction_type==instruction_aloadp || phrase_instruction->instruction_type==instruction_valoadl || phrase_instruction->instruction_type==instruction_valoadp){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2163,7 +2162,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_aloaduc || phrase_instruction->instruction_code==key_valoaduc){
+  else if(phrase_instruction->instruction_type==instruction_aloaduc || phrase_instruction->instruction_type==instruction_valoaduc){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2239,7 +2238,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_aloadus || phrase_instruction->instruction_code==key_valoadus){
+  else if(phrase_instruction->instruction_type==instruction_aloadus || phrase_instruction->instruction_type==instruction_valoadus){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2315,7 +2314,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_aloadui || phrase_instruction->instruction_code==key_valoadui){
+  else if(phrase_instruction->instruction_type==instruction_aloadui || phrase_instruction->instruction_type==instruction_valoadui){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2391,7 +2390,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_storec || phrase_instruction->instruction_code==key_vstorec){
+  else if(phrase_instruction->instruction_type==instruction_storec || phrase_instruction->instruction_type==instruction_vstorec){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2467,7 +2466,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_stores || phrase_instruction->instruction_code==key_vstores){
+  else if(phrase_instruction->instruction_type==instruction_stores || phrase_instruction->instruction_type==instruction_vstores){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2543,7 +2542,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_storei || phrase_instruction->instruction_code==key_vstorei){
+  else if(phrase_instruction->instruction_type==instruction_storei || phrase_instruction->instruction_type==instruction_vstorei){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2619,7 +2618,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_storel || phrase_instruction->instruction_code==key_storep || phrase_instruction->instruction_code==key_vstorel || phrase_instruction->instruction_code==key_vstorep){
+  else if(phrase_instruction->instruction_type==instruction_storel || phrase_instruction->instruction_type==instruction_storep || phrase_instruction->instruction_type==instruction_vstorel || phrase_instruction->instruction_type==instruction_vstorep){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2695,7 +2694,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_storeuc || phrase_instruction->instruction_code==key_vstoreuc){
+  else if(phrase_instruction->instruction_type==instruction_storeuc || phrase_instruction->instruction_type==instruction_vstoreuc){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2771,7 +2770,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_storeus || phrase_instruction->instruction_code==key_vstoreus){
+  else if(phrase_instruction->instruction_type==instruction_storeus || phrase_instruction->instruction_type==instruction_vstoreus){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2847,7 +2846,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_storeui || phrase_instruction->instruction_code==key_vstoreui){
+  else if(phrase_instruction->instruction_type==instruction_storeui || phrase_instruction->instruction_type==instruction_vstoreui){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2923,7 +2922,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_astorec || phrase_instruction->instruction_code==key_vastorec){
+  else if(phrase_instruction->instruction_type==instruction_astorec || phrase_instruction->instruction_type==instruction_vastorec){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -2999,7 +2998,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_astores || phrase_instruction->instruction_code==key_vastores){
+  else if(phrase_instruction->instruction_type==instruction_astores || phrase_instruction->instruction_type==instruction_vastores){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -3075,7 +3074,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_astorei || phrase_instruction->instruction_code==key_vastorei){
+  else if(phrase_instruction->instruction_type==instruction_astorei || phrase_instruction->instruction_type==instruction_vastorei){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -3151,7 +3150,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_astorel || phrase_instruction->instruction_code==key_astorep || phrase_instruction->instruction_code==key_vastorel || phrase_instruction->instruction_code==key_vastorep){
+  else if(phrase_instruction->instruction_type==instruction_astorel || phrase_instruction->instruction_type==instruction_astorep || phrase_instruction->instruction_type==instruction_vastorel || phrase_instruction->instruction_type==instruction_vastorep){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -3227,7 +3226,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_astoreuc || phrase_instruction->instruction_code==key_vastoreuc){
+  else if(phrase_instruction->instruction_type==instruction_astoreuc || phrase_instruction->instruction_type==instruction_vastoreuc){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -3303,7 +3302,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_astoreus || phrase_instruction->instruction_code==key_vastoreus){
+  else if(phrase_instruction->instruction_type==instruction_astoreus || phrase_instruction->instruction_type==instruction_vastoreus){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -3379,7 +3378,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_astoreui || phrase_instruction->instruction_code==key_vastoreui){
+  else if(phrase_instruction->instruction_type==instruction_astoreui || phrase_instruction->instruction_type==instruction_vastoreui){
     nVM_uc=op_dup;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -3455,79 +3454,79 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_hlt){
+  else if(phrase_instruction->instruction_type==instruction_hlt){
     nightVM_uc nVM_uc=op_halt;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_copy){
+  else if(phrase_instruction->instruction_type==instruction_copy){
     nightVM_uc nVM_uc=op_copy;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_pcopy){
+  else if(phrase_instruction->instruction_type==instruction_pcopy){
     nightVM_uc nVM_uc=op_pcopy;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_popa){
+  else if(phrase_instruction->instruction_type==instruction_popa){
     nightVM_uc nVM_uc=op_popa;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_put){
+  else if(phrase_instruction->instruction_type==instruction_put){
     nightVM_uc nVM_uc=op_sts;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_pushsp){
+  else if(phrase_instruction->instruction_type==instruction_pushsp){
     nightVM_uc nVM_uc=op_pushsp;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_hltr){
+  else if(phrase_instruction->instruction_type==instruction_hltr){
     nightVM_uc nVM_uc=op_haltr;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_incsp){
+  else if(phrase_instruction->instruction_type==instruction_incsp){
     nightVM_uc nVM_uc=op_incsp;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_decsp){
+  else if(phrase_instruction->instruction_type==instruction_decsp){
     nightVM_uc nVM_uc=op_decsp;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_exit){
+  else if(phrase_instruction->instruction_type==instruction_exit){
     nightVM_uc nVM_uc=op_halt;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_force_panic){
+  else if(phrase_instruction->instruction_type==instruction_force_panic){
     nightVM_uc nVM_uc=op_force_panic;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_pushlt){
+  else if(phrase_instruction->instruction_type==instruction_pushlt){
     nightVM_uc nVM_uc=op_pushlt;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_open){
+  else if(phrase_instruction->instruction_type==instruction_open){
     if(comp_attr.std==std_chlore2x){
       fprintf(stderr,"warning: open is an implementation-specific keyword of 4NI\n");
     }
@@ -3536,7 +3535,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_invoke){
+  else if(phrase_instruction->instruction_type==instruction_invoke){
     if(comp_attr.std==std_chlore2x){
       fprintf(stderr,"warning: invoke is an implementation-specific keyword of 4NI\n");
     }
@@ -3545,19 +3544,19 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_pushpc){
+  else if(phrase_instruction->instruction_type==instruction_pushpc){
     nightVM_uc nVM_uc=op_pushpc;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_pushcs){
+  else if(phrase_instruction->instruction_type==instruction_pushcs){
     nightVM_uc nVM_uc=op_pushcs;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
-  else if(phrase_instruction->instruction_code==key_call){
+  else if(phrase_instruction->instruction_type==instruction_call){
     nightVM_uc nVM_uc=op_call;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
@@ -3572,35 +3571,35 @@ nightVM_l get_size_of_type(translation_unit *tu, struct_tag_definition_sequence 
   while(1){
     struct_tag_definition *phrase_struct_tag_definition=phrase_struct_tag_definition_sequence->phrase_struct_tag_definition;
     if(phrase_struct_tag_definition->child_type==phrase_type_type){
-      if(phrase_struct_tag_definition->child.phrase_type->type_code==key_uc){
+      if(phrase_struct_tag_definition->child.phrase_type->type_type==type_uc){
         add_to_size+=1;
         *type_matched=NULL;
       }
-      else if(phrase_struct_tag_definition->child.phrase_type->type_code==key_us){
+      else if(phrase_struct_tag_definition->child.phrase_type->type_type==type_us){
         add_to_size+=SIZEOF_US;
         *type_matched=NULL;
       }
-      else if(phrase_struct_tag_definition->child.phrase_type->type_code==key_ui){
+      else if(phrase_struct_tag_definition->child.phrase_type->type_type==type_ui){
         add_to_size+=SIZEOF_UI;
         *type_matched=NULL;
       }
-      else if(phrase_struct_tag_definition->child.phrase_type->type_code==key_c){
+      else if(phrase_struct_tag_definition->child.phrase_type->type_type==type_c){
         add_to_size+=1;
         *type_matched=NULL;
       }
-      else if(phrase_struct_tag_definition->child.phrase_type->type_code==key_s){
+      else if(phrase_struct_tag_definition->child.phrase_type->type_type==type_s){
         add_to_size+=SIZEOF_S;
         *type_matched=NULL;
       }
-      else if(phrase_struct_tag_definition->child.phrase_type->type_code==key_i){
+      else if(phrase_struct_tag_definition->child.phrase_type->type_type==type_i){
         add_to_size+=SIZEOF_I;
         *type_matched=NULL;
       }
-      else if(phrase_struct_tag_definition->child.phrase_type->type_code==key_l){
+      else if(phrase_struct_tag_definition->child.phrase_type->type_type==type_l){
         add_to_size+=SIZEOF_L;
         *type_matched=NULL;
       }
-      else if(phrase_struct_tag_definition->child.phrase_type->type_code==key_p){
+      else if(phrase_struct_tag_definition->child.phrase_type->type_type==type_p){
         add_to_size+=SIZEOF_L;
         *type_matched=NULL;
       }
@@ -3734,28 +3733,28 @@ unsigned int gen_code_sizeof_statement(sizeof_statement *phrase_sizeof_statement
   }
   nightVM_l nVM_l;
   if(phrase_sizeof_statement->child_type==phrase_type_type){
-    if(phrase_sizeof_statement->child.phrase_type->type_code==key_uc){
+    if(phrase_sizeof_statement->child.phrase_type->type_type==type_uc){
       nVM_l=1;
     }
-    else if(phrase_sizeof_statement->child.phrase_type->type_code==key_us){
+    else if(phrase_sizeof_statement->child.phrase_type->type_type==type_us){
       nVM_l=SIZEOF_US;
     }
-    else if(phrase_sizeof_statement->child.phrase_type->type_code==key_ui){
+    else if(phrase_sizeof_statement->child.phrase_type->type_type==type_ui){
       nVM_l=SIZEOF_UI;
     }
-    else if(phrase_sizeof_statement->child.phrase_type->type_code==key_c){
+    else if(phrase_sizeof_statement->child.phrase_type->type_type==type_c){
       nVM_l=1;
     }
-    else if(phrase_sizeof_statement->child.phrase_type->type_code==key_s){
+    else if(phrase_sizeof_statement->child.phrase_type->type_type==type_s){
       nVM_l=SIZEOF_S;
     }
-    else if(phrase_sizeof_statement->child.phrase_type->type_code==key_i){
+    else if(phrase_sizeof_statement->child.phrase_type->type_type==type_i){
       nVM_l=SIZEOF_I;
     }
-    else if(phrase_sizeof_statement->child.phrase_type->type_code==key_l){
+    else if(phrase_sizeof_statement->child.phrase_type->type_type==type_l){
       nVM_l=SIZEOF_L;
     }
-    else if(phrase_sizeof_statement->child.phrase_type->type_code==key_p){
+    else if(phrase_sizeof_statement->child.phrase_type->type_type==type_p){
       nVM_l=SIZEOF_L;
     }
   }
@@ -3781,28 +3780,28 @@ unsigned int gen_code_alignof_statement(alignof_statement *phrase_alignof_statem
   }
   nightVM_l nVM_l;
   if(phrase_alignof_statement->child_type==phrase_type_type){
-    if(phrase_alignof_statement->child.phrase_type->type_code==key_uc){
+    if(phrase_alignof_statement->child.phrase_type->type_type==type_uc){
       nVM_l=1;
     }
-    else if(phrase_alignof_statement->child.phrase_type->type_code==key_us){
+    else if(phrase_alignof_statement->child.phrase_type->type_type==type_us){
       nVM_l=ALIGNOF_US;
     }
-    else if(phrase_alignof_statement->child.phrase_type->type_code==key_ui){
+    else if(phrase_alignof_statement->child.phrase_type->type_type==type_ui){
       nVM_l=ALIGNOF_UI;
     }
-    else if(phrase_alignof_statement->child.phrase_type->type_code==key_c){
+    else if(phrase_alignof_statement->child.phrase_type->type_type==type_c){
       nVM_l=1;
     }
-    else if(phrase_alignof_statement->child.phrase_type->type_code==key_s){
+    else if(phrase_alignof_statement->child.phrase_type->type_type==type_s){
       nVM_l=ALIGNOF_S;
     }
-    else if(phrase_alignof_statement->child.phrase_type->type_code==key_i){
+    else if(phrase_alignof_statement->child.phrase_type->type_type==type_i){
       nVM_l=ALIGNOF_I;
     }
-    else if(phrase_alignof_statement->child.phrase_type->type_code==key_l){
+    else if(phrase_alignof_statement->child.phrase_type->type_type==type_l){
       nVM_l=ALIGNOF_L;
     }
-    else if(phrase_alignof_statement->child.phrase_type->type_code==key_p){
+    else if(phrase_alignof_statement->child.phrase_type->type_type==type_p){
       nVM_l=ALIGNOF_L;
     }
   }

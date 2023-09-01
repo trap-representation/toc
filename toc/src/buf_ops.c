@@ -5,7 +5,7 @@
 
 #include "buf_ops.h"
 
-// this function appends the contents of buf upto the pos-1 index to write_buf starting at write_buf_written_contents
+//this function appends the contents of buf upto the pos-1 index to write_buf starting at write_buf_written_contents
 
 unsigned int flush_to_buf(char *buf, size_t *pos, char **write_buf, size_t *write_buf_written_contents){
   if(*pos>0){
@@ -21,7 +21,7 @@ unsigned int flush_to_buf(char *buf, size_t *pos, char **write_buf, size_t *writ
   return 0;
 }
 
-// this function tries writing the character add_char to the buffer buf at the position pos. If however, pos is >= the maximum size of buf - buf_max, and write_thresh is not set, it returns 1; otherwise, if write_thresh is set, it tries to start appending the contents of buf to write_buf starting at position write_buf_written_contents of write_buf
+//this function tries writing the character add_char to the buffer buf at the position pos. If however, pos is >= the maximum size of buf - buf_max, and write_thresh is not set, it returns 1; otherwise, if write_thresh is set, it tries to start appending the contents of buf to write_buf starting at position write_buf_written_contents of write_buf
 
 unsigned int append_to_buf(char add_char, char *buf, size_t *pos, size_t buf_max, bool write_thresh, char **write_buf, size_t *write_buf_written_contents){
   if(*pos>=buf_max){

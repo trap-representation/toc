@@ -11,7 +11,7 @@
 #define TOC_ADD_PUNCTUATOR
 #define TOC_ADD_KEYWORD
 #define TOC_ADD_NUMERIC_CONSTANT
-#include "psg_idens.h"
+#include "token.h"
 #include "write_error.h"
 #include "buf_ops.h"
 #include "lexer.h"
@@ -64,11 +64,11 @@ static bool is_hexadecimal_digit(char c){
   return false;
 }
 
-static void transition(unsigned int *lstate, unsigned int new_state){
+static void transition(enum state *lstate, enum state new_state){
   *lstate=new_state;
 }
 
-static bool check(unsigned int lstate, unsigned state){
+static bool check(enum state lstate, enum state state){
   if(lstate==state){
     return true;
   }
@@ -86,9 +86,8 @@ static void consume(size_t *c){
   (*c)++;
 }
 
-unsigned int lex_buffer(char *buf, size_t read_size, token **token_head, token **tokens_curr, unsigned int *lstate, char *token_string_buf, size_t *token_string_buf_pt, uintmax_t *curr_x, uintmax_t *curr_y, char *file_name){
+unsigned int lex_buffer(char *buf, size_t read_size, token **token_head, token **tokens_curr, enum state *lstate, char *token_string_buf, size_t *token_string_buf_pt, uintmax_t *curr_x, uintmax_t *curr_y, char *file_name){
   char *keywords_list[]={
-    "pushc","pushs","pushi","pushp","pushl","pushuc","pushus","pushui",
     "eq","gt","ls","ge","le","ne","zr","nz",
     "addc","adds","addi","addp","addl","adduc","addus","addui",
     "subc","subs","subi","subp","subl","subuc","subus","subui",
@@ -116,16 +115,17 @@ unsigned int lex_buffer(char *buf, size_t read_size, token **token_head, token *
     "vastorec","vastores","vastorei","vastorep","vastorel","vastoreuc","vastoreus","vastoreui",
     "hlt","call",
     "copy","pcopy","popa","put","pushsp",
-    "set","hltr",
+    "hltr",
     "incsp","decsp","exit",
     "force_panic",
-    "pushlt","import","hidden","exposed","struct",
+    "pushlt","rcall",
+    "open","invoke","pushpc","pushcs",
+
+    "pushc","pushs","pushi","pushp","pushl","pushuc","pushus","pushui",
+    "import","hidden","exposed","struct",
     "uc","us","ui","c","s","i","l","p",
     "alignof","sizeof",
-    "if","else","rcall",
-
-    //toc-specific
-    "open","invoke","pushpc","pushcs"
+    "if","else","set"
   };
   size_t last_i=1;
   uintmax_t last_x=0;
@@ -616,7 +616,7 @@ token* lex(char *file_name, unsigned int *lex_ret){
   token *tokens_curr=NULL;
   uintmax_t curr_x=0;
   uintmax_t curr_y=1;
-  unsigned int lstate=state_pending;
+  enum state lstate=state_pending;
   while((read_size=fread(read_buf,1,FILE_READ_CHUNK_SIZE,lex_file))){
     if(ferror(lex_file)){
       fprintf(stderr,"implementation error: error while reading from file %s\n",file_name);

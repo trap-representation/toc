@@ -5,10 +5,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define TOC_ADD_NUMERIC_CONSTANT
-#define TOC_ADD_VISIBILITY
-#define TOC_ADD_KEYWORD
-#include "psg_idens.h"
 #include "comp_properties.h"
 #include "write_error.h"
 #include "tables.h"
@@ -175,7 +171,7 @@ nightVM_l lookup_in_symbol_table(char *s, sym_table *symbol_table, translation_u
     if(stop_early && symbol_table->next_node==NULL){
       break;
     }
-    if(strcmp(symbol_table->symbol_identifier,s)==0 && (symbol_table->tu==tu || symbol_table->visibility_code==visibility_exposed)){
+    if(strcmp(symbol_table->symbol_identifier,s)==0 && (symbol_table->tu==tu || symbol_table->visibility_type==visibility_exposed)){
       if(found!=NULL){
         *found=true;
       }
@@ -254,10 +250,10 @@ static unsigned int add_to_sym_table_if_valid(statement *phrase_statement, sym_t
       add_libraries_init_to_address(libraries,address);
     }
     if(phrase_statement->child.phrase_label->phrase_visibility!=NULL){
-      (*curr)->visibility_code=phrase_statement->child.phrase_label->phrase_visibility->visibility_code;
+      (*curr)->visibility_type=phrase_statement->child.phrase_label->phrase_visibility->visibility_type;
     }
     else{
-      (*curr)->visibility_code=visibility_exposed;
+      (*curr)->visibility_type=visibility_exposed;
     }
     (*curr)->tu=tu;
     (*curr)->symbol_identifier=phrase_statement->child.phrase_label->lex_identifier;
@@ -288,33 +284,33 @@ static unsigned int add_to_sym_table_if_valid(statement *phrase_statement, sym_t
     }
     if(phrase_statement->child.phrase_set_statement->child_type==lex_type_numeric_constant){
       (*curr)->val=numeric_constant_to_l(phrase_statement->child.phrase_set_statement->child.lex_numeric_constant);
-      if(phrase_statement->child.phrase_set_statement->phrase_sign!=NULL){
-        (*curr)->val*=phrase_statement->child.phrase_set_statement->phrase_sign->sign_code;
+      if(phrase_statement->child.phrase_set_statement->phrase_sign!=NULL && phrase_statement->child.phrase_set_statement->phrase_sign->sign_type==sign_negative){
+        (*curr)->val*=-1;
       }
     }
     else if(phrase_statement->child.phrase_set_statement->child_type==lex_type_character_constant){
       (*curr)->val=phrase_statement->child.phrase_set_statement->child.lex_character_constant[0];
-      if(phrase_statement->child.phrase_set_statement->phrase_sign!=NULL){
-        (*curr)->val*=phrase_statement->child.phrase_set_statement->phrase_sign->sign_code;
+      if(phrase_statement->child.phrase_set_statement->phrase_sign!=NULL && phrase_statement->child.phrase_set_statement->phrase_sign->sign_type==sign_negative){
+        (*curr)->val*=-1;
       }
     }
     else if(phrase_statement->child.phrase_set_statement->child_type==lex_type_string_constant){
       (*curr)->val=lookup_in_string_table(phrase_statement->child.phrase_set_statement->child.lex_string_constant,string_table);
-      if(phrase_statement->child.phrase_set_statement->phrase_sign!=NULL){
-        (*curr)->val*=phrase_statement->child.phrase_set_statement->phrase_sign->sign_code;
+      if(phrase_statement->child.phrase_set_statement->phrase_sign!=NULL && phrase_statement->child.phrase_set_statement->phrase_sign->sign_type==sign_negative){
+        (*curr)->val*=-1;
       }
     }
     else if(phrase_statement->child.phrase_set_statement->child_type==phrase_type_symbol){
       bool found_symbol;
       (*curr)->val=lookup_in_symbol_table(phrase_statement->child.phrase_set_statement->child.phrase_symbol->lex_identifier,*e_symbol_table,tu,true,&found_symbol);
-      if(phrase_statement->child.phrase_set_statement->phrase_sign!=NULL){
-        (*curr)->val*=phrase_statement->child.phrase_set_statement->phrase_sign->sign_code;
+      if(phrase_statement->child.phrase_set_statement->phrase_sign!=NULL && phrase_statement->child.phrase_set_statement->phrase_sign->sign_type==sign_negative){
+        (*curr)->val*=-1;
       }
       if(!found_symbol){
         write_error("error: use of unset symbol\n",phrase_statement->child.phrase_set_statement->start_x,phrase_statement->child.phrase_set_statement->start_y,phrase_statement->child.phrase_set_statement->end_x,phrase_statement->child.phrase_set_statement->end_y,phrase_statement->child.phrase_set_statement->file);
       }
     }
-    (*curr)->visibility_code=visibility_hidden;
+    (*curr)->visibility_type=visibility_hidden;
     (*curr)->tu=tu;
     (*curr)->symbol_identifier=phrase_statement->child.phrase_set_statement->lex_identifier;
   }
@@ -337,10 +333,10 @@ static unsigned int add_to_sym_table_if_valid(statement *phrase_statement, sym_t
   else if(phrase_statement->child_type==phrase_type_push_statement){
     phrase_statement->child.phrase_push_statement->address=*address;
     phrase_statement->child.phrase_push_statement->align_pad=0;
-    if(phrase_statement->child.phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushuc){
+    if(phrase_statement->child.phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushuc){
       *address+=1+1;
     }
-    else if(phrase_statement->child.phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushus){
+    else if(phrase_statement->child.phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushus){
       if((*address+1)%ALIGNOF_US!=0){
         phrase_statement->child.phrase_push_statement->align_pad=((*address+1)+ALIGNOF_US-1)-(((*address+1)+ALIGNOF_US-1)%ALIGNOF_US)-(*address+1);
         *address+=phrase_statement->child.phrase_push_statement->align_pad;
@@ -348,7 +344,7 @@ static unsigned int add_to_sym_table_if_valid(statement *phrase_statement, sym_t
       }
       *address+=1+SIZEOF_US;
     }
-    else if(phrase_statement->child.phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushui){
+    else if(phrase_statement->child.phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushui){
       if((*address+1)%ALIGNOF_UI!=0){
         phrase_statement->child.phrase_push_statement->align_pad=((*address+1)+ALIGNOF_UI-1)-(((*address+1)+ALIGNOF_UI-1)%ALIGNOF_UI)-(*address+1);
         *address+=phrase_statement->child.phrase_push_statement->align_pad;
@@ -356,10 +352,10 @@ static unsigned int add_to_sym_table_if_valid(statement *phrase_statement, sym_t
       }
       *address+=1+SIZEOF_UI;
     }
-    else if(phrase_statement->child.phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushc){
+    else if(phrase_statement->child.phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushc){
       *address+=1+1;
     }
-    else if(phrase_statement->child.phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushs){
+    else if(phrase_statement->child.phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushs){
       if((*address+1)%ALIGNOF_S!=0){
         phrase_statement->child.phrase_push_statement->align_pad=((*address+1)+ALIGNOF_S-1)-(((*address+1)+ALIGNOF_S-1)%ALIGNOF_S)-(*address+1);
         *address+=phrase_statement->child.phrase_push_statement->align_pad;
@@ -367,7 +363,7 @@ static unsigned int add_to_sym_table_if_valid(statement *phrase_statement, sym_t
       }
       *address+=1+SIZEOF_S;
     }
-    else if(phrase_statement->child.phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushi){
+    else if(phrase_statement->child.phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushi){
       if((*address+1)%ALIGNOF_I!=0){
         phrase_statement->child.phrase_push_statement->align_pad=((*address+1)+ALIGNOF_I-1)-(((*address+1)+ALIGNOF_I-1)%ALIGNOF_I)-(*address+1);
         *address+=phrase_statement->child.phrase_push_statement->align_pad;
@@ -375,7 +371,7 @@ static unsigned int add_to_sym_table_if_valid(statement *phrase_statement, sym_t
       }
       *address+=1+SIZEOF_I;
     }
-    else if(phrase_statement->child.phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushl){
+    else if(phrase_statement->child.phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushl){
       if((*address+1)%ALIGNOF_L!=0){
         phrase_statement->child.phrase_push_statement->align_pad=((*address+1)+ALIGNOF_L-1)-(((*address+1)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+1);
         *address+=phrase_statement->child.phrase_push_statement->align_pad;
@@ -383,7 +379,7 @@ static unsigned int add_to_sym_table_if_valid(statement *phrase_statement, sym_t
       }
       *address+=1+SIZEOF_L;
     }
-    else if(phrase_statement->child.phrase_push_statement->phrase_push_instruction->push_instruction_code==key_pushp){
+    else if(phrase_statement->child.phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushp){
       if((*address+1)%ALIGNOF_L!=0){
         phrase_statement->child.phrase_push_statement->align_pad=((*address+1)+ALIGNOF_L-1)-(((*address+1)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+1);
         *address+=phrase_statement->child.phrase_push_statement->align_pad;
@@ -407,42 +403,42 @@ static unsigned int add_to_sym_table_if_valid(statement *phrase_statement, sym_t
   }
   else if(phrase_statement->child_type==phrase_type_instruction){
     phrase_statement->child.phrase_instruction->align_pad=0;
-    if(phrase_statement->child.phrase_instruction->instruction_code==key_addp){
+    if(phrase_statement->child.phrase_instruction->instruction_type==instruction_addp){
       if((*address+2)%ALIGNOF_L!=0){
         phrase_statement->child.phrase_instruction->align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
         *address+=phrase_statement->child.phrase_instruction->align_pad;
       }
       *address+=1+1+SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L+1+1+5+1+SIZEOF_L+1;
     }
-    else if(phrase_statement->child.phrase_instruction->instruction_code==key_subp){
+    else if(phrase_statement->child.phrase_instruction->instruction_type==instruction_subp){
       if((*address+2)%ALIGNOF_L!=0){
         phrase_statement->child.phrase_instruction->align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
         *address+=phrase_statement->child.phrase_instruction->align_pad;
       }
       *address+=1+1+SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L+1+1+5+1+SIZEOF_L+1;
     }
-    else if(phrase_statement->child.phrase_instruction->instruction_code==key_loadc || phrase_statement->child.phrase_instruction->instruction_code==key_loads || phrase_statement->child.phrase_instruction->instruction_code==key_loadi || phrase_statement->child.phrase_instruction->instruction_code==key_loadp || phrase_statement->child.phrase_instruction->instruction_code==key_loadl || phrase_statement->child.phrase_instruction->instruction_code==key_loaduc || phrase_statement->child.phrase_instruction->instruction_code==key_loadus || phrase_statement->child.phrase_instruction->instruction_code==key_loadui || phrase_statement->child.phrase_instruction->instruction_code==key_vloadc || phrase_statement->child.phrase_instruction->instruction_code==key_vloads || phrase_statement->child.phrase_instruction->instruction_code==key_vloadi || phrase_statement->child.phrase_instruction->instruction_code==key_vloadp || phrase_statement->child.phrase_instruction->instruction_code==key_vloadl || phrase_statement->child.phrase_instruction->instruction_code==key_vloaduc || phrase_statement->child.phrase_instruction->instruction_code==key_vloadus || phrase_statement->child.phrase_instruction->instruction_code==key_vloadui){
+    else if(phrase_statement->child.phrase_instruction->instruction_type==instruction_loadc || phrase_statement->child.phrase_instruction->instruction_type==instruction_loads || phrase_statement->child.phrase_instruction->instruction_type==instruction_loadi || phrase_statement->child.phrase_instruction->instruction_type==instruction_loadp || phrase_statement->child.phrase_instruction->instruction_type==instruction_loadl || phrase_statement->child.phrase_instruction->instruction_type==instruction_loaduc || phrase_statement->child.phrase_instruction->instruction_type==instruction_loadus || phrase_statement->child.phrase_instruction->instruction_type==instruction_loadui || phrase_statement->child.phrase_instruction->instruction_type==instruction_vloadc || phrase_statement->child.phrase_instruction->instruction_type==instruction_vloads || phrase_statement->child.phrase_instruction->instruction_type==instruction_vloadi || phrase_statement->child.phrase_instruction->instruction_type==instruction_vloadp || phrase_statement->child.phrase_instruction->instruction_type==instruction_vloadl || phrase_statement->child.phrase_instruction->instruction_type==instruction_vloaduc || phrase_statement->child.phrase_instruction->instruction_type==instruction_vloadus || phrase_statement->child.phrase_instruction->instruction_type==instruction_vloadui){
       if((*address+2)%ALIGNOF_L!=0){
         phrase_statement->child.phrase_instruction->align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
         *address+=phrase_statement->child.phrase_instruction->align_pad;
       }
       *address+=1+1+SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L+1+1;
     }
-    else if(phrase_statement->child.phrase_instruction->instruction_code==key_aloadc || phrase_statement->child.phrase_instruction->instruction_code==key_aloads || phrase_statement->child.phrase_instruction->instruction_code==key_aloadi || phrase_statement->child.phrase_instruction->instruction_code==key_aloadp || phrase_statement->child.phrase_instruction->instruction_code==key_aloadl || phrase_statement->child.phrase_instruction->instruction_code==key_aloaduc || phrase_statement->child.phrase_instruction->instruction_code==key_aloadus || phrase_statement->child.phrase_instruction->instruction_code==key_aloadui || phrase_statement->child.phrase_instruction->instruction_code==key_valoadc || phrase_statement->child.phrase_instruction->instruction_code==key_valoads || phrase_statement->child.phrase_instruction->instruction_code==key_valoadi || phrase_statement->child.phrase_instruction->instruction_code==key_valoadp || phrase_statement->child.phrase_instruction->instruction_code==key_valoadl || phrase_statement->child.phrase_instruction->instruction_code==key_valoaduc || phrase_statement->child.phrase_instruction->instruction_code==key_valoadus || phrase_statement->child.phrase_instruction->instruction_code==key_valoadui){
+    else if(phrase_statement->child.phrase_instruction->instruction_type==instruction_aloadc || phrase_statement->child.phrase_instruction->instruction_type==instruction_aloads || phrase_statement->child.phrase_instruction->instruction_type==instruction_aloadi || phrase_statement->child.phrase_instruction->instruction_type==instruction_aloadp || phrase_statement->child.phrase_instruction->instruction_type==instruction_aloadl || phrase_statement->child.phrase_instruction->instruction_type==instruction_aloaduc || phrase_statement->child.phrase_instruction->instruction_type==instruction_aloadus || phrase_statement->child.phrase_instruction->instruction_type==instruction_aloadui || phrase_statement->child.phrase_instruction->instruction_type==instruction_valoadc || phrase_statement->child.phrase_instruction->instruction_type==instruction_valoads || phrase_statement->child.phrase_instruction->instruction_type==instruction_valoadi || phrase_statement->child.phrase_instruction->instruction_type==instruction_valoadp || phrase_statement->child.phrase_instruction->instruction_type==instruction_valoadl || phrase_statement->child.phrase_instruction->instruction_type==instruction_valoaduc || phrase_statement->child.phrase_instruction->instruction_type==instruction_valoadus || phrase_statement->child.phrase_instruction->instruction_type==instruction_valoadui){
       if((*address+2)%ALIGNOF_L!=0){
         phrase_statement->child.phrase_instruction->align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
         *address+=phrase_statement->child.phrase_instruction->align_pad;
       }
       *address+=1+1+SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L+1+1;
     }
-    else if(phrase_statement->child.phrase_instruction->instruction_code==key_storec || phrase_statement->child.phrase_instruction->instruction_code==key_stores || phrase_statement->child.phrase_instruction->instruction_code==key_storei || phrase_statement->child.phrase_instruction->instruction_code==key_storep || phrase_statement->child.phrase_instruction->instruction_code==key_storel || phrase_statement->child.phrase_instruction->instruction_code==key_storeuc || phrase_statement->child.phrase_instruction->instruction_code==key_storeus || phrase_statement->child.phrase_instruction->instruction_code==key_storeui || phrase_statement->child.phrase_instruction->instruction_code==key_vstorec || phrase_statement->child.phrase_instruction->instruction_code==key_vstores || phrase_statement->child.phrase_instruction->instruction_code==key_vstorei || phrase_statement->child.phrase_instruction->instruction_code==key_vstorep || phrase_statement->child.phrase_instruction->instruction_code==key_vstorel || phrase_statement->child.phrase_instruction->instruction_code==key_vstoreuc || phrase_statement->child.phrase_instruction->instruction_code==key_vstoreus || phrase_statement->child.phrase_instruction->instruction_code==key_vstoreui){
+    else if(phrase_statement->child.phrase_instruction->instruction_type==instruction_storec || phrase_statement->child.phrase_instruction->instruction_type==instruction_stores || phrase_statement->child.phrase_instruction->instruction_type==instruction_storei || phrase_statement->child.phrase_instruction->instruction_type==instruction_storep || phrase_statement->child.phrase_instruction->instruction_type==instruction_storel || phrase_statement->child.phrase_instruction->instruction_type==instruction_storeuc || phrase_statement->child.phrase_instruction->instruction_type==instruction_storeus || phrase_statement->child.phrase_instruction->instruction_type==instruction_storeui || phrase_statement->child.phrase_instruction->instruction_type==instruction_vstorec || phrase_statement->child.phrase_instruction->instruction_type==instruction_vstores || phrase_statement->child.phrase_instruction->instruction_type==instruction_vstorei || phrase_statement->child.phrase_instruction->instruction_type==instruction_vstorep || phrase_statement->child.phrase_instruction->instruction_type==instruction_vstorel || phrase_statement->child.phrase_instruction->instruction_type==instruction_vstoreuc || phrase_statement->child.phrase_instruction->instruction_type==instruction_vstoreus || phrase_statement->child.phrase_instruction->instruction_type==instruction_vstoreui){
       if((*address+2)%ALIGNOF_L!=0){
         phrase_statement->child.phrase_instruction->align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
         *address+=phrase_statement->child.phrase_instruction->align_pad;
       }
       *address+=1+1+SIZEOF_L+1+6+1+SIZEOF_L+1+1+1+1+1+1+1+1+SIZEOF_L+1+1;
     }
-    else if(phrase_statement->child.phrase_instruction->instruction_code==key_astorec || phrase_statement->child.phrase_instruction->instruction_code==key_astores || phrase_statement->child.phrase_instruction->instruction_code==key_astorei || phrase_statement->child.phrase_instruction->instruction_code==key_astorep || phrase_statement->child.phrase_instruction->instruction_code==key_astorel || phrase_statement->child.phrase_instruction->instruction_code==key_astoreuc || phrase_statement->child.phrase_instruction->instruction_code==key_astoreus || phrase_statement->child.phrase_instruction->instruction_code==key_astoreui || phrase_statement->child.phrase_instruction->instruction_code==key_vastorec || phrase_statement->child.phrase_instruction->instruction_code==key_vastores || phrase_statement->child.phrase_instruction->instruction_code==key_vastorei || phrase_statement->child.phrase_instruction->instruction_code==key_vastorep || phrase_statement->child.phrase_instruction->instruction_code==key_vastorel || phrase_statement->child.phrase_instruction->instruction_code==key_vastoreuc || phrase_statement->child.phrase_instruction->instruction_code==key_vastoreus || phrase_statement->child.phrase_instruction->instruction_code==key_vastoreui){
+    else if(phrase_statement->child.phrase_instruction->instruction_type==instruction_astorec || phrase_statement->child.phrase_instruction->instruction_type==instruction_astores || phrase_statement->child.phrase_instruction->instruction_type==instruction_astorei || phrase_statement->child.phrase_instruction->instruction_type==instruction_astorep || phrase_statement->child.phrase_instruction->instruction_type==instruction_astorel || phrase_statement->child.phrase_instruction->instruction_type==instruction_astoreuc || phrase_statement->child.phrase_instruction->instruction_type==instruction_astoreus || phrase_statement->child.phrase_instruction->instruction_type==instruction_astoreui || phrase_statement->child.phrase_instruction->instruction_type==instruction_vastorec || phrase_statement->child.phrase_instruction->instruction_type==instruction_vastores || phrase_statement->child.phrase_instruction->instruction_type==instruction_vastorei || phrase_statement->child.phrase_instruction->instruction_type==instruction_vastorep || phrase_statement->child.phrase_instruction->instruction_type==instruction_vastorel || phrase_statement->child.phrase_instruction->instruction_type==instruction_vastoreuc || phrase_statement->child.phrase_instruction->instruction_type==instruction_vastoreus || phrase_statement->child.phrase_instruction->instruction_type==instruction_vastoreui){
       if((*address+2)%ALIGNOF_L!=0){
         phrase_statement->child.phrase_instruction->align_pad=((*address+2)+ALIGNOF_L-1)-(((*address+2)+ALIGNOF_L-1)%ALIGNOF_L)-(*address+2);
         *address+=phrase_statement->child.phrase_instruction->align_pad;
@@ -611,28 +607,28 @@ static nightVM_l get_size_of_type(translation_unit *tu, struct_tag_definition_se
   while(phrase_struct_tag_definition_sequence!=NULL){
     struct_tag_definition *phrase_struct_tag_definition=phrase_struct_tag_definition_sequence->phrase_struct_tag_definition;
     if(phrase_struct_tag_definition->child_type==phrase_type_type){
-      if(phrase_struct_tag_definition->child.phrase_type->type_code==key_uc){
+      if(phrase_struct_tag_definition->child.phrase_type->type_type==type_uc){
         size+=1;
       }
-      else if(phrase_struct_tag_definition->child.phrase_type->type_code==key_us){
+      else if(phrase_struct_tag_definition->child.phrase_type->type_type==type_us){
         size+=SIZEOF_US;
       }
-      else if(phrase_struct_tag_definition->child.phrase_type->type_code==key_ui){
+      else if(phrase_struct_tag_definition->child.phrase_type->type_type==type_ui){
         size+=SIZEOF_UI;
       }
-      else if(phrase_struct_tag_definition->child.phrase_type->type_code==key_c){
+      else if(phrase_struct_tag_definition->child.phrase_type->type_type==type_c){
         size+=1;
       }
-      else if(phrase_struct_tag_definition->child.phrase_type->type_code==key_s){
+      else if(phrase_struct_tag_definition->child.phrase_type->type_type==type_s){
         size+=SIZEOF_S;
       }
-      else if(phrase_struct_tag_definition->child.phrase_type->type_code==key_i){
+      else if(phrase_struct_tag_definition->child.phrase_type->type_type==type_i){
         size+=SIZEOF_I;
       }
-      else if(phrase_struct_tag_definition->child.phrase_type->type_code==key_l){
+      else if(phrase_struct_tag_definition->child.phrase_type->type_type==type_l){
         size+=SIZEOF_L;
       }
-      else if(phrase_struct_tag_definition->child.phrase_type->type_code==key_p){
+      else if(phrase_struct_tag_definition->child.phrase_type->type_type==type_p){
         size+=SIZEOF_L;
       }
     }
