@@ -230,9 +230,9 @@ void clean_up_else_clause(else_clause *phrase_else_clause){
 }
 
 void clean_up_selection_statement(selection_statement *phrase_selection_statement){
-  clean_up_statement_sequence(phrase_selection_statement->phrase_statement_sequence);
+  clean_up_statement_sequence(phrase_selection_statement->phrase_statement_sequence_0);
   if(phrase_selection_statement->child_type==phrase_type_statement_sequence){
-    clean_up_statement_sequence(phrase_selection_statement->child.phrase_statement_sequence);
+    clean_up_statement_sequence(phrase_selection_statement->child.phrase_statement_sequence_1);
   }
   else if(phrase_selection_statement->child_type==phrase_type_statement){
     clean_up_statement(phrase_selection_statement->child.phrase_statement);

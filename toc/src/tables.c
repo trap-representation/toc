@@ -67,11 +67,11 @@ static unsigned int walk_tree_and_create_str_table(statement_sequence *phrase_st
   if(phrase_statement!=NULL){
     if(phrase_statement->child_type==phrase_type_selection_statement){
       selection_statement *phrase_selection_statement=phrase_statement->child.phrase_selection_statement;
-      if(walk_tree_and_create_str_table(phrase_selection_statement->phrase_statement_sequence,NULL,string_table,e_string_table,curr)){
+      if(walk_tree_and_create_str_table(phrase_selection_statement->phrase_statement_sequence_0,NULL,string_table,e_string_table,curr)){
         return 1;
       }
       if(phrase_selection_statement->child_type==phrase_type_statement_sequence){
-        if(walk_tree_and_create_str_table(phrase_selection_statement->child.phrase_statement_sequence,NULL,string_table,e_string_table,curr)){
+        if(walk_tree_and_create_str_table(phrase_selection_statement->child.phrase_statement_sequence_1,NULL,string_table,e_string_table,curr)){
           return 1;
         }
       }
@@ -103,11 +103,11 @@ static unsigned int walk_tree_and_create_str_table(statement_sequence *phrase_st
     while(phrase_statement_sequence!=NULL){
       if(phrase_statement_sequence->phrase_statement->child_type==phrase_type_selection_statement){
         selection_statement *phrase_selection_statement=phrase_statement_sequence->phrase_statement->child.phrase_selection_statement;
-        if(walk_tree_and_create_str_table(phrase_selection_statement->phrase_statement_sequence,NULL,string_table,e_string_table,curr)){
+        if(walk_tree_and_create_str_table(phrase_selection_statement->phrase_statement_sequence_0,NULL,string_table,e_string_table,curr)){
           return 1;
         }
         if(phrase_selection_statement->child_type==phrase_type_statement_sequence){
-          if(walk_tree_and_create_str_table(phrase_selection_statement->child.phrase_statement_sequence,NULL,string_table,e_string_table,curr)){
+          if(walk_tree_and_create_str_table(phrase_selection_statement->child.phrase_statement_sequence_1,NULL,string_table,e_string_table,curr)){
             return 1;
           }
         }
@@ -456,7 +456,7 @@ static unsigned int walk_tree_and_create_sym_table(statement_sequence *phrase_st
   if(phrase_statement!=NULL){
     if(phrase_statement->child_type==phrase_type_selection_statement){
       selection_statement *phrase_selection_statement=phrase_statement->child.phrase_selection_statement;
-      if(walk_tree_and_create_sym_table(phrase_selection_statement->phrase_statement_sequence,NULL,symbol_table,e_symbol_table,address,string_table,libraries,curr,tu)){
+      if(walk_tree_and_create_sym_table(phrase_selection_statement->phrase_statement_sequence_0,NULL,symbol_table,e_symbol_table,address,string_table,libraries,curr,tu)){
         return 1;
       }
       if((*address+1)%ALIGNOF_L!=0){
@@ -466,7 +466,7 @@ static unsigned int walk_tree_and_create_sym_table(statement_sequence *phrase_st
       *address+=1+SIZEOF_L+1;
       nightVM_l staddr=*address;
       if(phrase_selection_statement->child_type==phrase_type_statement_sequence){
-        if(walk_tree_and_create_sym_table(phrase_selection_statement->child.phrase_statement_sequence,NULL,symbol_table,e_symbol_table,address,string_table,libraries,curr,tu)){
+        if(walk_tree_and_create_sym_table(phrase_selection_statement->child.phrase_statement_sequence_1,NULL,symbol_table,e_symbol_table,address,string_table,libraries,curr,tu)){
           return 1;
         }
       }
@@ -507,7 +507,7 @@ static unsigned int walk_tree_and_create_sym_table(statement_sequence *phrase_st
     while(phrase_statement_sequence!=NULL){
       if(phrase_statement_sequence->phrase_statement->child_type==phrase_type_selection_statement){
         selection_statement *phrase_selection_statement=phrase_statement_sequence->phrase_statement->child.phrase_selection_statement;
-        if(walk_tree_and_create_sym_table(phrase_selection_statement->phrase_statement_sequence,NULL,symbol_table,e_symbol_table,address,string_table,libraries,curr,tu)){
+        if(walk_tree_and_create_sym_table(phrase_selection_statement->phrase_statement_sequence_0,NULL,symbol_table,e_symbol_table,address,string_table,libraries,curr,tu)){
           return 1;
         }
         if((*address+1)%ALIGNOF_L!=0){
@@ -517,7 +517,7 @@ static unsigned int walk_tree_and_create_sym_table(statement_sequence *phrase_st
         *address+=1+SIZEOF_L+1;
         nightVM_l staddr=*address;
         if(phrase_selection_statement->child_type==phrase_type_statement_sequence){
-          if(walk_tree_and_create_sym_table(phrase_selection_statement->child.phrase_statement_sequence,NULL,symbol_table,e_symbol_table,address,string_table,libraries,curr,tu)){
+          if(walk_tree_and_create_sym_table(phrase_selection_statement->child.phrase_statement_sequence_1,NULL,symbol_table,e_symbol_table,address,string_table,libraries,curr,tu)){
             return 1;
           }
         }
@@ -688,11 +688,11 @@ static unsigned int walk_tree_and_create_struct_definition_table(statement_seque
   if(phrase_statement!=NULL){
     if(phrase_statement->child_type==phrase_type_selection_statement){
       selection_statement *phrase_selection_statement=phrase_statement->child.phrase_selection_statement;
-      if(walk_tree_and_create_struct_definition_table(phrase_selection_statement->phrase_statement_sequence,NULL,struct_table,e_struct_table,curr,tu)){
+      if(walk_tree_and_create_struct_definition_table(phrase_selection_statement->phrase_statement_sequence_0,NULL,struct_table,e_struct_table,curr,tu)){
         return 1;
       }
       if(phrase_selection_statement->child_type==phrase_type_statement_sequence){
-        if(walk_tree_and_create_struct_definition_table(phrase_selection_statement->child.phrase_statement_sequence,NULL,struct_table,e_struct_table,curr,tu)){
+        if(walk_tree_and_create_struct_definition_table(phrase_selection_statement->child.phrase_statement_sequence_1,NULL,struct_table,e_struct_table,curr,tu)){
           return 1;
         }
       }
@@ -724,11 +724,11 @@ static unsigned int walk_tree_and_create_struct_definition_table(statement_seque
     while(phrase_statement_sequence!=NULL){
       if(phrase_statement_sequence->phrase_statement->child_type==phrase_type_selection_statement){
         selection_statement *phrase_selection_statement=phrase_statement_sequence->phrase_statement->child.phrase_selection_statement;
-        if(walk_tree_and_create_struct_definition_table(phrase_selection_statement->phrase_statement_sequence,NULL,struct_table,e_struct_table,curr,tu)){
+        if(walk_tree_and_create_struct_definition_table(phrase_selection_statement->phrase_statement_sequence_0,NULL,struct_table,e_struct_table,curr,tu)){
           return 1;
         }
         if(phrase_selection_statement->child_type==phrase_type_statement_sequence){
-          if(walk_tree_and_create_struct_definition_table(phrase_selection_statement->child.phrase_statement_sequence,NULL,struct_table,e_struct_table,curr,tu)){
+          if(walk_tree_and_create_struct_definition_table(phrase_selection_statement->child.phrase_statement_sequence_1,NULL,struct_table,e_struct_table,curr,tu)){
             return 1;
           }
         }

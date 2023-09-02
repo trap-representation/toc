@@ -3682,7 +3682,7 @@ unsigned int gen_code_else_clause(else_clause *phrase_else_clause, str_table *st
 }
 
 unsigned int gen_code_selection_statement(selection_statement *phrase_selection_statement, str_table *string_table, sym_table *symbol_table, struct_definition_table *struct_table, libs *libraries){
-  if(gen_code_statement_sequence(phrase_selection_statement->phrase_statement_sequence,string_table,symbol_table,struct_table,libraries)){
+  if(gen_code_statement_sequence(phrase_selection_statement->phrase_statement_sequence_0,string_table,symbol_table,struct_table,libraries)){
     return 1;
   }
   nightVM_uc pad_nop=op_nop;
@@ -3703,7 +3703,7 @@ unsigned int gen_code_selection_statement(selection_statement *phrase_selection_
     return 1;
   }
   if(phrase_selection_statement->child_type==phrase_type_statement_sequence){
-    if(gen_code_statement_sequence(phrase_selection_statement->child.phrase_statement_sequence,string_table,symbol_table,struct_table,libraries)){
+    if(gen_code_statement_sequence(phrase_selection_statement->child.phrase_statement_sequence_1,string_table,symbol_table,struct_table,libraries)){
       return 1;
     }
   }

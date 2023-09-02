@@ -313,11 +313,11 @@ typedef struct s_else_clause {
 } else_clause;
 
 typedef struct s_selection_statement {
-  struct s_statement_sequence *phrase_statement_sequence;
+  struct s_statement_sequence *phrase_statement_sequence_0;
   enum phrase_type child_type;
   union selection_statement_child_type_union {
     struct s_statement *phrase_statement;
-    struct s_statement_sequence *phrase_statement_sequence;
+    struct s_statement_sequence *phrase_statement_sequence_1;
   } child;
   struct s_else_clause *phrase_else_clause;
   struct s_statement *parent;

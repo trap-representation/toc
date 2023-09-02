@@ -714,7 +714,7 @@ unsigned int parse_selection_statement(statement *parent_phrase_statement, token
   selection_statement *phrase_selection_statement=parent_phrase_statement->child.phrase_selection_statement;
   phrase_selection_statement->file=parent_phrase_statement->file;
   phrase_selection_statement->parent=parent_phrase_statement;
-  phrase_selection_statement->phrase_statement_sequence=NULL;
+  phrase_selection_statement->phrase_statement_sequence_0=NULL;
   phrase_selection_statement->child_type=fill_incomplete;
   phrase_selection_statement->phrase_else_clause=NULL;
   phrase_selection_statement->start_x=(*curr)->start_x;
@@ -736,7 +736,7 @@ unsigned int parse_selection_statement(statement *parent_phrase_statement, token
   if(check(*curr,tk_punctuator) && check_type(*curr,punc_openingcbrace)){
     consume(curr);
     phrase_selection_statement->child_type=phrase_type_statement_sequence;
-    phrase_selection_statement->child.phrase_statement_sequence=NULL;
+    phrase_selection_statement->child.phrase_statement_sequence_1=NULL;
     if((check(*curr,tk_punctuator) && check_type(*curr,punc_colon)) || (check(*curr,tk_punctuator) && check_type(*curr,punc_plus)) || (check(*curr,tk_keyword))){
       if(parse_statement_sequence(NULL,NULL,phrase_selection_statement,NULL,NULL,curr,file_name)==NULL){
         return 1;
@@ -1075,21 +1075,21 @@ statement_sequence *parse_statement_sequence(translation_unit *parent_phrase_tra
       phrase_statement_sequence->tu=parent_phrase_translation_unit;
     }
     else if(parent_phrase_selection_statement_0!=NULL){
-      if((parent_phrase_selection_statement_0->phrase_statement_sequence=malloc(sizeof(statement_sequence)))==NULL){
+      if((parent_phrase_selection_statement_0->phrase_statement_sequence_0=malloc(sizeof(statement_sequence)))==NULL){
         fprintf(stderr,"implementation error: failed to allocate enough memory\n");
         return NULL;
       }
-      phrase_statement_sequence=parent_phrase_selection_statement_0->phrase_statement_sequence;
+      phrase_statement_sequence=parent_phrase_selection_statement_0->phrase_statement_sequence_0;
       phrase_statement_sequence->parent_type=phrase_type_selection_statement;
       phrase_statement_sequence->parent.phrase_selection_statement=parent_phrase_selection_statement_0;
       phrase_statement_sequence->tu=parent_phrase_selection_statement_0->parent->tu;
     }
     else if(parent_phrase_selection_statement_1!=NULL){
-      if((parent_phrase_selection_statement_1->child.phrase_statement_sequence=malloc(sizeof(statement_sequence)))==NULL){
+      if((parent_phrase_selection_statement_1->child.phrase_statement_sequence_1=malloc(sizeof(statement_sequence)))==NULL){
         fprintf(stderr,"implementation error: failed to allocate enough memory\n");
         return NULL;
       }
-      phrase_statement_sequence=parent_phrase_selection_statement_1->child.phrase_statement_sequence;
+      phrase_statement_sequence=parent_phrase_selection_statement_1->child.phrase_statement_sequence_1;
       phrase_statement_sequence->parent_type=phrase_type_selection_statement;
       phrase_statement_sequence->parent.phrase_selection_statement=parent_phrase_selection_statement_1;
       phrase_statement_sequence->tu=parent_phrase_selection_statement_1->parent->tu;
