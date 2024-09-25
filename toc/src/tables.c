@@ -153,7 +153,7 @@ str_table *create_str_table(str_table **last_string_table_node, str_table *e_str
   return string_table;
 }
 
-nightVM_l lookup_in_string_table(char *s, str_table *string_table){
+ysm_l lookup_in_string_table(char *s, str_table *string_table){
   while(string_table!=NULL){
     if(cseqcmpstr(string_table->string,s)==0){
       return string_table->address;
@@ -163,12 +163,12 @@ nightVM_l lookup_in_string_table(char *s, str_table *string_table){
   return -1;
 }
 
-nightVM_l lookup_in_symbol_table(char *s, sym_table *symbol_table, translation_unit *tu, bool stop_early, bool *found){
+ysm_l lookup_in_symbol_table(char *s, sym_table *symbol_table, translation_unit *tu, bool stOP_EARLY, bool *found){
   if(found!=NULL){
     *found=false;
   }
   while(symbol_table!=NULL){
-    if(stop_early && symbol_table->next_node==NULL){
+    if(stOP_EARLY && symbol_table->next_node==NULL){
       break;
     }
     if(strcmp(symbol_table->symbol_identifier,s)==0 && (symbol_table->tu==tu || symbol_table->visibility_type==visibility_exposed)){
@@ -182,7 +182,7 @@ nightVM_l lookup_in_symbol_table(char *s, sym_table *symbol_table, translation_u
   return 0;
 }
 
-static void add_libraries_init_to_address(libs *libraries, nightVM_l *address){
+static void add_libraries_init_to_address(libs *libraries, ysm_l *address){
   while(libraries!=NULL){
     libraries->align_pad=0;
     if((*address+1)%ALIGNOF_L!=0){
@@ -200,7 +200,7 @@ static void add_libraries_init_to_address(libs *libraries, nightVM_l *address){
   }
 }
 
-static void add_libraries_to_address(libs *libraries, nightVM_l *address){
+static void add_libraries_to_address(libs *libraries, ysm_l *address){
   while(libraries!=NULL){
     libraries->address=*address;
     *address+=cseqlen(libraries->lib_name)+1;
@@ -208,7 +208,7 @@ static void add_libraries_to_address(libs *libraries, nightVM_l *address){
   }
 }
 
-static void add_string_table_to_address(str_table *string_table, nightVM_l *address){
+static void add_string_table_to_address(str_table *string_table, ysm_l *address){
   while(string_table!=NULL){
     string_table->address=*address;
     *address+=cseqlen(string_table->string)+1;
@@ -216,7 +216,7 @@ static void add_string_table_to_address(str_table *string_table, nightVM_l *addr
   }
 }
 
-static unsigned int add_to_sym_table_if_valid(statement *phrase_statement, sym_table **symbol_table, sym_table **e_symbol_table, nightVM_l *address, str_table *string_table, libs *libraries, sym_table **curr, translation_unit *tu){
+static unsigned int add_to_sym_table_if_valid(statement *phrase_statement, sym_table **symbol_table, sym_table **e_symbol_table, ysm_l *address, str_table *string_table, libs *libraries, sym_table **curr, translation_unit *tu){
   if(*address>0x3fffffffffffffff){
     write_error("implementation error: executable code is so large that parts of it are unaddressable\n",phrase_statement->start_x,phrase_statement->start_y,phrase_statement->end_x,phrase_statement->end_y,phrase_statement->file);
     return 1;
@@ -452,7 +452,7 @@ static unsigned int add_to_sym_table_if_valid(statement *phrase_statement, sym_t
   return 0;
 }
 
-static unsigned int walk_tree_and_create_sym_table(statement_sequence *phrase_statement_sequence, statement *phrase_statement, sym_table **symbol_table, sym_table **e_symbol_table, nightVM_l *address, str_table *string_table, libs *libraries, sym_table **curr, translation_unit *tu){
+static unsigned int walk_tree_and_create_sym_table(statement_sequence *phrase_statement_sequence, statement *phrase_statement, sym_table **symbol_table, sym_table **e_symbol_table, ysm_l *address, str_table *string_table, libs *libraries, sym_table **curr, translation_unit *tu){
   if(phrase_statement!=NULL){
     if(phrase_statement->child_type==phrase_type_selection_statement){
       selection_statement *phrase_selection_statement=phrase_statement->child.phrase_selection_statement;
@@ -464,7 +464,7 @@ static unsigned int walk_tree_and_create_sym_table(statement_sequence *phrase_st
         *address+=phrase_selection_statement->align_pad;
       }
       *address+=1+SIZEOF_L+1;
-      nightVM_l staddr=*address;
+      ysm_l staddr=*address;
       if(phrase_selection_statement->child_type==phrase_type_statement_sequence){
         if(walk_tree_and_create_sym_table(phrase_selection_statement->child.phrase_statement_sequence_1,NULL,symbol_table,e_symbol_table,address,string_table,libraries,curr,tu)){
           return 1;
@@ -515,7 +515,7 @@ static unsigned int walk_tree_and_create_sym_table(statement_sequence *phrase_st
           *address+=phrase_selection_statement->align_pad;
         }
         *address+=1+SIZEOF_L+1;
-        nightVM_l staddr=*address;
+        ysm_l staddr=*address;
         if(phrase_selection_statement->child_type==phrase_type_statement_sequence){
           if(walk_tree_and_create_sym_table(phrase_selection_statement->child.phrase_statement_sequence_1,NULL,symbol_table,e_symbol_table,address,string_table,libraries,curr,tu)){
             return 1;
@@ -559,7 +559,7 @@ static unsigned int walk_tree_and_create_sym_table(statement_sequence *phrase_st
   return 0;
 }
 
-sym_table *create_sym_table(sym_table **last_symbol_table_node, sym_table *e_symbol_table, translation_unit *tu, str_table *string_table, libs *libraries, nightVM_l *address, unsigned int *ret){
+sym_table *create_sym_table(sym_table **last_symbol_table_node, sym_table *e_symbol_table, translation_unit *tu, str_table *string_table, libs *libraries, ysm_l *address, unsigned int *ret){
   *ret=1;
   add_string_table_to_address(string_table,address);
   add_libraries_to_address(libraries,address);
@@ -574,9 +574,9 @@ sym_table *create_sym_table(sym_table **last_symbol_table_node, sym_table *e_sym
   return symbol_table;
 }
 
-nightVM_l lookup_in_struct_definition_table(char *s, struct_definition_table *struct_table, translation_unit *tu, bool stop_early, struct_definition **phrase_struct_definition, unsigned int ret_type){
+ysm_l lookup_in_struct_definition_table(char *s, struct_definition_table *struct_table, translation_unit *tu, bool stOP_EARLY, struct_definition **phrase_struct_definition, unsigned int ret_type){
   while(struct_table!=NULL){
-    if(stop_early && struct_table->next_node==NULL){
+    if(stOP_EARLY && struct_table->next_node==NULL){
       break;
     }
     if(strcmp(struct_table->struct_name_identifier,s)==0 && struct_table->tu==tu){
@@ -598,12 +598,12 @@ nightVM_l lookup_in_struct_definition_table(char *s, struct_definition_table *st
   return 0;
 }
 
-static nightVM_l get_size_of_type(translation_unit *tu, struct_tag_definition_sequence *phrase_struct_tag_definition_sequence, struct_definition_table *struct_table, unsigned int *ret){
+static ysm_l get_size_of_type(translation_unit *tu, struct_tag_definition_sequence *phrase_struct_tag_definition_sequence, struct_definition_table *struct_table, unsigned int *ret){
   *ret=1;
   if(phrase_struct_tag_definition_sequence==NULL){
     return 0;
   }
-  nightVM_l size=0;
+  ysm_l size=0;
   while(phrase_struct_tag_definition_sequence!=NULL){
     struct_tag_definition *phrase_struct_tag_definition=phrase_struct_tag_definition_sequence->phrase_struct_tag_definition;
     if(phrase_struct_tag_definition->child_type==phrase_type_type){

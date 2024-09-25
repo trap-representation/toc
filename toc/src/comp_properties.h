@@ -21,10 +21,10 @@ typedef struct s_compilation_attributes {
   enum standard_type std;
   bool nostdlib;
   bool pic;
-  nightVM_ui code_alignment;
-  nightVM_ui heap_alignment;
-  nightVM_uns heap_size;
-  nightVM_uns stack_size;
+  ysm_ui code_alignment;
+  ysm_ui heap_alignment;
+  nightvm_uns heap_size;
+  nightvm_uns stack_size;
 } compilation_attributes;
 
 #endif

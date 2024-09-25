@@ -288,7 +288,7 @@ typedef struct s_sizeof_statement {
     struct s_struct_name *phrase_struct_name;
   } child;
   struct s_statement *parent;
-  nightVM_ui align_pad;
+  ysm_ui align_pad;
   char *file;
   uintmax_t start_x;
   uintmax_t start_y;
@@ -303,8 +303,8 @@ typedef struct s_else_clause {
     struct s_statement_sequence *phrase_statement_sequence;
   } child;
   struct s_selection_statement *parent;
-  nightVM_ui align_pad;
-  nightVM_l rend_address;
+  ysm_ui align_pad;
+  ysm_l rend_address;
   char *file;
   uintmax_t start_x;
   uintmax_t start_y;
@@ -321,8 +321,8 @@ typedef struct s_selection_statement {
   } child;
   struct s_else_clause *phrase_else_clause;
   struct s_statement *parent;
-  nightVM_ui align_pad;
-  nightVM_l rend_address;
+  ysm_ui align_pad;
+  ysm_l rend_address;
   char *file;
   uintmax_t start_x;
   uintmax_t start_y;
@@ -337,7 +337,7 @@ typedef struct s_alignof_statement {
     struct s_struct_name *phrase_struct_name;
   } child;
   struct s_statement *parent;
-  nightVM_ui align_pad;
+  ysm_ui align_pad;
   char *file;
   uintmax_t start_x;
   uintmax_t start_y;
@@ -356,8 +356,8 @@ typedef struct s_push_statement {
     struct s_symbol *phrase_symbol;
   } child;
   struct s_statement *parent;
-  nightVM_ui align_pad;
-  nightVM_l address;
+  ysm_ui align_pad;
+  ysm_l address;
   char *file;
   uintmax_t start_x;
   uintmax_t start_y;
@@ -419,7 +419,7 @@ typedef struct s_tagged_statement {
   struct s_struct_name *phrase_struct_name;
   struct s_tag_sequence *phrase_tag_sequence;
   struct s_statement *parent;
-  nightVM_ui align_pad;
+  ysm_ui align_pad;
   char *file;
   uintmax_t start_x;
   uintmax_t start_y;
@@ -555,7 +555,7 @@ typedef struct s_sign {
 typedef struct s_instruction {
   enum e_instruction_type instruction_type;
   struct s_statement *parent;
-  nightVM_ui align_pad;
+  ysm_ui align_pad;
   char *file;
   uintmax_t start_x;
   uintmax_t start_y;

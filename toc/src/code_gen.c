@@ -18,7 +18,7 @@ extern compilation_attributes comp_attr;
 
 #define OUTBUF_SIZE 1048576
 
-static nightVM_uc *outbuf=NULL;
+static ysm_uc *outbuf=NULL;
 static size_t outbuf_filled_upto=0;
 static FILE *outstream=NULL;
 
@@ -30,21 +30,21 @@ static unsigned int add_to_outstream(unsigned char *buf, size_t size){
     }
   }
   if(outbuf==NULL){
-    if((outbuf=malloc(OUTBUF_SIZE*sizeof(nightVM_uc)))==NULL){
+    if((outbuf=malloc(OUTBUF_SIZE*sizeof(ysm_uc)))==NULL){
       fprintf(stderr,"implementation error: failed to allocate enough memory\n");
       return 1;
     }
   }
   if(OUTBUF_SIZE-outbuf_filled_upto>=size){
-    memcpy(&outbuf[outbuf_filled_upto],buf,size*sizeof(nightVM_uc));
+    memcpy(&outbuf[outbuf_filled_upto],buf,size*sizeof(ysm_uc));
     outbuf_filled_upto+=size;
   }
   else{
-    if(fwrite(outbuf,sizeof(nightVM_uc),outbuf_filled_upto,outstream)<outbuf_filled_upto){
+    if(fwrite(outbuf,sizeof(ysm_uc),outbuf_filled_upto,outstream)<outbuf_filled_upto){
       fprintf(stderr,"implementation error: failed to write to file %s\n",comp_attr.outfile);
       return 1;
     }
-    memcpy(outbuf,buf,size*sizeof(nightVM_uc));
+    memcpy(outbuf,buf,size*sizeof(ysm_uc));
     outbuf_filled_upto=size;
   }
   return 0;
@@ -52,7 +52,7 @@ static unsigned int add_to_outstream(unsigned char *buf, size_t size){
 
 static unsigned int flush_to_outstream(void){
   if(outstream!=NULL && outbuf!=NULL){
-    if(fwrite(outbuf,sizeof(nightVM_uc),outbuf_filled_upto,outstream)<outbuf_filled_upto){
+    if(fwrite(outbuf,sizeof(ysm_uc),outbuf_filled_upto,outstream)<outbuf_filled_upto){
       fprintf(stderr,"implementation error: failed to write to file %s\n",comp_attr.outfile);
       return 1;
     }
@@ -66,14 +66,14 @@ static void clean_add_to_stream_res(void){
 }
 
 unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_table *string_table, sym_table *symbol_table){
-  nightVM_uc pad_nop=op_nop;
-  for(nightVM_ui i=0;i<phrase_push_statement->align_pad;i++){
+  ysm_uc pad_nop=OP_NOP;
+  for(ysm_ui i=0;i<phrase_push_statement->align_pad;i++){
     if(add_to_outstream((unsigned char *)&pad_nop,1)){
       return 1;
     }
   }
   if(phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushuc){
-    nightVM_uc nVM_uc=op_pushuc;
+    ysm_uc nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -115,8 +115,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
   }
   else if(phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushus){
-    nightVM_uc nVM_uc=op_pushus;
-    nightVM_us nVM_us;
+    ysm_uc nVM_uc=OP_PUSHUS;
+    ysm_us nVM_us;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -158,8 +158,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
   }
   else if(phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushui){
-    nightVM_uc nVM_uc=op_pushui;
-    nightVM_ui nVM_ui;
+    ysm_uc nVM_uc=OP_PUSHUI;
+    ysm_ui nVM_ui;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -201,8 +201,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
   }
   else if(phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushc){
-    nightVM_uc nVM_uc=op_pushc;
-    nightVM_c nVM_c;
+    ysm_uc nVM_uc=OP_PUSHC;
+    ysm_c nVM_c;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -244,8 +244,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
   }
   else if(phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushs){
-    nightVM_uc nVM_uc=op_pushs;
-    nightVM_s nVM_s;
+    ysm_uc nVM_uc=OP_PUSHS;
+    ysm_s nVM_s;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -287,8 +287,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
   }
   else if(phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushi){
-    nightVM_uc nVM_uc=op_pushi;
-    nightVM_i nVM_i;
+    ysm_uc nVM_uc=OP_PUSHI;
+    ysm_i nVM_i;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -330,8 +330,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
   }
   else if(phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushl){
-    nightVM_uc nVM_uc=op_pushl;
-    nightVM_l nVM_l;
+    ysm_uc nVM_uc=OP_PUSHL;
+    ysm_l nVM_l;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -373,8 +373,8 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
     }
   }
   else if(phrase_push_statement->phrase_push_instruction->push_instruction_type==push_instruction_pushp){
-    nightVM_uc nVM_uc=op_pushl;
-    nightVM_l nVM_l;
+    ysm_uc nVM_uc=OP_PUSHL;
+    ysm_l nVM_l;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -410,18 +410,18 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
         if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
           return 1;
         }
-        nVM_uc=op_pushpc;
+        nVM_uc=OP_PUSHPC;
         if(add_to_outstream((unsigned char *)&nVM_uc,1)){
           return 1;
         }
         if(negative){
-          nVM_uc=op_subl;
+          nVM_uc=OP_SUBL;
           if(add_to_outstream((unsigned char *)&nVM_uc,1)){
             return 1;
           }
         }
         else{
-          nVM_uc=op_addl;
+          nVM_uc=OP_ADDL;
           if(add_to_outstream((unsigned char *)&nVM_uc,1)){
             return 1;
           }
@@ -440,18 +440,18 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
         if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
           return 1;
         }
-        nVM_uc=op_pushpc;
+        nVM_uc=OP_PUSHPC;
         if(add_to_outstream((unsigned char *)&nVM_uc,1)){
           return 1;
         }
         if(negative){
-          nVM_uc=op_subl;
+          nVM_uc=OP_SUBL;
           if(add_to_outstream((unsigned char *)&nVM_uc,1)){
             return 1;
           }
         }
         else{
-          nVM_uc=op_addl;
+          nVM_uc=OP_ADDL;
           if(add_to_outstream((unsigned char *)&nVM_uc,1)){
             return 1;
           }
@@ -483,55 +483,55 @@ unsigned int gen_code_push_statement(push_statement *phrase_push_statement, str_
 }
 
 unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
-  nightVM_uc pad_nop=op_nop;
-  for(nightVM_ui i=0;i<phrase_instruction->align_pad;i++){
+  ysm_uc pad_nop=OP_NOP;
+  for(ysm_ui i=0;i<phrase_instruction->align_pad;i++){
     if(add_to_outstream((unsigned char *)&pad_nop,1)){
       return 1;
     }
   }
-  nightVM_uc nVM_uc;
+  ysm_uc nVM_uc;
   if(phrase_instruction->instruction_type==instruction_addc){
-    nightVM_uc nVM_uc=op_adduc;
+    ysm_uc nVM_uc=OP_ADDUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_adds){
-    nightVM_uc nVM_uc=op_addus;
+    ysm_uc nVM_uc=OP_ADDUS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_addi){
-    nightVM_uc nVM_uc=op_addui;
+    ysm_uc nVM_uc=OP_ADDUI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_addp){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -539,7 +539,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -547,15 +547,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_addl;
+    nVM_uc=OP_ADDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -563,11 +563,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -575,21 +575,21 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_addl;
+    nVM_uc=OP_ADDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<5;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -597,77 +597,77 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_orl;
+    nVM_uc=OP_ORL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_addl){
-    nightVM_uc nVM_uc=op_addl;
+    ysm_uc nVM_uc=OP_ADDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_adduc){
-    nightVM_uc nVM_uc=op_adduc;
+    ysm_uc nVM_uc=OP_ADDUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_addus){
-    nightVM_uc nVM_uc=op_addus;
+    ysm_uc nVM_uc=OP_ADDUS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_addui){
-    nightVM_uc nVM_uc=op_addui;
+    ysm_uc nVM_uc=OP_ADDUI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_subc){
-    nightVM_uc nVM_uc=op_subc;
+    ysm_uc nVM_uc=OP_SUBC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_subs){
-    nightVM_uc nVM_uc=op_subs;
+    ysm_uc nVM_uc=OP_SUBS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_subi){
-    nightVM_uc nVM_uc=op_subl;
+    ysm_uc nVM_uc=OP_SUBL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_subp){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -675,7 +675,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -683,15 +683,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_subl;
+    nVM_uc=OP_SUBL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -699,11 +699,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -711,21 +711,21 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_subl;
+    nVM_uc=OP_SUBL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<5;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -733,623 +733,623 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_orl;
+    nVM_uc=OP_ORL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_subl){
-    nightVM_uc nVM_uc=op_subl;
+    ysm_uc nVM_uc=OP_SUBL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_subuc){
-    nightVM_uc nVM_uc=op_subuc;
+    ysm_uc nVM_uc=OP_SUBUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_subus){
-    nightVM_uc nVM_uc=op_subus;
+    ysm_uc nVM_uc=OP_SUBUS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_subui){
-    nightVM_uc nVM_uc=op_subui;
+    ysm_uc nVM_uc=OP_SUBUI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_mulc){
-    nightVM_uc nVM_uc=op_mulc;
+    ysm_uc nVM_uc=OP_MULC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_muls){
-    nightVM_uc nVM_uc=op_muls;
+    ysm_uc nVM_uc=OP_MULS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_muli){
-    nightVM_uc nVM_uc=op_mull;
+    ysm_uc nVM_uc=OP_MULL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_mull){
-    nightVM_uc nVM_uc=op_mull;
+    ysm_uc nVM_uc=OP_MULL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_muluc){
-    nightVM_uc nVM_uc=op_muluc;
+    ysm_uc nVM_uc=OP_MULUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_mulus){
-    nightVM_uc nVM_uc=op_mulus;
+    ysm_uc nVM_uc=OP_MULUS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_mului){
-    nightVM_uc nVM_uc=op_mului;
+    ysm_uc nVM_uc=OP_MULUI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_divc){
-    nightVM_uc nVM_uc=op_divc;
+    ysm_uc nVM_uc=OP_DIVC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_divs){
-    nightVM_uc nVM_uc=op_divs;
+    ysm_uc nVM_uc=OP_DIVS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_divi){
-    nightVM_uc nVM_uc=op_divl;
+    ysm_uc nVM_uc=OP_DIVL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_divl){
-    nightVM_uc nVM_uc=op_divl;
+    ysm_uc nVM_uc=OP_DIVL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_divuc){
-    nightVM_uc nVM_uc=op_divuc;
+    ysm_uc nVM_uc=OP_DIVUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_divus){
-    nightVM_uc nVM_uc=op_divus;
+    ysm_uc nVM_uc=OP_DIVUS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_divui){
-    nightVM_uc nVM_uc=op_divui;
+    ysm_uc nVM_uc=OP_DIVUI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_remc){
-    nightVM_uc nVM_uc=op_remc;
+    ysm_uc nVM_uc=OP_REMC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_rems){
-    nightVM_uc nVM_uc=op_rems;
+    ysm_uc nVM_uc=OP_REMS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_remi){
-    nightVM_uc nVM_uc=op_reml;
+    ysm_uc nVM_uc=OP_REML;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_reml){
-    nightVM_uc nVM_uc=op_reml;
+    ysm_uc nVM_uc=OP_REML;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_remuc){
-    nightVM_uc nVM_uc=op_remuc;
+    ysm_uc nVM_uc=OP_REMUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_remus){
-    nightVM_uc nVM_uc=op_remus;
+    ysm_uc nVM_uc=OP_REMUS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_remui){
-    nightVM_uc nVM_uc=op_remui;
+    ysm_uc nVM_uc=OP_REMUI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_lshc){
-    nightVM_uc nVM_uc=op_lshc;
+    ysm_uc nVM_uc=OP_LSHC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_lshs){
-    nightVM_uc nVM_uc=op_lshs;
+    ysm_uc nVM_uc=OP_LSHS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_lshi){
-    nightVM_uc nVM_uc=op_lshl;
+    ysm_uc nVM_uc=OP_LSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_lshl){
-    nightVM_uc nVM_uc=op_lshl;
+    ysm_uc nVM_uc=OP_LSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_lshuc){
-    nightVM_uc nVM_uc=op_lshuc;
+    ysm_uc nVM_uc=OP_LSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_lshus){
-    nightVM_uc nVM_uc=op_lshus;
+    ysm_uc nVM_uc=OP_LSHUS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_lshui){
-    nightVM_uc nVM_uc=op_lshui;
+    ysm_uc nVM_uc=OP_LSHUI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_rshc){
-    nightVM_uc nVM_uc=op_rshc;
+    ysm_uc nVM_uc=OP_RSHC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_rshs){
-    nightVM_uc nVM_uc=op_rshs;
+    ysm_uc nVM_uc=OP_RSHS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_rshi){
-    nightVM_uc nVM_uc=op_rshl;
+    ysm_uc nVM_uc=OP_RSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_rshl){
-    nightVM_uc nVM_uc=op_rshl;
+    ysm_uc nVM_uc=OP_RSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_rshuc){
-    nightVM_uc nVM_uc=op_rshuc;
+    ysm_uc nVM_uc=OP_RSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_rshus){
-    nightVM_uc nVM_uc=op_rshus;
+    ysm_uc nVM_uc=OP_RSHUS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_rshui){
-    nightVM_uc nVM_uc=op_rshui;
+    ysm_uc nVM_uc=OP_RSHUI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_orc){
-    nightVM_uc nVM_uc=op_orc;
+    ysm_uc nVM_uc=OP_ORC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_ors){
-    nightVM_uc nVM_uc=op_ors;
+    ysm_uc nVM_uc=OP_ORS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_ori){
-    nightVM_uc nVM_uc=op_orl;
+    ysm_uc nVM_uc=OP_ORL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_orl){
-    nightVM_uc nVM_uc=op_orl;
+    ysm_uc nVM_uc=OP_ORL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_oruc){
-    nightVM_uc nVM_uc=op_oruc;
+    ysm_uc nVM_uc=OP_ORUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_orus){
-    nightVM_uc nVM_uc=op_orus;
+    ysm_uc nVM_uc=OP_ORUS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_orui){
-    nightVM_uc nVM_uc=op_orui;
+    ysm_uc nVM_uc=OP_ORUI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_andc){
-    nightVM_uc nVM_uc=op_andc;
+    ysm_uc nVM_uc=OP_ANDC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_ands){
-    nightVM_uc nVM_uc=op_ands;
+    ysm_uc nVM_uc=OP_ANDS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_andi){
-    nightVM_uc nVM_uc=op_andl;
+    ysm_uc nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_andl){
-    nightVM_uc nVM_uc=op_andl;
+    ysm_uc nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_anduc){
-    nightVM_uc nVM_uc=op_anduc;
+    ysm_uc nVM_uc=OP_ANDUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_andus){
-    nightVM_uc nVM_uc=op_andus;
+    ysm_uc nVM_uc=OP_ANDUS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_andui){
-    nightVM_uc nVM_uc=op_andui;
+    ysm_uc nVM_uc=OP_ANDUI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_notc){
-    nightVM_uc nVM_uc=op_notc;
+    ysm_uc nVM_uc=OP_NOTC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_nots){
-    nightVM_uc nVM_uc=op_nots;
+    ysm_uc nVM_uc=OP_NOTS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_noti){
-    nightVM_uc nVM_uc=op_notl;
+    ysm_uc nVM_uc=OP_NOTL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_notl){
-    nightVM_uc nVM_uc=op_notl;
+    ysm_uc nVM_uc=OP_NOTL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_notuc){
-    nightVM_uc nVM_uc=op_notuc;
+    ysm_uc nVM_uc=OP_NOTUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_notus){
-    nightVM_uc nVM_uc=op_notus;
+    ysm_uc nVM_uc=OP_NOTUS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_notui){
-    nightVM_uc nVM_uc=op_notui;
+    ysm_uc nVM_uc=OP_NOTUI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_xorc){
-    nightVM_uc nVM_uc=op_xorc;
+    ysm_uc nVM_uc=OP_XORC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_xors){
-    nightVM_uc nVM_uc=op_xors;
+    ysm_uc nVM_uc=OP_XORS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_xori){
-    nightVM_uc nVM_uc=op_xorl;
+    ysm_uc nVM_uc=OP_XORL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_xorl){
-    nightVM_uc nVM_uc=op_xorl;
+    ysm_uc nVM_uc=OP_XORL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_xoruc){
-    nightVM_uc nVM_uc=op_xoruc;
+    ysm_uc nVM_uc=OP_XORUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_xorus){
-    nightVM_uc nVM_uc=op_xorus;
+    ysm_uc nVM_uc=OP_XORUS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_xorui){
-    nightVM_uc nVM_uc=op_xorui;
+    ysm_uc nVM_uc=OP_XORUI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_swap){
-    nightVM_uc nVM_uc=op_swap;
+    ysm_uc nVM_uc=OP_SWAP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_pop){
-    nightVM_uc nVM_uc=op_pop;
+    ysm_uc nVM_uc=OP_POP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_dup){
-    nightVM_uc nVM_uc=op_dup;
+    ysm_uc nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_ret){
-    nightVM_uc nVM_uc=op_ret;
+    ysm_uc nVM_uc=OP_RET;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_rcall){
-    nightVM_uc nVM_uc=op_jmp;
+    ysm_uc nVM_uc=OP_JMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_eq){
-    nightVM_uc nVM_uc=op_ceq;
+    ysm_uc nVM_uc=OP_CEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_gt){
-    nightVM_uc nVM_uc=op_cgt;
+    ysm_uc nVM_uc=OP_CGT;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_ls){
-    nightVM_uc nVM_uc=op_cls;
+    ysm_uc nVM_uc=OP_CLS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_le){
-    nightVM_uc nVM_uc=op_cle;
+    ysm_uc nVM_uc=OP_CLE;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_ge){
-    nightVM_uc nVM_uc=op_cge;
+    ysm_uc nVM_uc=OP_CGE;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_ne){
-    nightVM_uc nVM_uc=op_cne;
+    ysm_uc nVM_uc=OP_CNE;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_zr){
-    nightVM_uc nVM_uc=op_cz;
+    ysm_uc nVM_uc=OP_CZ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_nz){
-    nightVM_uc nVM_uc=op_cnz;
+    ysm_uc nVM_uc=OP_CNZ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_over){
-    nightVM_uc nVM_uc=op_over;
+    ysm_uc nVM_uc=OP_OVER;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_panic){
-    nightVM_uc nVM_uc=op_panic;
+    ysm_uc nVM_uc=OP_PANIC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_write0 || phrase_instruction->instruction_type==instruction_vwrite0){
-    nightVM_uc nVM_uc=op_str0;
+    ysm_uc nVM_uc=OP_STR0;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_write1 || phrase_instruction->instruction_type==instruction_vwrite1){
-    nightVM_uc nVM_uc=op_str1;
+    ysm_uc nVM_uc=OP_STR1;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_write2 || phrase_instruction->instruction_type==instruction_vwrite2){
-    nightVM_uc nVM_uc=op_str2;
+    ysm_uc nVM_uc=OP_STR2;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_write3 || phrase_instruction->instruction_type==instruction_vwrite3){
-    nightVM_uc nVM_uc=op_str3;
+    ysm_uc nVM_uc=OP_STR3;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_write4 || phrase_instruction->instruction_type==instruction_vwrite4){
-    nightVM_uc nVM_uc=op_str4;
+    ysm_uc nVM_uc=OP_STR4;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_write5 || phrase_instruction->instruction_type==instruction_vwrite5){
-    nightVM_uc nVM_uc=op_str5;
+    ysm_uc nVM_uc=OP_STR5;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_write6 || phrase_instruction->instruction_type==instruction_vwrite6){
-    nightVM_uc nVM_uc=op_str6;
+    ysm_uc nVM_uc=OP_STR6;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_write7 || phrase_instruction->instruction_type==instruction_vwrite7){
-    nightVM_uc nVM_uc=op_str7;
+    ysm_uc nVM_uc=OP_STR7;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_get0 || phrase_instruction->instruction_type==instruction_vget0){
-    nightVM_uc nVM_uc=op_ldr0;
+    ysm_uc nVM_uc=OP_LDR0;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_get1 || phrase_instruction->instruction_type==instruction_vget1){
-    nightVM_uc nVM_uc=op_ldr1;
+    ysm_uc nVM_uc=OP_LDR1;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_get2 || phrase_instruction->instruction_type==instruction_vget2){
-    nightVM_uc nVM_uc=op_ldr2;
+    ysm_uc nVM_uc=OP_LDR2;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_get3 || phrase_instruction->instruction_type==instruction_vget3){
-    nightVM_uc nVM_uc=op_ldr3;
+    ysm_uc nVM_uc=OP_LDR3;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_get4 || phrase_instruction->instruction_type==instruction_vget4){
-    nightVM_uc nVM_uc=op_ldr4;
+    ysm_uc nVM_uc=OP_LDR4;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_get5 || phrase_instruction->instruction_type==instruction_vget5){
-    nightVM_uc nVM_uc=op_ldr5;
+    ysm_uc nVM_uc=OP_LDR5;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_get6 || phrase_instruction->instruction_type==instruction_vget6){
-    nightVM_uc nVM_uc=op_ldr6;
+    ysm_uc nVM_uc=OP_LDR6;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_get7 || phrase_instruction->instruction_type==instruction_vget7){
-    nightVM_uc nVM_uc=op_ldr7;
+    ysm_uc nVM_uc=OP_LDR7;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_loadc || phrase_instruction->instruction_type==instruction_vloadc){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1357,7 +1357,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1365,15 +1365,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_ldcc;
+    nVM_uc=OP_LDCC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1381,11 +1381,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1393,39 +1393,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_ldhc;
+    nVM_uc=OP_LDHC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_loads || phrase_instruction->instruction_type==instruction_vloads){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1433,7 +1433,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1441,15 +1441,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_ldcs;
+    nVM_uc=OP_LDCS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1457,11 +1457,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1469,39 +1469,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_ldhs;
+    nVM_uc=OP_LDHS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_loadi || phrase_instruction->instruction_type==instruction_vloadi){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1509,7 +1509,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1517,15 +1517,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_ldci;
+    nVM_uc=OP_LDCI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1533,11 +1533,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1545,39 +1545,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_ldhi;
+    nVM_uc=OP_LDHI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_loadl || phrase_instruction->instruction_type==instruction_loadp || phrase_instruction->instruction_type==instruction_vloadl || phrase_instruction->instruction_type==instruction_vloadp){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1585,7 +1585,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1593,15 +1593,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_ldcl;
+    nVM_uc=OP_LDCL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1609,11 +1609,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1621,39 +1621,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_ldhl;
+    nVM_uc=OP_LDHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_loaduc || phrase_instruction->instruction_type==instruction_vloaduc){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1661,7 +1661,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1669,15 +1669,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_ldcuc;
+    nVM_uc=OP_LDCUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1685,11 +1685,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1697,39 +1697,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_ldhuc;
+    nVM_uc=OP_LDHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_loadus || phrase_instruction->instruction_type==instruction_vloadus){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1737,7 +1737,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1745,15 +1745,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_ldcus;
+    nVM_uc=OP_LDCUS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1761,11 +1761,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1773,39 +1773,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_ldhus;
+    nVM_uc=OP_LDHUS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_loadui || phrase_instruction->instruction_type==instruction_vloadui){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1813,7 +1813,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1821,15 +1821,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_ldcui;
+    nVM_uc=OP_LDCUI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1837,11 +1837,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1849,39 +1849,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_ldhui;
+    nVM_uc=OP_LDHUI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_aloadc || phrase_instruction->instruction_type==instruction_valoadc){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1889,7 +1889,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1897,15 +1897,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_aldcc;
+    nVM_uc=OP_ALDCC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1913,11 +1913,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1925,39 +1925,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_aldhc;
+    nVM_uc=OP_ALDHC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_aloads || phrase_instruction->instruction_type==instruction_valoads){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1965,7 +1965,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1973,15 +1973,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_aldcs;
+    nVM_uc=OP_ALDCS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -1989,11 +1989,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2001,39 +2001,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_aldhs;
+    nVM_uc=OP_ALDHS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_aloadi || phrase_instruction->instruction_type==instruction_valoadi){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2041,7 +2041,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2049,15 +2049,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_aldci;
+    nVM_uc=OP_ALDCI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2065,11 +2065,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2077,39 +2077,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_aldhi;
+    nVM_uc=OP_ALDHI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_aloadl || phrase_instruction->instruction_type==instruction_aloadp || phrase_instruction->instruction_type==instruction_valoadl || phrase_instruction->instruction_type==instruction_valoadp){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2117,7 +2117,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2125,15 +2125,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_aldcl;
+    nVM_uc=OP_ALDCL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2141,11 +2141,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2153,39 +2153,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_aldhl;
+    nVM_uc=OP_ALDHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_aloaduc || phrase_instruction->instruction_type==instruction_valoaduc){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2193,7 +2193,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2201,15 +2201,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_aldcuc;
+    nVM_uc=OP_ALDCUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2217,11 +2217,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2229,39 +2229,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_aldhuc;
+    nVM_uc=OP_ALDHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_aloadus || phrase_instruction->instruction_type==instruction_valoadus){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2269,7 +2269,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2277,15 +2277,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_aldcus;
+    nVM_uc=OP_ALDCUS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2293,11 +2293,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2305,39 +2305,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_aldhus;
+    nVM_uc=OP_ALDHUS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_aloadui || phrase_instruction->instruction_type==instruction_valoadui){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2345,7 +2345,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2353,15 +2353,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_aldcui;
+    nVM_uc=OP_ALDCUI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2369,11 +2369,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2381,39 +2381,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_aldhui;
+    nVM_uc=OP_ALDHUI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_storec || phrase_instruction->instruction_type==instruction_vstorec){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2421,7 +2421,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2429,15 +2429,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_trap;
+    nVM_uc=OP_TRAP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2445,11 +2445,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2457,39 +2457,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_sthc;
+    nVM_uc=OP_STHC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_stores || phrase_instruction->instruction_type==instruction_vstores){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2497,7 +2497,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2505,15 +2505,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_trap;
+    nVM_uc=OP_TRAP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2521,11 +2521,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2533,39 +2533,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_sths;
+    nVM_uc=OP_STHS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_storei || phrase_instruction->instruction_type==instruction_vstorei){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2573,7 +2573,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2581,15 +2581,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_trap;
+    nVM_uc=OP_TRAP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2597,11 +2597,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2609,39 +2609,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_sthi;
+    nVM_uc=OP_STHI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_storel || phrase_instruction->instruction_type==instruction_storep || phrase_instruction->instruction_type==instruction_vstorel || phrase_instruction->instruction_type==instruction_vstorep){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2649,7 +2649,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2657,15 +2657,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_trap;
+    nVM_uc=OP_TRAP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2673,11 +2673,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2685,39 +2685,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_sthl;
+    nVM_uc=OP_STHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_storeuc || phrase_instruction->instruction_type==instruction_vstoreuc){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2725,7 +2725,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2733,15 +2733,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_trap;
+    nVM_uc=OP_TRAP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2749,11 +2749,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2761,39 +2761,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_sthuc;
+    nVM_uc=OP_STHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_storeus || phrase_instruction->instruction_type==instruction_vstoreus){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2801,7 +2801,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2809,15 +2809,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_trap;
+    nVM_uc=OP_TRAP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2825,11 +2825,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2837,39 +2837,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_sthus;
+    nVM_uc=OP_STHUS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_storeui || phrase_instruction->instruction_type==instruction_vstoreui){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2877,7 +2877,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2885,15 +2885,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_trap;
+    nVM_uc=OP_TRAP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2901,11 +2901,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2913,39 +2913,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_sthui;
+    nVM_uc=OP_STHUI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_astorec || phrase_instruction->instruction_type==instruction_vastorec){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2953,7 +2953,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2961,15 +2961,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_trap;
+    nVM_uc=OP_TRAP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2977,11 +2977,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -2989,39 +2989,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_sthc;
+    nVM_uc=OP_STHC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_astores || phrase_instruction->instruction_type==instruction_vastores){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3029,7 +3029,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3037,15 +3037,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_trap;
+    nVM_uc=OP_TRAP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3053,11 +3053,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3065,39 +3065,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_sths;
+    nVM_uc=OP_STHS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_astorei || phrase_instruction->instruction_type==instruction_vastorei){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3105,7 +3105,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3113,15 +3113,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_trap;
+    nVM_uc=OP_TRAP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3129,11 +3129,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3141,39 +3141,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_sthi;
+    nVM_uc=OP_STHI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_astorel || phrase_instruction->instruction_type==instruction_astorep || phrase_instruction->instruction_type==instruction_vastorel || phrase_instruction->instruction_type==instruction_vastorep){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3181,7 +3181,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3189,15 +3189,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_trap;
+    nVM_uc=OP_TRAP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3205,11 +3205,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3217,39 +3217,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_sthl;
+    nVM_uc=OP_STHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_astoreuc || phrase_instruction->instruction_type==instruction_vastoreuc){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3257,7 +3257,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3265,15 +3265,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_trap;
+    nVM_uc=OP_TRAP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3281,11 +3281,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3293,39 +3293,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_sthuc;
+    nVM_uc=OP_STHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_astoreus || phrase_instruction->instruction_type==instruction_vastoreus){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3333,7 +3333,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3341,15 +3341,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_trap;
+    nVM_uc=OP_TRAP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3357,11 +3357,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3369,39 +3369,39 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_sthus;
+    nVM_uc=OP_STHUS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_astoreui || phrase_instruction->instruction_type==instruction_vastoreui){
-    nVM_uc=op_dup;
+    nVM_uc=OP_DUP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nightVM_l nVM_l=0x4000000000000000;
+    ysm_l nVM_l=0x4000000000000000;
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_nop;
+    nVM_uc=OP_NOP;
     for(unsigned int i=0;i<6;i++){
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3409,7 +3409,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3417,15 +3417,15 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjeq;
+    nVM_uc=OP_RJEQ;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_trap;
+    nVM_uc=OP_TRAP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushuc;
+    nVM_uc=OP_PUSHUC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3433,11 +3433,11 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_rjmp;
+    nVM_uc=OP_RJMP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_pushl;
+    nVM_uc=OP_PUSHL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3445,83 +3445,83 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(add_to_outstream((unsigned char *)&nVM_l,SIZEOF_L)){
       return 1;
     }
-    nVM_uc=op_andl;
+    nVM_uc=OP_ANDL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
-    nVM_uc=op_sthui;
+    nVM_uc=OP_STHUI;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_hlt){
-    nightVM_uc nVM_uc=op_halt;
+    ysm_uc nVM_uc=OP_HALT;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_copy){
-    nightVM_uc nVM_uc=op_copy;
+    ysm_uc nVM_uc=OP_COPY;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_pcopy){
-    nightVM_uc nVM_uc=op_pcopy;
+    ysm_uc nVM_uc=OP_PCOPY;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_popa){
-    nightVM_uc nVM_uc=op_popa;
+    ysm_uc nVM_uc=OP_POPA;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_put){
-    nightVM_uc nVM_uc=op_sts;
+    ysm_uc nVM_uc=OP_STS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_pushsp){
-    nightVM_uc nVM_uc=op_pushsp;
+    ysm_uc nVM_uc=OP_PUSHSP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_hltr){
-    nightVM_uc nVM_uc=op_haltr;
+    ysm_uc nVM_uc=OP_HALTR;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_incsp){
-    nightVM_uc nVM_uc=op_incsp;
+    ysm_uc nVM_uc=OP_INCSP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_decsp){
-    nightVM_uc nVM_uc=op_decsp;
+    ysm_uc nVM_uc=OP_DECSP;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_exit){
-    nightVM_uc nVM_uc=op_halt;
+    ysm_uc nVM_uc=OP_HALT;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_force_panic){
-    nightVM_uc nVM_uc=op_force_panic;
+    ysm_uc nVM_uc=OP_FORCE_PANIC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_pushlt){
-    nightVM_uc nVM_uc=op_pushlt;
+    ysm_uc nVM_uc=OP_PUSHLT;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3530,7 +3530,7 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(comp_attr.std==std_chlore2x){
       fprintf(stderr,"warning: open is an implementation-specific keyword of 4NI\n");
     }
-    nightVM_uc nVM_uc=op_open;
+    ysm_uc nVM_uc=OP_OPEN;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3539,25 +3539,25 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
     if(comp_attr.std==std_chlore2x){
       fprintf(stderr,"warning: invoke is an implementation-specific keyword of 4NI\n");
     }
-    nightVM_uc nVM_uc=op_invoke;
+    ysm_uc nVM_uc=OP_INVOKE;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_pushpc){
-    nightVM_uc nVM_uc=op_pushpc;
+    ysm_uc nVM_uc=OP_PUSHPC;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_pushcs){
-    nightVM_uc nVM_uc=op_pushcs;
+    ysm_uc nVM_uc=OP_PUSHCS;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
   }
   else if(phrase_instruction->instruction_type==instruction_call){
-    nightVM_uc nVM_uc=op_call;
+    ysm_uc nVM_uc=OP_CALL;
     if(add_to_outstream((unsigned char *)&nVM_uc,1)){
       return 1;
     }
@@ -3565,9 +3565,9 @@ unsigned int gen_code_phrase_instruction(instruction *phrase_instruction){
   return 0;
 }
 
-nightVM_l get_size_of_type(translation_unit *tu, struct_tag_definition_sequence *phrase_struct_tag_definition_sequence, struct_definition_table *struct_table, char *tag, char **type_matched){
-  nightVM_l size=0;
-  nightVM_l add_to_size=0;
+ysm_l get_size_of_type(translation_unit *tu, struct_tag_definition_sequence *phrase_struct_tag_definition_sequence, struct_definition_table *struct_table, char *tag, char **type_matched){
+  ysm_l size=0;
+  ysm_l add_to_size=0;
   while(1){
     struct_tag_definition *phrase_struct_tag_definition=phrase_struct_tag_definition_sequence->phrase_struct_tag_definition;
     if(phrase_struct_tag_definition->child_type==phrase_type_type){
@@ -3619,7 +3619,7 @@ nightVM_l get_size_of_type(translation_unit *tu, struct_tag_definition_sequence 
 }
 
 unsigned int gen_code_tagged_statement(tagged_statement *phrase_tagged_statement, struct_definition_table *struct_table){
-  nightVM_l size=0;
+  ysm_l size=0;
   struct_definition *phrase_struct_definition;
   char *lookup=phrase_tagged_statement->phrase_struct_name->lex_identifier;
   lookup_in_struct_definition_table(lookup,struct_table,phrase_tagged_statement->parent->tu,false,&phrase_struct_definition,ret_size);
@@ -3634,13 +3634,13 @@ unsigned int gen_code_tagged_statement(tagged_statement *phrase_tagged_statement
     }
     phrase_tag_sequence=phrase_tag_sequence->phrase_tag_sequence;
   }
-  nightVM_uc pad_nop=op_nop;
-  for(nightVM_ui i=0;i<phrase_tagged_statement->align_pad;i++){
+  ysm_uc pad_nop=OP_NOP;
+  for(ysm_ui i=0;i<phrase_tagged_statement->align_pad;i++){
     if(add_to_outstream((unsigned char *)&pad_nop,1)){
       return 1;
     }
   }
-  nightVM_uc nVM_uc=op_pushl;
+  ysm_uc nVM_uc=OP_PUSHL;
   if(add_to_outstream((unsigned char *)&nVM_uc,1)){
     return 1;
   }
@@ -3651,20 +3651,20 @@ unsigned int gen_code_tagged_statement(tagged_statement *phrase_tagged_statement
 }
 
 unsigned int gen_code_else_clause(else_clause *phrase_else_clause, str_table *string_table, sym_table *symbol_table, struct_definition_table *struct_table, libs *libraries){
-  nightVM_uc pad_nop=op_nop;
-  for(nightVM_ui i=0;i<phrase_else_clause->align_pad;i++){
+  ysm_uc pad_nop=OP_NOP;
+  for(ysm_ui i=0;i<phrase_else_clause->align_pad;i++){
     if(add_to_outstream((unsigned char *)&pad_nop,1)){
       return 1;
     }
   }
-  nightVM_uc nVM_uc=op_pushl;
+  ysm_uc nVM_uc=OP_PUSHL;
   if(add_to_outstream((unsigned char *)&nVM_uc,1)){
     return 1;
   }
   if(add_to_outstream((unsigned char *)&phrase_else_clause->rend_address,SIZEOF_L)){
     return 1;
   }
-  nVM_uc=op_rjmp;
+  nVM_uc=OP_RJMP;
   if(add_to_outstream((unsigned char *)&nVM_uc,1)){
     return 1;
   }
@@ -3685,20 +3685,20 @@ unsigned int gen_code_selection_statement(selection_statement *phrase_selection_
   if(gen_code_statement_sequence(phrase_selection_statement->phrase_statement_sequence_0,string_table,symbol_table,struct_table,libraries)){
     return 1;
   }
-  nightVM_uc pad_nop=op_nop;
-  for(nightVM_ui i=0;i<phrase_selection_statement->align_pad;i++){
+  ysm_uc pad_nop=OP_NOP;
+  for(ysm_ui i=0;i<phrase_selection_statement->align_pad;i++){
     if(add_to_outstream((unsigned char *)&pad_nop,1)){
       return 1;
     }
   }
-  nightVM_uc nVM_uc=op_pushl;
+  ysm_uc nVM_uc=OP_PUSHL;
   if(add_to_outstream((unsigned char *)&nVM_uc,1)){
     return 1;
   }
   if(add_to_outstream((unsigned char *)&phrase_selection_statement->rend_address,SIZEOF_L)){
     return 1;
   }
-  nVM_uc=op_rjz;
+  nVM_uc=OP_RJZ;
   if(add_to_outstream((unsigned char *)&nVM_uc,1)){
     return 1;
   }
@@ -3721,17 +3721,17 @@ unsigned int gen_code_selection_statement(selection_statement *phrase_selection_
 }
 
 unsigned int gen_code_sizeof_statement(sizeof_statement *phrase_sizeof_statement, struct_definition_table *struct_table){
-  nightVM_uc pad_nop=op_nop;
-  for(nightVM_ui i=0;i<phrase_sizeof_statement->align_pad;i++){
+  ysm_uc pad_nop=OP_NOP;
+  for(ysm_ui i=0;i<phrase_sizeof_statement->align_pad;i++){
     if(add_to_outstream((unsigned char *)&pad_nop,1)){
       return 1;
     }
   }
-  nightVM_uc nVM_uc=op_pushl;
+  ysm_uc nVM_uc=OP_PUSHL;
   if(add_to_outstream((unsigned char *)&nVM_uc,1)){
     return 1;
   }
-  nightVM_l nVM_l;
+  ysm_l nVM_l;
   if(phrase_sizeof_statement->child_type==phrase_type_type){
     if(phrase_sizeof_statement->child.phrase_type->type_type==type_uc){
       nVM_l=1;
@@ -3768,17 +3768,17 @@ unsigned int gen_code_sizeof_statement(sizeof_statement *phrase_sizeof_statement
 }
 
 unsigned int gen_code_alignof_statement(alignof_statement *phrase_alignof_statement, struct_definition_table *struct_table){
-  nightVM_uc pad_nop=op_nop;
-  for(nightVM_ui i=0;i<phrase_alignof_statement->align_pad;i++){
+  ysm_uc pad_nop=OP_NOP;
+  for(ysm_ui i=0;i<phrase_alignof_statement->align_pad;i++){
     if(add_to_outstream((unsigned char *)&pad_nop,1)){
       return 1;
     }
   }
-  nightVM_uc nVM_uc=op_pushl;
+  ysm_uc nVM_uc=OP_PUSHL;
   if(add_to_outstream((unsigned char *)&nVM_uc,1)){
     return 1;
   }
-  nightVM_l nVM_l;
+  ysm_l nVM_l;
   if(phrase_alignof_statement->child_type==phrase_type_type){
     if(phrase_alignof_statement->child.phrase_type->type_type==type_uc){
       nVM_l=1;
@@ -3842,14 +3842,14 @@ static unsigned int write_libraries(libs *libraries){
 
 static unsigned int write_libraries_init(libs *libraries){
   while(libraries!=NULL){
-    nightVM_uc pad_nop=op_nop;
-    for(nightVM_ui i=0;i<libraries->align_pad;i++){
+    ysm_uc pad_nop=OP_NOP;
+    for(ysm_ui i=0;i<libraries->align_pad;i++){
       if(add_to_outstream((unsigned char *)&pad_nop,1)){
         return 1;
       }
     }
     if(comp_attr.pic){
-      nightVM_uc nVM_uc=op_pushl;
+      ysm_uc nVM_uc=OP_PUSHL;
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
@@ -3857,28 +3857,28 @@ static unsigned int write_libraries_init(libs *libraries){
       if(add_to_outstream((unsigned char *)&libraries->address,SIZEOF_L)){
         return 1;
       }
-      nVM_uc=op_pushpc;
+      nVM_uc=OP_PUSHPC;
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
-      nVM_uc=op_subl;
+      nVM_uc=OP_SUBL;
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
-      nVM_uc=op_open;
+      nVM_uc=OP_OPEN;
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
     }
     else{
-      nightVM_uc nVM_uc=op_pushl;
+      ysm_uc nVM_uc=OP_PUSHL;
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
       if(add_to_outstream((unsigned char *)&libraries->address,SIZEOF_L)){
         return 1;
       }
-      nVM_uc=op_open;
+      nVM_uc=OP_OPEN;
       if(add_to_outstream((unsigned char *)&nVM_uc,1)){
         return 1;
       }
@@ -3946,12 +3946,12 @@ unsigned int gen_code_translation_unit(translation_unit *phrase_translation_unit
 
 unsigned int gen_code_translation_unit_list(translation_unit_list *tu_list, str_table *string_table, sym_table *symbol_table, struct_definition_table *struct_table, libs *libraries){
   if(comp_attr.out_fileformat==oform_esff23){
-    nightVM_ui magic=0xE3EFF;
+    ysm_ui magic=0xE3EFF;
     if(add_to_outstream((unsigned char *)&magic,SIZEOF_UI)){
       clean_add_to_stream_res();
       return 1;
     }
-    nightVM_ui specification_version=0x00023;
+    ysm_ui specification_version=0x00023;
     if(add_to_outstream((unsigned char *)&specification_version,SIZEOF_UI)){
       clean_add_to_stream_res();
       return 1;
@@ -3972,14 +3972,14 @@ unsigned int gen_code_translation_unit_list(translation_unit_list *tu_list, str_
       clean_add_to_stream_res();
       return 1;
     }
-    nightVM_uns entry_point=lookup_in_symbol_table("main",symbol_table,NULL,0,NULL);
+    nightvm_uns entry_point=lookup_in_symbol_table("main",symbol_table,NULL,0,NULL);
     if(add_to_outstream((unsigned char *)&entry_point,SIZEOF_UNS)){
       clean_add_to_stream_res();
       return 1;
     }
   }
   else if(comp_attr.out_fileformat==oform_esff23x){
-    nightVM_c *esff23xcom;
+    ysm_c *esff23xcom;
     if((esff23xcom=str2cseq(ESFF23xCOM_STRL))==NULL){
       fprintf(stderr,"implementation error: failed to allocate enough memory\n");
       clean_add_to_stream_res();
@@ -3994,17 +3994,17 @@ unsigned int gen_code_translation_unit_list(translation_unit_list *tu_list, str_
       }
     }
     free(esff23xcom);
-    nightVM_uc zero=0;
+    ysm_uc zero=0;
     if(add_to_outstream((unsigned char *)&zero,1)){
       clean_add_to_stream_res();
       return 1;
     }
-    nightVM_ui magic=0xE3EF6;
+    ysm_ui magic=0xE3EF6;
     if(add_to_outstream((unsigned char *)&magic,SIZEOF_UI)){
       clean_add_to_stream_res();
       return 1;
     }
-    nightVM_ui specification_version=0x00023;
+    ysm_ui specification_version=0x00023;
     if(add_to_outstream((unsigned char *)&specification_version,SIZEOF_UI)){
       clean_add_to_stream_res();
       return 1;
@@ -4025,7 +4025,7 @@ unsigned int gen_code_translation_unit_list(translation_unit_list *tu_list, str_
       clean_add_to_stream_res();
       return 1;
     }
-    nightVM_uns entry_point=lookup_in_symbol_table("main",symbol_table,NULL,0,NULL);
+    nightvm_uns entry_point=lookup_in_symbol_table("main",symbol_table,NULL,0,NULL);
     if(add_to_outstream((unsigned char *)&entry_point,SIZEOF_UNS)){
       clean_add_to_stream_res();
       return 1;

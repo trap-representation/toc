@@ -4,9 +4,9 @@
 #include "nvm_sources.h"
 #include TOC_NVM_IMPLEMENTATION_H
 
-static nightVM_l int_power(nightVM_l i, nightVM_l e){
-  nightVM_l ret=1;
-  for(nightVM_l j=0;j<e;j++){
+static ysm_l int_power(ysm_l i, ysm_l e){
+  ysm_l ret=1;
+  for(ysm_l j=0;j<e;j++){
     ret*=i;
   }
   return ret;
@@ -30,8 +30,8 @@ static unsigned int get_hexadecimal_digit_val(char c){
   return c-'0';
 }
 
-static nightVM_uc numeric_constant_to_uc(char *numeric_constant){
-  nightVM_uc n=0;
+static ysm_uc numeric_constant_to_uc(char *numeric_constant){
+  ysm_uc n=0;
   if(numeric_constant[0]=='0' && numeric_constant[1]=='x'){
     size_t c_len=strlen(numeric_constant);
     for(size_t i=2;i<c_len;i++){
@@ -59,8 +59,8 @@ static nightVM_uc numeric_constant_to_uc(char *numeric_constant){
   return n;
 }
 
-static nightVM_us numeric_constant_to_us(char *numeric_constant){
-  nightVM_us n=0;
+static ysm_us numeric_constant_to_us(char *numeric_constant){
+  ysm_us n=0;
   if(numeric_constant[0]=='0' && numeric_constant[1]=='x'){
     size_t c_len=strlen(numeric_constant);
     for(size_t i=2;i<c_len;i++){
@@ -88,8 +88,8 @@ static nightVM_us numeric_constant_to_us(char *numeric_constant){
   return n;
 }
 
-static nightVM_ui numeric_constant_to_ui(char *numeric_constant){
-  nightVM_ui n=0;
+static ysm_ui numeric_constant_to_ui(char *numeric_constant){
+  ysm_ui n=0;
   if(numeric_constant[0]=='0' && numeric_constant[1]=='x'){
     size_t c_len=strlen(numeric_constant);
     for(size_t i=2;i<c_len;i++){
@@ -117,8 +117,8 @@ static nightVM_ui numeric_constant_to_ui(char *numeric_constant){
   return n;
 }
 
-static nightVM_c numeric_constant_to_c(char *numeric_constant){
-  nightVM_c n=0;
+static ysm_c numeric_constant_to_c(char *numeric_constant){
+  ysm_c n=0;
   if(numeric_constant[0]=='0' && numeric_constant[1]=='x'){
     size_t c_len=strlen(numeric_constant);
     for(size_t i=2;i<c_len;i++){
@@ -146,8 +146,8 @@ static nightVM_c numeric_constant_to_c(char *numeric_constant){
   return n;
 }
 
-static nightVM_s numeric_constant_to_s(char *numeric_constant){
-  nightVM_s n=0;
+static ysm_s numeric_constant_to_s(char *numeric_constant){
+  ysm_s n=0;
   if(numeric_constant[0]=='0' && numeric_constant[1]=='x'){
     size_t c_len=strlen(numeric_constant);
     for(size_t i=2;i<c_len;i++){
@@ -175,8 +175,8 @@ static nightVM_s numeric_constant_to_s(char *numeric_constant){
   return n;
 }
 
-static nightVM_i numeric_constant_to_i(char *numeric_constant){
-  nightVM_i n=0;
+static ysm_i numeric_constant_to_i(char *numeric_constant){
+  ysm_i n=0;
   if(numeric_constant[0]=='0' && numeric_constant[1]=='x'){
     size_t c_len=strlen(numeric_constant);
     for(size_t i=2;i<c_len;i++){
@@ -204,8 +204,8 @@ static nightVM_i numeric_constant_to_i(char *numeric_constant){
   return n;
 }
 
-static nightVM_l numeric_constant_to_l(char *numeric_constant){
-  nightVM_l n=0;
+static ysm_l numeric_constant_to_l(char *numeric_constant){
+  ysm_l n=0;
   if(numeric_constant[0]=='0' && numeric_constant[1]=='x'){
     size_t c_len=strlen(numeric_constant);
     for(size_t i=2;i<c_len;i++){
@@ -233,8 +233,8 @@ static nightVM_l numeric_constant_to_l(char *numeric_constant){
   return n;
 }
 
-static nightVM_l numeric_constant_to_p(char *numeric_constant){
-  nightVM_l n=0;
+static ysm_l numeric_constant_to_p(char *numeric_constant){
+  ysm_l n=0;
   if(numeric_constant[0]=='0' && numeric_constant[1]=='x'){
     size_t c_len=strlen(numeric_constant);
     for(size_t i=2;i<c_len;i++){
@@ -283,17 +283,17 @@ static unsigned int get_hexadecimal_digit_val_checked(char c){
   return 16;
 }
 
-static nightVM_uns uint_power(nightVM_l i, nightVM_l e){
-  nightVM_l ret=1;
-  for(nightVM_l j=0;j<e;j++){
+static nightvm_uns uint_power(ysm_l i, ysm_l e){
+  ysm_l ret=1;
+  for(ysm_l j=0;j<e;j++){
     ret*=i;
   }
   return ret;
 }
 
-static nightVM_uns str_to_uns(char *s, unsigned int *ret){
+static nightvm_uns str_to_uns(char *s, unsigned int *ret){
   *ret=0;
-  nightVM_uns n=0;
+  nightvm_uns n=0;
   if(s[0]=='0' && s[1]=='x'){
     s=&s[2];
     size_t c_len=strlen(s);
@@ -349,9 +349,9 @@ static nightVM_uns str_to_uns(char *s, unsigned int *ret){
   return n;
 }
 
-static nightVM_ui str_to_ui(char *s, unsigned int *ret){
+static ysm_ui str_to_ui(char *s, unsigned int *ret){
   *ret=0;
-  nightVM_ui n=0;
+  ysm_ui n=0;
   if(s[0]=='0' && s[1]=='x'){
     s=&s[2];
     size_t c_len=strlen(s);

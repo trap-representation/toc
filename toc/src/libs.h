@@ -2,10 +2,10 @@
 #define TOC_LIBS_H
 
 typedef struct s_libs {
-  nightVM_c *lib_name;
-  nightVM_l refi_address;
-  nightVM_ui align_pad;
-  nightVM_l address;
+  ysm_c *lib_name;
+  ysm_l refi_address;
+  ysm_ui align_pad;
+  ysm_l address;
   struct s_libs *next;
 } libs;
 

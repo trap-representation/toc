@@ -26,7 +26,7 @@
 #include "resolve_imports.h"
 #include "verify.h"
 
-_Static_assert(_Alignof(nightVM_l)%_Alignof(nightVM_us)==0 && _Alignof(nightVM_l)%_Alignof(nightVM_ui)==0 && _Alignof(nightVM_l)%_Alignof(nightVM_s)==0 && _Alignof(nightVM_l)%_Alignof(nightVM_i)==0,"static assert failure in " __FILE__);
+_Static_assert(_Alignof(ysm_l)%_Alignof(ysm_us)==0 && _Alignof(ysm_l)%_Alignof(ysm_ui)==0 && _Alignof(ysm_l)%_Alignof(ysm_s)==0 && _Alignof(ysm_l)%_Alignof(ysm_i)==0,"static assert failure in " __FILE__);
 
 compilation_attributes comp_attr;
 
@@ -209,7 +209,7 @@ int main(int argc, char *argv[]){
           clean_up_libraries(libraries);
           return 1;
         }
-        else if(comp_attr.stack_size>(nightVM_uns)NVMUNS_MAX){
+        else if(comp_attr.stack_size>(nightvm_uns)NVMUNS_MAX){
           fprintf(stderr,"implementation error: stack too large to be completely addressable\n");
           clean_up_libraries(libraries);
           return 1;
@@ -279,8 +279,8 @@ int main(int argc, char *argv[]){
       fprintf(stderr,"    --nostdlib (-nstd): do not load the standard library\n");
       fprintf(stderr,"    --standard (-std) standardtype: specify a chlore standard (default: non-conforming)\n");
       fprintf(stderr,"    --position-independent (-pic): generate position independent code\n");
-      fprintf(stderr,"    --code-alignment (-ca) unsignedinteger: specify the alignment of the code (default: %" PRINVMUI " bytes)\n",comp_attr.code_alignment);
-      fprintf(stderr,"    --heap-alignment (-ha) unsignedinteger: specify the alignment of the heap (default: %" PRINVMUI " bytes)\n",comp_attr.heap_alignment);
+      fprintf(stderr,"    --code-alignment (-ca) unsignedinteger: specify the alignment of the code (default: %" PRIYSMUI " bytes)\n",comp_attr.code_alignment);
+      fprintf(stderr,"    --heap-alignment (-ha) unsignedinteger: specify the alignment of the heap (default: %" PRIYSMUI " bytes)\n",comp_attr.heap_alignment);
       fprintf(stderr,"    --stack-size (-ssz) unsignedinteger: specify the stack size (default: %" PRINVMxUNS ")\n",comp_attr.stack_size);
       fprintf(stderr,"    --heap-size (-hsz) unsignedinteger: specify the heap size (default: %" PRINVMxUNS ")\n",comp_attr.heap_size);
       fprintf(stderr,"    --credits (-c): display license information and quit\n");
@@ -404,7 +404,7 @@ int main(int argc, char *argv[]){
       return 1;
     }
   }
-  nightVM_l address=0;
+  ysm_l address=0;
   translation_unit_list *l_tu=tu_list;
   while(l_tu!=NULL){
     sym_table *t_symbol_table=create_sym_table(&last_symbol_table_node,symbol_table,l_tu->tu,string_table,libraries,&address,&ret);

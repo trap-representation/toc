@@ -24,7 +24,7 @@
 
 #include LIB_NVM_IMPLEMENTATION_H
 
-#define dl_params int argc, char **argv, nightVM_l *stack, void **code, nightVM_ui code_alignment, void **heap, nightVM_ui heap_alignment, nightVM_l reg_ssz_val, nightVM_l *reg_hsz_val, nightVM_l *reg_sp_val, nightVM_l *reg_cs_val, nightVM_l reg_pc_val, nightVM_l reg_lop_val, nightVM_l *call_stack, nightVM_l reg_clp_val, nightVM_l *gpr
+#define dl_params int argc, char **argv, ysm_l *stack, void **code, ysm_ui code_alignment, void **heap, ysm_ui heap_alignment, ysm_l reg_ssz_val, ysm_l *reg_hsz_val, ysm_l *reg_sp_val, ysm_l *reg_cs_val, ysm_l reg_pc_val, ysm_l reg_lop_val, ysm_l *call_stack, ysm_l reg_clp_val, ysm_l *gpr
 
 #define dl_pass argc,argv,stack,code,code_alignment,heap,heap_alignment,reg_ssz_val,reg_hsz_val,reg_sp_val,reg_cs_val,reg_pc_val,reg_lop_val,call_stack,reg_clp_val,gpr
 
@@ -35,15 +35,15 @@
 
 #define TYP_HEAP 0x4000000000000000
 
-static nightVM_l tag_heap(nightVM_l ptr){
+static ysm_l tag_heap(ysm_l ptr){
   return ptr|0x4000000000000000;
 }
 
-static nightVM_l ptr_typ(nightVM_l ptr){
+static ysm_l ptr_typ(ysm_l ptr){
   return ptr&0x4000000000000000;
 }
 
-static nightVM_l rem_tag(nightVM_l ptr){
+static ysm_l rem_tag(ysm_l ptr){
   if(ptr_typ(ptr)==TYP_HEAP){
     return ptr&0x3fffffffffffffff;
   }
@@ -87,7 +87,7 @@ char *errors[]={"success\n", "internal error\n", "heap overflow\n", "print error
 void perr(dl_params){
   char *s;
   if(ptr_typ(stack[*reg_sp_val-1])==TYP_HEAP){
-    if((s=cseq2str(&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-1])]))==NULL){
+    if((s=cseq2str(&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-1])]))==NULL){
       errn=EALLOC;
       gpr[0]=Chlore_EOF;
       *reg_sp_val-=1;
@@ -95,7 +95,7 @@ void perr(dl_params){
     }
   }
   else{
-    if((s=cseq2str(&((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val-1])]))==NULL){
+    if((s=cseq2str(&((ysm_c *)*code)[rem_tag(stack[*reg_sp_val-1])]))==NULL){
       errn=EALLOC;
       gpr[0]=Chlore_EOF;
       *reg_sp_val-=1;
@@ -122,7 +122,7 @@ void perr(dl_params){
 
 void str_err(dl_params){
   stack[*reg_sp_val-2]=rem_tag(stack[*reg_sp_val-2]);
-  cseqcpystr(&((nightVM_c *)*heap)[stack[*reg_sp_val-2]],errors[errn],stack[*reg_sp_val-1]);
+  cseqcpystr(&((ysm_c *)*heap)[stack[*reg_sp_val-2]],errors[errn],stack[*reg_sp_val-1]);
   gpr[0]=0;
   *reg_sp_val-=2;
 }
@@ -138,7 +138,7 @@ void get_errn(dl_params){
 */
 
 typedef struct list_alloc{
-  nightVM_l addr;
+  ysm_l addr;
   size_t size;
   bool is_free;
   struct list_alloc *next_seg;
@@ -342,7 +342,7 @@ void aaseg(dl_params){
         *reg_sp_val+=1;
         return;
       }
-      nightVM_l aligned_seg_loc=(tot_size+stack[*reg_sp_val+1]-1)-((tot_size+stack[*reg_sp_val+1]-1)%stack[*reg_sp_val+1]);
+      ysm_l aligned_seg_loc=(tot_size+stack[*reg_sp_val+1]-1)-((tot_size+stack[*reg_sp_val+1]-1)%stack[*reg_sp_val+1]);
       if(last_seg->is_free){
         last_seg->size+=aligned_seg_loc-tot_size;
       }
@@ -600,7 +600,7 @@ void rseg(dl_params){
     alist_head->next_seg=NULL;
     alist_head->prev_seg=NULL;
   }
-  nightVM_l realloc_seg=0;
+  ysm_l realloc_seg=0;
   if(stack[*reg_sp_val-1]!=NULL_PTR){
     realloc_seg=rem_tag(stack[*reg_sp_val-1]);
     flush(dl_pass); //flush the segment that we want to reallocate first
@@ -646,7 +646,7 @@ void arseg(dl_params){
     alist_head->next_seg=NULL;
     alist_head->prev_seg=NULL;
   }
-  nightVM_l realloc_seg=0;
+  ysm_l realloc_seg=0;
   if(stack[*reg_sp_val-1]!=NULL_PTR){
     realloc_seg=rem_tag(stack[*reg_sp_val-1]);
     flush(dl_pass); //flush the segment that we want to reallocate first
@@ -688,7 +688,7 @@ static void out_p(dl_params, int fd){
   else{
     char efms[1];
     int n;
-    if((n=snprintf(efms,1,"%" PRINVMxUNS,(nightVM_uns)stack[*reg_sp_val-1]))<0){
+    if((n=snprintf(efms,1,"%" PRINVMxUNS,(nightvm_uns)stack[*reg_sp_val-1]))<0){
       gpr[0]=Chlore_EOF;
       errn=EPERR;
       *reg_sp_val-=1;
@@ -701,7 +701,7 @@ static void out_p(dl_params, int fd){
       *reg_sp_val-=1;
       return;
     }
-    if((n=snprintf(fms,n+1,"%" PRINVMxUNS,(nightVM_uns)stack[*reg_sp_val-1]))<0){
+    if((n=snprintf(fms,n+1,"%" PRINVMxUNS,(nightvm_uns)stack[*reg_sp_val-1]))<0){
       free(fms);
       gpr[0]=Chlore_EOF;
       errn=EPERR;
@@ -724,7 +724,7 @@ static void out_p(dl_params, int fd){
 static void out_uc(dl_params, int fd){
   char efms[1];
   int n;
-  if((n=snprintf(efms,1,"%" PRINVMUC,(nightVM_uc)stack[*reg_sp_val-1]))<0){
+  if((n=snprintf(efms,1,"%" PRIYSMUC,(ysm_uc)stack[*reg_sp_val-1]))<0){
     gpr[0]=Chlore_EOF;
     errn=EPERR;
     *reg_sp_val-=1;
@@ -737,7 +737,7 @@ static void out_uc(dl_params, int fd){
     *reg_sp_val-=1;
     return;
   }
-  if((n=snprintf(fms,n+1,"%" PRINVMUC,(nightVM_uc)stack[*reg_sp_val-1]))<0){
+  if((n=snprintf(fms,n+1,"%" PRIYSMUC,(ysm_uc)stack[*reg_sp_val-1]))<0){
     free(fms);
     gpr[0]=Chlore_EOF;
     errn=EPERR;
@@ -759,7 +759,7 @@ static void out_uc(dl_params, int fd){
 static void out_us(dl_params, int fd){
   char efms[1];
   int n;
-  if((n=snprintf(efms,1,"%" PRINVMUS,(nightVM_us)stack[*reg_sp_val-1]))<0){
+  if((n=snprintf(efms,1,"%" PRIYSMUS,(ysm_us)stack[*reg_sp_val-1]))<0){
     gpr[0]=Chlore_EOF;
     errn=EPERR;
     *reg_sp_val-=1;
@@ -772,7 +772,7 @@ static void out_us(dl_params, int fd){
     *reg_sp_val-=1;
     return;
   }
-  if((n=snprintf(fms,n+1,"%" PRINVMUS,(nightVM_us)stack[*reg_sp_val-1]))<0){
+  if((n=snprintf(fms,n+1,"%" PRIYSMUS,(ysm_us)stack[*reg_sp_val-1]))<0){
     free(fms);
     gpr[0]=Chlore_EOF;
     errn=EPERR;
@@ -794,7 +794,7 @@ static void out_us(dl_params, int fd){
 static void out_ui(dl_params, int fd){
   char efms[1];
   int n;
-  if((n=snprintf(efms,1,"%" PRINVMUI,(nightVM_ui)stack[*reg_sp_val-1]))<0){
+  if((n=snprintf(efms,1,"%" PRIYSMUI,(ysm_ui)stack[*reg_sp_val-1]))<0){
     gpr[0]=Chlore_EOF;
     errn=EPERR;
     *reg_sp_val-=1;
@@ -807,7 +807,7 @@ static void out_ui(dl_params, int fd){
     *reg_sp_val-=1;
     return;
   }
-  if((n=snprintf(fms,n+1,"%" PRINVMUI,(nightVM_ui)stack[*reg_sp_val-1]))<0){
+  if((n=snprintf(fms,n+1,"%" PRIYSMUI,(ysm_ui)stack[*reg_sp_val-1]))<0){
     free(fms);
     gpr[0]=Chlore_EOF;
     errn=EPERR;
@@ -829,7 +829,7 @@ static void out_ui(dl_params, int fd){
 static void out_c(dl_params, int fd){
   char efms[1];
   int n;
-  if((n=snprintf(efms,1,"%" PRINVMC,(nightVM_c)stack[*reg_sp_val-1]))<0){
+  if((n=snprintf(efms,1,"%" PRIYSMC,(ysm_c)stack[*reg_sp_val-1]))<0){
     gpr[0]=Chlore_EOF;
     errn=EPERR;
     *reg_sp_val-=1;
@@ -842,7 +842,7 @@ static void out_c(dl_params, int fd){
     *reg_sp_val-=1;
     return;
   }
-  if((n=snprintf(fms,n+1,"%" PRINVMC,(nightVM_c)stack[*reg_sp_val-1]))<0){
+  if((n=snprintf(fms,n+1,"%" PRIYSMC,(ysm_c)stack[*reg_sp_val-1]))<0){
     free(fms);
     gpr[0]=Chlore_EOF;
     errn=EPERR;
@@ -864,7 +864,7 @@ static void out_c(dl_params, int fd){
 static void out_s(dl_params, int fd){
   char efms[1];
   int n;
-  if((n=snprintf(efms,1,"%" PRINVMS,(nightVM_s)stack[*reg_sp_val-1]))<0){
+  if((n=snprintf(efms,1,"%" PRIYSMS,(ysm_s)stack[*reg_sp_val-1]))<0){
     gpr[0]=Chlore_EOF;
     errn=EPERR;
     *reg_sp_val-=1;
@@ -877,7 +877,7 @@ static void out_s(dl_params, int fd){
     *reg_sp_val-=1;
     return;
   }
-  if((n=snprintf(fms,n+1,"%" PRINVMS,(nightVM_s)stack[*reg_sp_val-1]))<0){
+  if((n=snprintf(fms,n+1,"%" PRIYSMS,(ysm_s)stack[*reg_sp_val-1]))<0){
     free(fms);
     gpr[0]=Chlore_EOF;
     errn=EPERR;
@@ -899,7 +899,7 @@ static void out_s(dl_params, int fd){
 static void out_i(dl_params, int fd){
   char efms[1];
   int n;
-  if((n=snprintf(efms,1,"%" PRINVMI,(nightVM_i)stack[*reg_sp_val-1]))<0){
+  if((n=snprintf(efms,1,"%" PRIYSMI,(ysm_i)stack[*reg_sp_val-1]))<0){
     gpr[0]=Chlore_EOF;
     errn=EPERR;
     *reg_sp_val-=1;
@@ -912,7 +912,7 @@ static void out_i(dl_params, int fd){
     *reg_sp_val-=1;
     return;
   }
-  if((n=snprintf(fms,n+1,"%" PRINVMI,(nightVM_i)stack[*reg_sp_val-1]))<0){
+  if((n=snprintf(fms,n+1,"%" PRIYSMI,(ysm_i)stack[*reg_sp_val-1]))<0){
     free(fms);
     gpr[0]=Chlore_EOF;
     errn=EPERR;
@@ -934,7 +934,7 @@ static void out_i(dl_params, int fd){
 static void out_l(dl_params, int fd){
   char efms[1];
   int n;
-  if((n=snprintf(efms,1,"%" PRINVML,(nightVM_l)stack[*reg_sp_val-1]))<0){
+  if((n=snprintf(efms,1,"%" PRIYSML,(ysm_l)stack[*reg_sp_val-1]))<0){
     gpr[0]=Chlore_EOF;
     errn=EPERR;
     *reg_sp_val-=1;
@@ -947,7 +947,7 @@ static void out_l(dl_params, int fd){
     *reg_sp_val-=1;
     return;
   }
-  if((n=snprintf(fms,n+1,"%" PRINVML,(nightVM_l)stack[*reg_sp_val-1]))<0){
+  if((n=snprintf(fms,n+1,"%" PRIYSML,(ysm_l)stack[*reg_sp_val-1]))<0){
     free(fms);
     gpr[0]=Chlore_EOF;
     errn=EPERR;
@@ -1077,20 +1077,20 @@ void scanin_str(dl_params){
   gpr[0]=0;
   int in;
   if(stack[*reg_sp_val-2]>0){
-    ((nightVM_c *)*heap)[stack[*reg_sp_val-1]]=0;
+    ((ysm_c *)*heap)[stack[*reg_sp_val-1]]=0;
   }
   else{
     return;
   }
-  for(nightVM_l i=0;i<stack[*reg_sp_val-2];i++){
+  for(ysm_l i=0;i<stack[*reg_sp_val-2];i++){
     if((in=fgetc(stdin))==EOF || in=='\n' || in=='\r'){
-      ((nightVM_c *)*heap)[stack[*reg_sp_val-1]+i]='\n';
-      ((nightVM_c *)*heap)[stack[*reg_sp_val-1]+i+1]=0;
+      ((ysm_c *)*heap)[stack[*reg_sp_val-1]+i]='\n';
+      ((ysm_c *)*heap)[stack[*reg_sp_val-1]+i+1]=0;
       break;
     }
     else{
-      ((nightVM_c *)*heap)[stack[*reg_sp_val-1]+i]=in;
-      ((nightVM_c *)*heap)[stack[*reg_sp_val-1]+i+1]=0;
+      ((ysm_c *)*heap)[stack[*reg_sp_val-1]+i]=in;
+      ((ysm_c *)*heap)[stack[*reg_sp_val-1]+i+1]=0;
       gpr[0]++;
     }
   }
@@ -1153,14 +1153,14 @@ void write_file(dl_params){
     *reg_sp_val-=3;
     return;
   }
-  nightVM_uc *read_from;
+  ysm_uc *read_from;
   if(ptr_typ(stack[*reg_sp_val-2])==TYP_HEAP){
-    read_from=(nightVM_uc *)*heap;
+    read_from=(ysm_uc *)*heap;
   }
   else{
-    read_from=(nightVM_uc *)*code;
+    read_from=(ysm_uc *)*code;
   }
-  for(nightVM_l i=0;i<stack[*reg_sp_val-1];i++){
+  for(ysm_l i=0;i<stack[*reg_sp_val-1];i++){
     write_buf[i]=read_from[rem_tag(stack[*reg_sp_val-2])+i];
   }
   gpr[0]=write(stack[*reg_sp_val-3],write_buf,stack[*reg_sp_val-1]);
@@ -1173,17 +1173,17 @@ void write_file(dl_params){
 
 void writestr_file(dl_params){
   char c;
-  for(nightVM_l i=0;i<stack[*reg_sp_val-1];i++){
+  for(ysm_l i=0;i<stack[*reg_sp_val-1];i++){
     if(ptr_typ(stack[*reg_sp_val-2])==TYP_HEAP){
-      c=((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-2])+i];
+      c=((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-2])+i];
     }
     else{
-      c=((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val-2])+i];
+      c=((ysm_c *)*code)[rem_tag(stack[*reg_sp_val-2])+i];
     }
     if(c==0){
       break;
     }
-    nightVM_i wr=write(stack[*reg_sp_val-3],&c,1);
+    ysm_i wr=write(stack[*reg_sp_val-3],&c,1);
     if(wr==-1){
       gpr[0]=-1;
       errn=EWRITE;
@@ -1215,8 +1215,8 @@ void read_file(dl_params){
     if(gpr[0]==-1){
       errn=EREAD;
     }
-    for(nightVM_l i=0;i<stack[*reg_sp_val-1];i++){
-      ((nightVM_uc *)*heap)[stack[*reg_sp_val-2]+i]=read_buf[i];
+    for(ysm_l i=0;i<stack[*reg_sp_val-1];i++){
+      ((ysm_uc *)*heap)[stack[*reg_sp_val-2]+i]=read_buf[i];
     }
     free(read_buf);
     *reg_sp_val-=3;
@@ -1225,14 +1225,14 @@ void read_file(dl_params){
     gpr[0]=0;
     int in;
     if(stack[*reg_sp_val-1]>0){
-      ((nightVM_uc *)*heap)[stack[*reg_sp_val-2]]=0;
+      ((ysm_uc *)*heap)[stack[*reg_sp_val-2]]=0;
     }
     else{
       return;
     }
-    for(nightVM_l i=0;i<stack[*reg_sp_val-1];i++){
+    for(ysm_l i=0;i<stack[*reg_sp_val-1];i++){
       if((in=fgetc(stdin))!=EOF){
-        ((nightVM_uc *)*heap)[stack[*reg_sp_val-2]+i]=in;
+        ((ysm_uc *)*heap)[stack[*reg_sp_val-2]+i]=in;
         gpr[0]++;
       }
       else{
@@ -1261,9 +1261,9 @@ void readstr_file(dl_params){
     if(gpr[0]==-1){
       errn=EREAD;
     }
-    for(nightVM_l i=0;i<stack[*reg_sp_val-1];i++){
-      ((nightVM_c *)*heap)[stack[*reg_sp_val-2]+i]=read_buf[i];
-      ((nightVM_c *)*heap)[stack[*reg_sp_val-2]+i+1]=0;
+    for(ysm_l i=0;i<stack[*reg_sp_val-1];i++){
+      ((ysm_c *)*heap)[stack[*reg_sp_val-2]+i]=read_buf[i];
+      ((ysm_c *)*heap)[stack[*reg_sp_val-2]+i+1]=0;
     }
     free(read_buf);
     *reg_sp_val-=3;
@@ -1272,15 +1272,15 @@ void readstr_file(dl_params){
     gpr[0]=0;
     int in;
     if(stack[*reg_sp_val-1]>0){
-      ((nightVM_c *)*heap)[stack[*reg_sp_val-2]]=0;
+      ((ysm_c *)*heap)[stack[*reg_sp_val-2]]=0;
     }
     else{
       return;
     }
-    for(nightVM_l i=0;i<stack[*reg_sp_val-1];i++){
+    for(ysm_l i=0;i<stack[*reg_sp_val-1];i++){
       if((in=fgetc(stdin))!=EOF){
-        ((nightVM_c *)*heap)[stack[*reg_sp_val-2]+i]=in;
-        ((nightVM_c *)*heap)[stack[*reg_sp_val-2]+i+1]=0;
+        ((ysm_c *)*heap)[stack[*reg_sp_val-2]+i]=in;
+        ((ysm_c *)*heap)[stack[*reg_sp_val-2]+i+1]=0;
         gpr[0]++;
       }
       else{
@@ -1306,21 +1306,21 @@ void get_argc(dl_params){
 }
 
 void get_argv(dl_params){
-  cseqcpystr(&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-3])],argv[stack[*reg_sp_val-2]],stack[*reg_sp_val-1]);
+  cseqcpystr(&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-3])],argv[stack[*reg_sp_val-2]],stack[*reg_sp_val-1]);
   gpr[0]=0;
   *reg_sp_val-=3;
 }
 
 static void print_n_str_fd(dl_params, int fd){
   gpr[0]=0;
-  nightVM_c *read_from;
+  ysm_c *read_from;
   if(ptr_typ(stack[*reg_sp_val-1])==TYP_HEAP){
-    read_from=(nightVM_c *)*heap;
+    read_from=(ysm_c *)*heap;
   }
   else{
-    read_from=(nightVM_c *)*code;
+    read_from=(ysm_c *)*code;
   }
-  for(nightVM_l i=0;i<stack[*reg_sp_val-2] && read_from[rem_tag(stack[*reg_sp_val-1])]!=0;i++){
+  for(ysm_l i=0;i<stack[*reg_sp_val-2] && read_from[rem_tag(stack[*reg_sp_val-1])]!=0;i++){
     char c=read_from[rem_tag(stack[*reg_sp_val-1])+i];
     if(write(fd,&c,1)==-1){
       gpr[0]=Chlore_EOF;
@@ -1343,7 +1343,7 @@ void print_n_str(dl_params){
 static void print_str_fd(dl_params, int fd){
   char *s;
   if(ptr_typ(stack[*reg_sp_val-1])==TYP_HEAP){
-    if((s=cseq2str(&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-1])]))==NULL){
+    if((s=cseq2str(&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-1])]))==NULL){
       errn=EALLOC;
       gpr[0]=Chlore_EOF;
       *reg_sp_val-=1;
@@ -1351,7 +1351,7 @@ static void print_str_fd(dl_params, int fd){
     }
   }
   else{
-    if((s=cseq2str(&((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val-1])]))==NULL){
+    if((s=cseq2str(&((ysm_c *)*code)[rem_tag(stack[*reg_sp_val-1])]))==NULL){
       errn=EALLOC;
       gpr[0]=Chlore_EOF;
       *reg_sp_val-=1;
@@ -1382,14 +1382,14 @@ static void print_fmt_fd(dl_params, int fd){
   char *fmt_string=NULL;
   *reg_sp_val-=1;
   if(ptr_typ(stack[*reg_sp_val])==TYP_HEAP){
-    if((fmt_string=cseq2str(&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val])]))==NULL){
+    if((fmt_string=cseq2str(&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val])]))==NULL){
       errn=EALLOC;
       gpr[0]=-1;
       return;
     }
   }
   else{
-    if((fmt_string=cseq2str(&((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val])]))==NULL){
+    if((fmt_string=cseq2str(&((ysm_c *)*code)[rem_tag(stack[*reg_sp_val])]))==NULL){
       errn=EALLOC;
       gpr[0]=-1;
       return;
@@ -1616,7 +1616,7 @@ static void print_fmt_fd(dl_params, int fd){
       char *fms;
       switch(type_specifier){
       case spec_c:
-        if((n=snprintf(efms,1,"%" PRINVMC,(nightVM_c)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(efms,1,"%" PRIYSMC,(ysm_c)stack[*reg_sp_val-1]))<0){
           gpr[0]=-1;
           errn=EPERR;
           *reg_sp_val-=1;
@@ -1628,7 +1628,7 @@ static void print_fmt_fd(dl_params, int fd){
           *reg_sp_val-=1;
           return;
         }
-        if((n=snprintf(fms,n+1,"%" PRINVMC,(nightVM_c)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(fms,n+1,"%" PRIYSMC,(ysm_c)stack[*reg_sp_val-1]))<0){
           free(fms);
           gpr[0]=-1;
           errn=EPERR;
@@ -1646,7 +1646,7 @@ static void print_fmt_fd(dl_params, int fd){
         *reg_sp_val-=1;
         break;
       case spec_s:
-        if((n=snprintf(efms,1,"%" PRINVMS,(nightVM_s)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(efms,1,"%" PRIYSMS,(ysm_s)stack[*reg_sp_val-1]))<0){
           gpr[0]=-1;
           errn=EPERR;
           *reg_sp_val-=1;
@@ -1658,7 +1658,7 @@ static void print_fmt_fd(dl_params, int fd){
           *reg_sp_val-=1;
           return;
         }
-        if((n=snprintf(fms,n+1,"%" PRINVMS,(nightVM_s)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(fms,n+1,"%" PRIYSMS,(ysm_s)stack[*reg_sp_val-1]))<0){
           free(fms);
           gpr[0]=-1;
           errn=EPERR;
@@ -1675,7 +1675,7 @@ static void print_fmt_fd(dl_params, int fd){
         *reg_sp_val-=1;
         break;
       case spec_i:
-        if((n=snprintf(efms,1,"%" PRINVMI,(nightVM_i)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(efms,1,"%" PRIYSMI,(ysm_i)stack[*reg_sp_val-1]))<0){
           gpr[0]=-1;
           errn=EPERR;
           *reg_sp_val-=1;
@@ -1687,7 +1687,7 @@ static void print_fmt_fd(dl_params, int fd){
           *reg_sp_val-=1;
           return;
         }
-        if((n=snprintf(fms,n+1,"%" PRINVMI,(nightVM_i)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(fms,n+1,"%" PRIYSMI,(ysm_i)stack[*reg_sp_val-1]))<0){
           free(fms);
           gpr[0]=-1;
           errn=EPERR;
@@ -1705,7 +1705,7 @@ static void print_fmt_fd(dl_params, int fd){
         *reg_sp_val-=1;
         break;
       case spec_l:
-        if((n=snprintf(efms,1,"%" PRINVML,(nightVM_l)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(efms,1,"%" PRIYSML,(ysm_l)stack[*reg_sp_val-1]))<0){
           gpr[0]=-1;
           errn=EPERR;
           *reg_sp_val-=1;
@@ -1717,7 +1717,7 @@ static void print_fmt_fd(dl_params, int fd){
           *reg_sp_val-=1;
           return;
         }
-        if((n=snprintf(fms,n+1,"%" PRINVML,(nightVM_l)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(fms,n+1,"%" PRIYSML,(ysm_l)stack[*reg_sp_val-1]))<0){
           free(fms);
           gpr[0]=-1;
           errn=EPERR;
@@ -1754,7 +1754,7 @@ static void print_fmt_fd(dl_params, int fd){
         }
         break;
       case spec_uc:
-        if((n=snprintf(efms,1,"%" PRINVMUC,(nightVM_uc)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(efms,1,"%" PRIYSMUC,(ysm_uc)stack[*reg_sp_val-1]))<0){
           gpr[0]=-1;
           errn=EPERR;
           *reg_sp_val-=1;
@@ -1766,7 +1766,7 @@ static void print_fmt_fd(dl_params, int fd){
           *reg_sp_val-=1;
           return;
         }
-        if((n=snprintf(fms,n+1,"%" PRINVMUC,(nightVM_uc)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(fms,n+1,"%" PRIYSMUC,(ysm_uc)stack[*reg_sp_val-1]))<0){
           free(fms);
           gpr[0]=-1;
           errn=EPERR;
@@ -1784,7 +1784,7 @@ static void print_fmt_fd(dl_params, int fd){
         *reg_sp_val-=1;
         break;
       case spec_us:
-        if((n=snprintf(efms,1,"%" PRINVMUS,(nightVM_us)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(efms,1,"%" PRIYSMUS,(ysm_us)stack[*reg_sp_val-1]))<0){
           gpr[0]=-1;
           errn=EPERR;
           *reg_sp_val-=1;
@@ -1796,7 +1796,7 @@ static void print_fmt_fd(dl_params, int fd){
           *reg_sp_val-=1;
           return;
         }
-        if((n=snprintf(fms,n+1,"%" PRINVMUS,(nightVM_us)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(fms,n+1,"%" PRIYSMUS,(ysm_us)stack[*reg_sp_val-1]))<0){
           free(fms);
           gpr[0]=-1;
           errn=EPERR;
@@ -1814,7 +1814,7 @@ static void print_fmt_fd(dl_params, int fd){
         *reg_sp_val-=1;
         break;
       case spec_ui:
-        if((n=snprintf(efms,1,"%" PRINVMUI,(nightVM_ui)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(efms,1,"%" PRIYSMUI,(ysm_ui)stack[*reg_sp_val-1]))<0){
           gpr[0]=-1;
           errn=EPERR;
           *reg_sp_val-=1;
@@ -1826,7 +1826,7 @@ static void print_fmt_fd(dl_params, int fd){
           *reg_sp_val-=1;
           return;
         }
-        if((n=snprintf(fms,n+1,"%" PRINVMUI,(nightVM_ui)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(fms,n+1,"%" PRIYSMUI,(ysm_ui)stack[*reg_sp_val-1]))<0){
           free(fms);
           gpr[0]=-1;
           errn=EPERR;
@@ -1844,7 +1844,7 @@ static void print_fmt_fd(dl_params, int fd){
         *reg_sp_val-=1;
         break;
       case spec_xc:
-        if((n=snprintf(efms,1,"%" PRINVMxUC,(nightVM_uc)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(efms,1,"%" PRIYSMxUC,(ysm_uc)stack[*reg_sp_val-1]))<0){
           gpr[0]=-1;
           errn=EPERR;
           *reg_sp_val-=1;
@@ -1856,7 +1856,7 @@ static void print_fmt_fd(dl_params, int fd){
           *reg_sp_val-=1;
           return;
         }
-        if((n=snprintf(fms,n+1,"%" PRINVMxUC,(nightVM_uc)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(fms,n+1,"%" PRIYSMxUC,(ysm_uc)stack[*reg_sp_val-1]))<0){
           free(fms);
           gpr[0]=-1;
           errn=EPERR;
@@ -1874,7 +1874,7 @@ static void print_fmt_fd(dl_params, int fd){
         *reg_sp_val-=1;
         break;
       case spec_xs:
-        if((n=snprintf(efms,1,"%" PRINVMxUS,(nightVM_us)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(efms,1,"%" PRIYSMxUS,(ysm_us)stack[*reg_sp_val-1]))<0){
           gpr[0]=-1;
           errn=EPERR;
           *reg_sp_val-=1;
@@ -1886,7 +1886,7 @@ static void print_fmt_fd(dl_params, int fd){
           *reg_sp_val-=1;
           return;
         }
-        if((n=snprintf(fms,n+1,"%" PRINVMxUS,(nightVM_us)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(fms,n+1,"%" PRIYSMxUS,(ysm_us)stack[*reg_sp_val-1]))<0){
           free(fms);
           gpr[0]=-1;
           errn=EPERR;
@@ -1903,7 +1903,7 @@ static void print_fmt_fd(dl_params, int fd){
         free(fms);
         *reg_sp_val-=1;
       case spec_xi:
-        if((n=snprintf(efms,1,"%" PRINVMxUI,(nightVM_ui)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(efms,1,"%" PRIYSMxUI,(ysm_ui)stack[*reg_sp_val-1]))<0){
           gpr[0]=-1;
           errn=EPERR;
           *reg_sp_val-=1;
@@ -1915,7 +1915,7 @@ static void print_fmt_fd(dl_params, int fd){
           *reg_sp_val-=1;
           return;
         }
-        if((n=snprintf(fms,n+1,"%" PRINVMxUI,(nightVM_ui)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(fms,n+1,"%" PRIYSMxUI,(ysm_ui)stack[*reg_sp_val-1]))<0){
           free(fms);
           gpr[0]=-1;
           errn=EPERR;
@@ -1932,7 +1932,7 @@ static void print_fmt_fd(dl_params, int fd){
         free(fms);
         *reg_sp_val-=1;
       case spec_oc:
-        if((n=snprintf(efms,1,"%" PRINVMoUC,(nightVM_uc)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(efms,1,"%" PRIYSMoUC,(ysm_uc)stack[*reg_sp_val-1]))<0){
           gpr[0]=-1;
           errn=EPERR;
           *reg_sp_val-=1;
@@ -1944,7 +1944,7 @@ static void print_fmt_fd(dl_params, int fd){
           *reg_sp_val-=1;
           return;
         }
-        if((n=snprintf(fms,n+1,"%" PRINVMoUC,(nightVM_uc)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(fms,n+1,"%" PRIYSMoUC,(ysm_uc)stack[*reg_sp_val-1]))<0){
           free(fms);
           gpr[0]=-1;
           errn=EPERR;
@@ -1961,7 +1961,7 @@ static void print_fmt_fd(dl_params, int fd){
         free(fms);
         *reg_sp_val-=1;
       case spec_os:
-        if((n=snprintf(efms,1,"%" PRINVMoUS,(nightVM_us)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(efms,1,"%" PRIYSMoUS,(ysm_us)stack[*reg_sp_val-1]))<0){
           gpr[0]=-1;
           errn=EPERR;
           *reg_sp_val-=1;
@@ -1973,7 +1973,7 @@ static void print_fmt_fd(dl_params, int fd){
           *reg_sp_val-=1;
           return;
         }
-        if((n=snprintf(fms,n+1,"%" PRINVMoUS,(nightVM_us)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(fms,n+1,"%" PRIYSMoUS,(ysm_us)stack[*reg_sp_val-1]))<0){
           free(fms);
           gpr[0]=-1;
           errn=EPERR;
@@ -1991,7 +1991,7 @@ static void print_fmt_fd(dl_params, int fd){
         *reg_sp_val-=1;
         break;
       case spec_oi:
-        if((n=snprintf(efms,1,"%" PRINVMoUI,(nightVM_ui)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(efms,1,"%" PRIYSMoUI,(ysm_ui)stack[*reg_sp_val-1]))<0){
           gpr[0]=-1;
           errn=EPERR;
           *reg_sp_val-=1;
@@ -2003,7 +2003,7 @@ static void print_fmt_fd(dl_params, int fd){
           *reg_sp_val-=1;
           return;
         }
-        if((n=snprintf(fms,n+1,"%" PRINVMoUI,(nightVM_ui)stack[*reg_sp_val-1]))<0){
+        if((n=snprintf(fms,n+1,"%" PRIYSMoUI,(ysm_ui)stack[*reg_sp_val-1]))<0){
           free(fms);
           gpr[0]=-1;
           errn=EPERR;
@@ -2030,7 +2030,7 @@ static void print_fmt_fd(dl_params, int fd){
           }
         }
         else{
-          if((n=snprintf(efms,1,"%" PRINVMxUNS,(nightVM_uns)stack[*reg_sp_val-1]))<0){
+          if((n=snprintf(efms,1,"%" PRINVMxUNS,(nightvm_uns)stack[*reg_sp_val-1]))<0){
             gpr[0]=Chlore_EOF;
             errn=EPERR;
             *reg_sp_val-=1;
@@ -2043,7 +2043,7 @@ static void print_fmt_fd(dl_params, int fd){
             *reg_sp_val-=1;
             return;
           }
-          if((n=snprintf(fms,n+1,"%" PRINVMxUNS,(nightVM_uns)stack[*reg_sp_val-1]))<0){
+          if((n=snprintf(fms,n+1,"%" PRINVMxUNS,(nightvm_uns)stack[*reg_sp_val-1]))<0){
             free(fms);
             gpr[0]=Chlore_EOF;
             errn=EPERR;
@@ -2085,31 +2085,31 @@ void print_fmt_err(dl_params){
 }
 
 void remove_file(dl_params){
-  nightVM_c *s;
+  ysm_c *s;
   if(ptr_typ(stack[*reg_sp_val-1])==TYP_HEAP){
-    s=&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-1])];
+    s=&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-1])];
   }
   else{
-    s=&((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val-1])];
+    s=&((ysm_c *)*code)[rem_tag(stack[*reg_sp_val-1])];
   }
   gpr[0]=remove(s);
   stack[*reg_sp_val-1]=gpr[0];
 }
 
 void rename_file(dl_params){
-  nightVM_c *new;
+  ysm_c *new;
   if(ptr_typ(stack[*reg_sp_val-1])==TYP_HEAP){
-    new=&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-1])];
+    new=&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-1])];
   }
   else{
-    new=&((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val-1])];
+    new=&((ysm_c *)*code)[rem_tag(stack[*reg_sp_val-1])];
   }
-  nightVM_c *old;
+  ysm_c *old;
   if(ptr_typ(stack[*reg_sp_val-1])==TYP_HEAP){
-    old=&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-2])];
+    old=&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-2])];
   }
   else{
-    old=&((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val-2])];
+    old=&((ysm_c *)*code)[rem_tag(stack[*reg_sp_val-2])];
   }
   gpr[0]=rename(old,new);
   stack[*reg_sp_val-2]=gpr[0];
@@ -2119,7 +2119,7 @@ void rename_file(dl_params){
 void open_file(dl_params){
   char *s;
   if(ptr_typ(stack[*reg_sp_val-2])==TYP_HEAP){
-    if((s=cseq2str(&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-2])]))==NULL){
+    if((s=cseq2str(&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-2])]))==NULL){
       errn=EALLOC;
       gpr[0]=-1;
       *reg_sp_val-=1;
@@ -2127,7 +2127,7 @@ void open_file(dl_params){
     }
   }
   else{
-    if((s=cseq2str(&((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val-2])]))==NULL){
+    if((s=cseq2str(&((ysm_c *)*code)[rem_tag(stack[*reg_sp_val-2])]))==NULL){
       errn=EALLOC;
       gpr[0]=-1;
       *reg_sp_val-=1;
@@ -2144,8 +2144,8 @@ void open_file(dl_params){
 }
 
 void scanin_uc(dl_params){
-  nightVM_uc get_uc;
-  gpr[0]=scanf("%" SCNNVMUC,&get_uc);
+  ysm_uc get_uc;
+  gpr[0]=scanf("%" SCNYSMUC,&get_uc);
   stack[*reg_sp_val]=get_uc;
   if(gpr[0]==EOF){
     gpr[0]=Chlore_EOF;
@@ -2155,8 +2155,8 @@ void scanin_uc(dl_params){
 }
 
 void scanin_us(dl_params){
-  nightVM_us get_us;
-  gpr[0]=scanf("%" SCNNVMUS,&get_us);
+  ysm_us get_us;
+  gpr[0]=scanf("%" SCNYSMUS,&get_us);
   stack[*reg_sp_val]=get_us;
   if(gpr[0]==EOF){
     gpr[0]=Chlore_EOF;
@@ -2166,8 +2166,8 @@ void scanin_us(dl_params){
 }
 
 void scanin_ui(dl_params){
-  nightVM_ui get_ui;
-  gpr[0]=scanf("%" SCNNVMUI,&get_ui);
+  ysm_ui get_ui;
+  gpr[0]=scanf("%" SCNYSMUI,&get_ui);
   stack[*reg_sp_val]=get_ui;
   if(gpr[0]==EOF){
     gpr[0]=Chlore_EOF;
@@ -2177,8 +2177,8 @@ void scanin_ui(dl_params){
 }
 
 void scanin_c(dl_params){
-  nightVM_c get_c;
-  gpr[0]=scanf("%" SCNNVMC,&get_c);
+  ysm_c get_c;
+  gpr[0]=scanf("%" SCNYSMC,&get_c);
   stack[*reg_sp_val]=get_c;
   if(gpr[0]==EOF){
     gpr[0]=Chlore_EOF;
@@ -2188,8 +2188,8 @@ void scanin_c(dl_params){
 }
 
 void scanin_s(dl_params){
-  nightVM_s get_s;
-  gpr[0]=scanf("%" SCNNVMS,&get_s);
+  ysm_s get_s;
+  gpr[0]=scanf("%" SCNYSMS,&get_s);
   stack[*reg_sp_val]=get_s;
   if(gpr[0]==EOF){
     gpr[0]=Chlore_EOF;
@@ -2199,8 +2199,8 @@ void scanin_s(dl_params){
 }
 
 void scanin_i(dl_params){
-  nightVM_i get_i;
-  gpr[0]=scanf("%" SCNNVMI,&get_i);
+  ysm_i get_i;
+  gpr[0]=scanf("%" SCNYSMI,&get_i);
   stack[*reg_sp_val]=get_i;
   if(gpr[0]==EOF){
     gpr[0]=Chlore_EOF;
@@ -2210,7 +2210,7 @@ void scanin_i(dl_params){
 }
 
 void scanin_l(dl_params){
-  gpr[0]=scanf("%" SCNNVML,&stack[*reg_sp_val]);
+  gpr[0]=scanf("%" SCNYSML,&stack[*reg_sp_val]);
   if(gpr[0]==EOF){
     gpr[0]=Chlore_EOF;
     errn=EINP;
@@ -2238,16 +2238,16 @@ void power(dl_params){
 */
 
 void cpy_mem(dl_params){
-  nightVM_uc *s1;
-  nightVM_uc *s2;
+  ysm_uc *s1;
+  ysm_uc *s2;
   if(ptr_typ(stack[*reg_sp_val-2])==TYP_HEAP){
-    s1=&((nightVM_uc *)*heap)[rem_tag(stack[*reg_sp_val-2])];
+    s1=&((ysm_uc *)*heap)[rem_tag(stack[*reg_sp_val-2])];
   }
   else{
-    s1=&((nightVM_uc *)*code)[rem_tag(stack[*reg_sp_val-2])];
+    s1=&((ysm_uc *)*code)[rem_tag(stack[*reg_sp_val-2])];
   }
-  s2=&((nightVM_uc *)*heap)[rem_tag(stack[*reg_sp_val-3])];
-  for(nightVM_l i=0;i<stack[*reg_sp_val-1];i++){
+  s2=&((ysm_uc *)*heap)[rem_tag(stack[*reg_sp_val-3])];
+  for(ysm_l i=0;i<stack[*reg_sp_val-1];i++){
     s2[i]=s1[i];
   }
   gpr[0]=0;
@@ -2255,16 +2255,16 @@ void cpy_mem(dl_params){
 }
 
 void cmp_mem(dl_params){
-  nightVM_uc *s1;
-  nightVM_uc *s2;
+  ysm_uc *s1;
+  ysm_uc *s2;
   if(ptr_typ(stack[*reg_sp_val-2])==TYP_HEAP){
-    s1=&((nightVM_uc *)*heap)[rem_tag(stack[*reg_sp_val-2])];
+    s1=&((ysm_uc *)*heap)[rem_tag(stack[*reg_sp_val-2])];
   }
   else{
-    s1=&((nightVM_uc *)*code)[rem_tag(stack[*reg_sp_val-2])];
+    s1=&((ysm_uc *)*code)[rem_tag(stack[*reg_sp_val-2])];
   }
-  s2=&((nightVM_uc *)*heap)[rem_tag(stack[*reg_sp_val-3])];
-  for(nightVM_l i=0;i<stack[*reg_sp_val-1];i++){
+  s2=&((ysm_uc *)*heap)[rem_tag(stack[*reg_sp_val-3])];
+  for(ysm_l i=0;i<stack[*reg_sp_val-1];i++){
     s2[i]=s1[i];
   }
   gpr[0]=0;
@@ -2272,29 +2272,29 @@ void cmp_mem(dl_params){
 }
 
 void set_mem(dl_params){
-  nightVM_uc *cs;
+  ysm_uc *cs;
   if(ptr_typ(stack[*reg_sp_val-3])==TYP_HEAP){
-    cs=&((nightVM_uc *)*heap)[rem_tag(stack[*reg_sp_val-3])];
+    cs=&((ysm_uc *)*heap)[rem_tag(stack[*reg_sp_val-3])];
   }
   else{
-    cs=&((nightVM_uc *)*code)[rem_tag(stack[*reg_sp_val-3])];
+    cs=&((ysm_uc *)*code)[rem_tag(stack[*reg_sp_val-3])];
   }
-  for(nightVM_l i=0;i<stack[*reg_sp_val-1];i++){
+  for(ysm_l i=0;i<stack[*reg_sp_val-1];i++){
     cs[i]=stack[*reg_sp_val-2];
   }
   *reg_sp_val-=3;
 }
 
 void cpy_str(dl_params){
-  nightVM_c *s1;
-  nightVM_c *s2;
+  ysm_c *s1;
+  ysm_c *s2;
   if(ptr_typ(stack[*reg_sp_val-2])==TYP_HEAP){
-    s1=&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-2])];
+    s1=&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-2])];
   }
   else{
-    s1=&((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val-2])];
+    s1=&((ysm_c *)*code)[rem_tag(stack[*reg_sp_val-2])];
   }
-  s2=&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-3])];
+  s2=&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-3])];
   cseqcpycseq(s2,s1,stack[*reg_sp_val-1]);
   gpr[0]=0;
   *reg_sp_val-=3;
@@ -2305,19 +2305,19 @@ void wcpy_str(dl_params){ /* nonstandard! */
 }
 
 void cmp_n_str(dl_params){
-  nightVM_c *s1;
-  nightVM_c *s2;
+  ysm_c *s1;
+  ysm_c *s2;
   if(ptr_typ(stack[*reg_sp_val-2])==TYP_HEAP){
-    s1=&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-2])];
+    s1=&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-2])];
   }
   else{
-    s1=&((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val-2])];
+    s1=&((ysm_c *)*code)[rem_tag(stack[*reg_sp_val-2])];
   }
   if(ptr_typ(stack[*reg_sp_val-3])==TYP_HEAP){
-    s2=&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-3])];
+    s2=&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-3])];
   }
   else{
-    s2=&((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val-3])];
+    s2=&((ysm_c *)*code)[rem_tag(stack[*reg_sp_val-3])];
   }
   size_t s1_len=cseqlen(s1);
   size_t s2_len=cseqlen(s2);
@@ -2338,14 +2338,14 @@ void wcmp_n_str(dl_params){ /* nonstandard! */
 
 void chr_str(dl_params){
   gpr[0]=-1;
-  nightVM_c *s;
+  ysm_c *s;
   if(ptr_typ(stack[*reg_sp_val-1])==TYP_HEAP){
-    s=&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-1])];
+    s=&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-1])];
   }
   else{
-    s=&((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val-1])];
+    s=&((ysm_c *)*code)[rem_tag(stack[*reg_sp_val-1])];
   }
-  for(nightVM_l i=0;s[i]!=0;i++){
+  for(ysm_l i=0;s[i]!=0;i++){
     if(s[i]==stack[*reg_sp_val-2]){
       gpr[0]=i;
       break;
@@ -2361,14 +2361,14 @@ void wchr_str(dl_params){ /* nonstandard! */
 
 void chr_n_str(dl_params){
   gpr[0]=-1;
-  nightVM_c *s;
+  ysm_c *s;
   if(ptr_typ(stack[*reg_sp_val-2])==TYP_HEAP){
-    s=&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-2])];
+    s=&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-2])];
   }
   else{
-    s=&((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val-2])];
+    s=&((ysm_c *)*code)[rem_tag(stack[*reg_sp_val-2])];
   }
-  for(nightVM_l i=0;i<stack[*reg_sp_val-1] && s[i]!=0;i++){
+  for(ysm_l i=0;i<stack[*reg_sp_val-1] && s[i]!=0;i++){
     if(s[i]==stack[*reg_sp_val-3]){
       gpr[0]=i;
       break;
@@ -2383,19 +2383,19 @@ void wchr_n_str(dl_params){ /* nonstandard! */
 }
 
 void cmp_str(dl_params){
-  nightVM_c *s1;
-  nightVM_c *s2;
+  ysm_c *s1;
+  ysm_c *s2;
   if(ptr_typ(stack[*reg_sp_val-1])==TYP_HEAP){
-    s1=&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-1])];
+    s1=&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-1])];
   }
   else{
-    s1=&((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val-1])];
+    s1=&((ysm_c *)*code)[rem_tag(stack[*reg_sp_val-1])];
   }
   if(ptr_typ(stack[*reg_sp_val-2])==TYP_HEAP){
-    s2=&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-2])];
+    s2=&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-2])];
   }
   else{
-    s2=&((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val-2])];
+    s2=&((ysm_c *)*code)[rem_tag(stack[*reg_sp_val-2])];
   }
   gpr[0]=cseqcmpcseq(s1,s2);
   stack[*reg_sp_val-2]=gpr[0];
@@ -2407,38 +2407,38 @@ void wcmp_str(dl_params){ /* nonstandard! */
 }
 
 void byte_count(dl_params){
-  nightVM_c *s;
+  ysm_c *s;
   if(ptr_typ(stack[*reg_sp_val-1])==TYP_HEAP){
-    s=&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-1])];
+    s=&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-1])];
   }
   else{
-    s=&((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val-1])];
+    s=&((ysm_c *)*code)[rem_tag(stack[*reg_sp_val-1])];
   }
   gpr[0]=cseqlen(s);
   stack[*reg_sp_val-1]=gpr[0];
 }
 
 void str_len(dl_params){
-  nightVM_c *s;
+  ysm_c *s;
   if(ptr_typ(stack[*reg_sp_val-1])==TYP_HEAP){
-    s=&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-1])];
+    s=&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-1])];
   }
   else{
-    s=&((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val-1])];
+    s=&((ysm_c *)*code)[rem_tag(stack[*reg_sp_val-1])];
   }
   gpr[0]=cseqlen(s);
   stack[*reg_sp_val-1]=gpr[0];
 }
 
 void next_char(dl_params){
-  nightVM_c *s;
+  ysm_c *s;
   if(ptr_typ(stack[*reg_sp_val-1])==TYP_HEAP){
-    s=&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-1])];
+    s=&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-1])];
   }
   else{
-    s=&((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val-1])];
+    s=&((ysm_c *)*code)[rem_tag(stack[*reg_sp_val-1])];
   }
-  gpr[0]=stack[*reg_sp_val-1]+sizeof(nightVM_c);
+  gpr[0]=stack[*reg_sp_val-1]+sizeof(ysm_c);
   stack[*reg_sp_val-1]=s[rem_tag(gpr[0])];
 }
 
@@ -2515,12 +2515,12 @@ void set_locale(dl_params){
     *reg_sp_val-=2;
     return;
   }
-  nightVM_c *s;
+  ysm_c *s;
   if(ptr_typ(stack[*reg_sp_val-1])==TYP_HEAP){
-    s=&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-1])];
+    s=&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-1])];
   }
   else{
-    s=&((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val-1])];
+    s=&((ysm_c *)*code)[rem_tag(stack[*reg_sp_val-1])];
   }
   if(!(cseqcmpstr(s,"Chlore")==0 || cseqcmpstr(s,"C")==0 ||(cseqcmpstr(s,"")==0 && (strcmp(native_locale,"Chlore")==0 || strcmp(native_locale,"C")==0)))){
     gpr[0]=-1;
@@ -2533,43 +2533,43 @@ void set_locale(dl_params){
 }
 
 void filllctable(dl_params){
-  nightVM_c *ch=&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-1])];
-  nightVM_l ptr;
-  nightVM_c cmax=CHAR_MAX;
-  memcpy(&ptr,&ch[offset_locale_lctable_decimal_point],sizeof(nightVM_l));
+  ysm_c *ch=&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-1])];
+  ysm_l ptr;
+  ysm_c cmax=CHAR_MAX;
+  memcpy(&ptr,&ch[offset_locale_lctable_decimal_point],sizeof(ysm_l));
   cseqcpystr(&ch[rem_tag(ptr)],".",strlen("."));
-  memcpy(&ptr,&ch[offset_locale_lctable_thousands_sep],sizeof(nightVM_l));
+  memcpy(&ptr,&ch[offset_locale_lctable_thousands_sep],sizeof(ysm_l));
   cseqcpystr(&ch[rem_tag(ptr)],"",strlen(""));
-  memcpy(&ptr,&ch[offset_locale_lctable_grouping],sizeof(nightVM_l));
+  memcpy(&ptr,&ch[offset_locale_lctable_grouping],sizeof(ysm_l));
   cseqcpystr(&ch[rem_tag(ptr)],"",strlen(""));
-  memcpy(&ptr,&ch[offset_locale_lctable_mon_decimal_point],sizeof(nightVM_l));
+  memcpy(&ptr,&ch[offset_locale_lctable_mon_decimal_point],sizeof(ysm_l));
   cseqcpystr(&ch[rem_tag(ptr)],"",strlen(""));
-  memcpy(&ptr,&ch[offset_locale_lctable_mon_thousands_sep],sizeof(nightVM_l));
+  memcpy(&ptr,&ch[offset_locale_lctable_mon_thousands_sep],sizeof(ysm_l));
   cseqcpystr(&ch[rem_tag(ptr)],"",strlen(""));
-  memcpy(&ptr,&ch[offset_locale_lctable_mon_grouping],sizeof(nightVM_l));
+  memcpy(&ptr,&ch[offset_locale_lctable_mon_grouping],sizeof(ysm_l));
   cseqcpystr(&ch[rem_tag(ptr)],"",strlen(""));
-  memcpy(&ptr,&ch[offset_locale_lctable_positive_sign],sizeof(nightVM_l));
+  memcpy(&ptr,&ch[offset_locale_lctable_positive_sign],sizeof(ysm_l));
   cseqcpystr(&ch[rem_tag(ptr)],"",strlen(""));
-  memcpy(&ptr,&ch[offset_locale_lctable_negative_sign],sizeof(nightVM_l));
+  memcpy(&ptr,&ch[offset_locale_lctable_negative_sign],sizeof(ysm_l));
   cseqcpystr(&ch[rem_tag(ptr)],"",strlen(""));
-  memcpy(&ptr,&ch[offset_locale_lctable_currency_symbol],sizeof(nightVM_l));
+  memcpy(&ptr,&ch[offset_locale_lctable_currency_symbol],sizeof(ysm_l));
   cseqcpystr(&ch[rem_tag(ptr)],"",strlen(""));
-  memcpy(&ch[offset_locale_lctable_frac_digits],&cmax,sizeof(nightVM_c));
-  memcpy(&ch[offset_locale_lctable_p_cs_precedes],&cmax,sizeof(nightVM_c));
-  memcpy(&ch[offset_locale_lctable_n_cs_precedes],&cmax,sizeof(nightVM_c));
-  memcpy(&ch[offset_locale_lctable_p_sep_by_space],&cmax,sizeof(nightVM_c));
-  memcpy(&ch[offset_locale_lctable_n_sep_by_space],&cmax,sizeof(nightVM_c));
-  memcpy(&ch[offset_locale_lctable_p_sign_posn],&cmax,sizeof(nightVM_c));
-  memcpy(&ch[offset_locale_lctable_n_sign_posn],&cmax,sizeof(nightVM_c));
-  memcpy(&ptr,&ch[offset_locale_lctable_int_curr_symbol],sizeof(nightVM_l));
+  memcpy(&ch[offset_locale_lctable_frac_digits],&cmax,sizeof(ysm_c));
+  memcpy(&ch[offset_locale_lctable_p_cs_precedes],&cmax,sizeof(ysm_c));
+  memcpy(&ch[offset_locale_lctable_n_cs_precedes],&cmax,sizeof(ysm_c));
+  memcpy(&ch[offset_locale_lctable_p_sep_by_space],&cmax,sizeof(ysm_c));
+  memcpy(&ch[offset_locale_lctable_n_sep_by_space],&cmax,sizeof(ysm_c));
+  memcpy(&ch[offset_locale_lctable_p_sign_posn],&cmax,sizeof(ysm_c));
+  memcpy(&ch[offset_locale_lctable_n_sign_posn],&cmax,sizeof(ysm_c));
+  memcpy(&ptr,&ch[offset_locale_lctable_int_curr_symbol],sizeof(ysm_l));
   cseqcpystr(&ch[rem_tag(ptr)],"",strlen(""));
-  memcpy(&ch[offset_locale_lctable_int_frac_digits],&cmax,sizeof(nightVM_c));
-  memcpy(&ch[offset_locale_lctable_int_p_cs_precedes],&cmax,sizeof(nightVM_c));
-  memcpy(&ch[offset_locale_lctable_int_n_cs_precedes],&cmax,sizeof(nightVM_c));
-  memcpy(&ch[offset_locale_lctable_int_p_sep_by_space],&cmax,sizeof(nightVM_c));
-  memcpy(&ch[offset_locale_lctable_int_n_sep_by_space],&cmax,sizeof(nightVM_c));
-  memcpy(&ch[offset_locale_lctable_int_p_sign_posn],&cmax,sizeof(nightVM_c));
-  memcpy(&ch[offset_locale_lctable_int_n_sign_posn],&cmax,sizeof(nightVM_c));
+  memcpy(&ch[offset_locale_lctable_int_frac_digits],&cmax,sizeof(ysm_c));
+  memcpy(&ch[offset_locale_lctable_int_p_cs_precedes],&cmax,sizeof(ysm_c));
+  memcpy(&ch[offset_locale_lctable_int_n_cs_precedes],&cmax,sizeof(ysm_c));
+  memcpy(&ch[offset_locale_lctable_int_p_sep_by_space],&cmax,sizeof(ysm_c));
+  memcpy(&ch[offset_locale_lctable_int_n_sep_by_space],&cmax,sizeof(ysm_c));
+  memcpy(&ch[offset_locale_lctable_int_p_sign_posn],&cmax,sizeof(ysm_c));
+  memcpy(&ch[offset_locale_lctable_int_n_sign_posn],&cmax,sizeof(ysm_c));
 }
 
 /*
@@ -2587,12 +2587,12 @@ void create_socket(dl_params){
 }
 
 void sock_connect(dl_params){
-  nightVM_c *css;
+  ysm_c *css;
   if(ptr_typ(stack[*reg_sp_val-7])==TYP_HEAP){
-    css=&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-7])];
+    css=&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-7])];
   }
   else{
-    css=&((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val-7])];
+    css=&((ysm_c *)*code)[rem_tag(stack[*reg_sp_val-7])];
   }
   char *ss=cseq2str(css);
   if(ss==NULL){
@@ -2601,12 +2601,12 @@ void sock_connect(dl_params){
     *reg_sp_val-=7;
     return;
   }
-  nightVM_c *csn;
+  ysm_c *csn;
   if(ptr_typ(stack[*reg_sp_val-6])==TYP_HEAP){
-    csn=&((nightVM_c *)*heap)[rem_tag(stack[*reg_sp_val-6])];
+    csn=&((ysm_c *)*heap)[rem_tag(stack[*reg_sp_val-6])];
   }
   else{
-    csn=&((nightVM_c *)*code)[rem_tag(stack[*reg_sp_val-6])];
+    csn=&((ysm_c *)*code)[rem_tag(stack[*reg_sp_val-6])];
   }
   char *sn=cseq2str(csn);
   if(sn==NULL){
@@ -2663,8 +2663,8 @@ void sock_recv(dl_params){
   if(gpr[0]==-1){
     errn=ERECV;
   }
-  for(nightVM_l i=0;i<stack[*reg_sp_val-1];i++){
-    ((nightVM_uc *)*heap)[stack[*reg_sp_val-2]+i]=read_buf[i];
+  for(ysm_l i=0;i<stack[*reg_sp_val-1];i++){
+    ((ysm_uc *)*heap)[stack[*reg_sp_val-2]+i]=read_buf[i];
   }
   free(read_buf);
   *reg_sp_val-=4;
@@ -2678,14 +2678,14 @@ void sock_send(dl_params){
     *reg_sp_val-=4;
     return;
   }
-  nightVM_uc *read_from;
+  ysm_uc *read_from;
   if(ptr_typ(stack[*reg_sp_val-2])==TYP_HEAP){
-    read_from=(nightVM_uc *)*heap;
+    read_from=(ysm_uc *)*heap;
   }
   else{
-    read_from=(nightVM_uc *)*code;
+    read_from=(ysm_uc *)*code;
   }
-  for(nightVM_l i=0;i<stack[*reg_sp_val-1];i++){
+  for(ysm_l i=0;i<stack[*reg_sp_val-1];i++){
     write_buf[i]=read_from[rem_tag(stack[*reg_sp_val-2])+i];
   }
   gpr[0]=send(stack[*reg_sp_val-4],write_buf,stack[*reg_sp_val-1],stack[*reg_sp_val-3]);
@@ -2709,9 +2709,9 @@ void sock_recvstr(dl_params){
   if(gpr[0]==-1){
     errn=ERECV;
   }
-  for(nightVM_l i=0;i<stack[*reg_sp_val-1];i++){
-    ((nightVM_c *)*heap)[stack[*reg_sp_val-2]+i]=read_buf[i];
-    ((nightVM_c *)*heap)[stack[*reg_sp_val-2]+i+1]=0;
+  for(ysm_l i=0;i<stack[*reg_sp_val-1];i++){
+    ((ysm_c *)*heap)[stack[*reg_sp_val-2]+i]=read_buf[i];
+    ((ysm_c *)*heap)[stack[*reg_sp_val-2]+i+1]=0;
   }
   free(read_buf);
   *reg_sp_val-=4;
@@ -2725,14 +2725,14 @@ void sock_sendstr(dl_params){
     *reg_sp_val-=4;
     return;
   }
-  nightVM_c *read_from;
+  ysm_c *read_from;
   if(ptr_typ(stack[*reg_sp_val-2])==TYP_HEAP){
-    read_from=(nightVM_c *)*heap;
+    read_from=(ysm_c *)*heap;
   }
   else{
-    read_from=(nightVM_c *)*code;
+    read_from=(ysm_c *)*code;
   }
-  for(nightVM_l i=0;i<stack[*reg_sp_val-1];i++){
+  for(ysm_l i=0;i<stack[*reg_sp_val-1];i++){
     write_buf[i]=read_from[rem_tag(stack[*reg_sp_val-2])+i];
   }
   gpr[0]=send(stack[*reg_sp_val-4],write_buf,stack[*reg_sp_val-1],stack[*reg_sp_val-3]);
